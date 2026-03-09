@@ -1,6 +1,19 @@
 package diettracker.db
 
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import diettracker.db.tables.Users
+import diettracker.db.tables.Roles
+import diettracker.db.tables.UserRoles
+import diettracker.db.tables.Clients
+import diettracker.db.tables.Professionals
+import diettracker.db.tables.ClientProfessionalLink
+import diettracker.db.tables.Foods
+import diettracker.db.tables.Recipes
+import diettracker.db.tables.RecipeIngredients
+import diettracker.db.tables.FoodLogs
+import diettracker.db.tables.FoodLogItems
 
 object DatabaseFactory {
     fun init() {
@@ -10,5 +23,20 @@ object DatabaseFactory {
             user = "neondb_owner",
             password = System.getenv("DB_PASSWORD")
         )
+        transaction{
+            SchemaUtils.create(
+                Users,
+                Roles,
+                UserRoles,
+                Clients,
+                Professionals,
+                ClientProfessionalLink,
+                Foods,
+                Recipes,
+                RecipeIngredients,
+                FoodLogs,
+                FoodLogItems,
+            )
+        }
     }
 }
