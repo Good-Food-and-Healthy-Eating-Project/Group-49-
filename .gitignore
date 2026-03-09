@@ -9,3 +9,7 @@ build
 
 # Ignore local Gradle user home/cache directory
 .gradle-user/
+# Ignore alternate local Gradle user home/cache directory
+.gradle-user-home/
+# Ignore local IDE/runtime output directory
+app/bin/
