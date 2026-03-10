@@ -15,7 +15,6 @@
 		color: #111111;
 	}
 
-	/* not implemented */
 	.site-header {
 		display: none;
 	}
@@ -159,4 +158,24 @@
 	</div>
 
 	<div class="layout">
-		<div class="l
+		<div class="left-content">
+			<div class="right-content">
+				<div class="search-bar">search</div>
+				<div class="cards-grid">
+					<div class="recipe-card">recipe</div>
+					<div class="recipe-card">recipe</div>
+					<div class="recipe-card">recipe</div>
+					<div class="recipe-card">recipe</div>
+					<div class="recipe-card">recipe</div>
+					<div class="recipe-card">recipe</div>
+					<div class="recipe-card">recipe</div>
+					<div class="recipe-card">recipe</div>
+					<div class="recipe-card">recipe</div>
+				</div>
+			</div>
+		</div>
+
+		<aside class="favourites">favourites</aside>
+	</div>
+</section>
+{% endblock %}
