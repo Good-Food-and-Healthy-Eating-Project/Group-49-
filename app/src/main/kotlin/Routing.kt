@@ -1,3 +1,6 @@
+package diettracker
+
+import diettracker.db.tables.Users
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -47,7 +50,18 @@ suspend fun ApplicationCall.SignUpPage() {
 }
 
 suspend fun ApplicationCall.SignUpUser() {
-    respond(HttpStatusCode.NotImplemented, "SignUpUser not implemented yet")
+    val credentials = getCredentials{}
+    val result = runCatching{
+        Users.addUser(credentials.email, credentials.password)
+    }
+    if (result.isSuccess) {
+        application.log.info("User ${credentials.email} registered")
+        respondTemplate("auth/signup.peb", model = mapOf("success" to true))
+    }
+    else {
+        val error = result.exceptionOrNull()?.message ?: "Unknown error"
+        respondTemplate("auth/signup.peb", model = mapOf("error" to error))
+    }
 }
 
 suspend fun ApplicationCall.LoginPage() {
@@ -72,24 +86,11 @@ suspend fun ApplicationCall.Logout() {
 
 
 
-private suspend fun ApplicationCall.getCredentials(): UserPasswordCredential {
+
+private suspend fun ApplicationCall.getCredentials(): Pair<String, String> {
     val parameters = receiveParameters()
-    val username = parameters.getOrFail("username")
+    val email = parameters.getOrFail("email")
     val password = parameters.getOrFail("password")
-    return UserPasswordCredential(username, password)
+    return email to password
 }
 
-/* 
-private fun findOrCreateMemberUserId(username: String): Int? {
-    // TODO: Implement database integration here
-    // Example:
-    // return transaction {
-    //     val user = Users.find { UsersTable.name eq username }.firstOrNull()
-    //         ?: Users.new {
-    //             name = username
-    //             email = "${username}@example.com"
-    //         }
-    //     user.id.value
-    // }
-    return null
-}*/
