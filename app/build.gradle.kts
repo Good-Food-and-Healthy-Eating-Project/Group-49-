@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     id("io.ktor.plugin") version "3.3.0"
+    kotlin("plugin.serialization") version "2.2.20"
     application
 }
 
@@ -24,12 +25,14 @@ dependencies {
 
     implementation(libs.postgres)
 
-    implementation("ch.qos.logback:logback-classic:1.5.22")
+    implementation("ch.qos.logback:logback-classic:1.5.25")
 
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("io.ktor:ktor-server-test-host-jvm:3.3.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:2.2.20")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 }
 
 java {
