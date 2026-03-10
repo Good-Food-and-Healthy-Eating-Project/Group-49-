@@ -50,12 +50,14 @@ suspend fun ApplicationCall.SignUpPage() {
 }
 
 suspend fun ApplicationCall.SignUpUser() {
-    val credentials = getCredentials{}
+    val credentials = getCredentials()
+    val email = credentials.first
+    val password = credentials.second
+
     val result = runCatching{
-        Users.addUser(credentials.email, credentials.password)
+        UserDatabase.addUser(email, password)
     }
     if (result.isSuccess) {
-        application.log.info("User ${credentials.email} registered")
         respondTemplate("auth/signup.peb", model = mapOf("success" to true))
     }
     else {
@@ -69,17 +71,27 @@ suspend fun ApplicationCall.LoginPage() {
 }
 
 suspend fun ApplicationCall.LoginUser() {
-    respond(HttpStatusCode.NotImplemented, "LoginUser not implemented yet")
+    val credentials = getCredentials()
+    val email = credentials.first
+    val password = credentials.second
+
+    if(UserDatabase.checkCreds(email, password)){
+        sessions.set(UserSession(email))
+        respondRedirect("/client_dash/client_dash.peb")
+    }
+    else{
+        respondTemplate("auth/login.peb", model = mapOf("error" to "Invalid email or password"))
+    }
 }
 
 suspend fun ApplicationCall.DashboardPage() {
-    val username = sessions.get<UserSession>()?.username ?: ""
+    val username = sessions.get<UserSession>()?.email?.substringBefore("@") ?: ""
     respondTemplate("client_dash/client_dash.peb", mapOf("username" to username))
 }
 
 suspend fun ApplicationCall.Logout() {
-    val username = sessions.get<UserSession>()?.username.toString()
-    application.log.info("User $username logged out")
+    val email = sessions.get<UserSession>()?.email.toString()
+    application.log.info("User $email logged out")
     sessions.clear<UserSession>()
     respondRedirect("/landing_page/landing_page.peb")
 }
