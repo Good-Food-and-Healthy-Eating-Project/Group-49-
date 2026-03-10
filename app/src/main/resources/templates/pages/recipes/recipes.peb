@@ -15,6 +15,7 @@
 		color: #111111;
 	}
 
+	/* not implemented */
 	.site-header {
 		display: none;
 	}
