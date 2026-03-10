@@ -15,7 +15,7 @@
 		color: #111111;
 	}
 
-	/* Hide shared site navbar*/
+	/* not implemented */
 	.site-header {
 		display: none;
 	}
