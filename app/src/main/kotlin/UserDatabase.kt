@@ -9,12 +9,19 @@ import java.time.Instant
 import org.jetbrains.exposed.v1.jdbc.insert
 
 object UserDatabase {
-    fun containsEmail(email: String): Boolean = transaction {
-        //check email and password in here
-        Users
+    fun containsEmail(email: String, password: String): Boolean = transaction {
+        //check email exists and password matches it
+        val emailRow = Users
             .selectAll()
-            .where { Users.email eq email }
+            .where { Users.email eq email.lowercase() }
             .count() > 0
+
+        if(!emailRow){
+            return@transaction false
+        }
+
+        val DBHash = emailRow[Users.password_hash]
+        return@transaction BCrypt.checkpw(password, DBHash)
     }
 
     fun addUser(email: String, password: String): Boolean = transaction {
