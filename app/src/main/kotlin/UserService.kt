@@ -1,7 +1,6 @@
 package diettracker
-import io.ktor.server.auth.UserPasswordCredential
 import java.io.File
-
+import
 const val MAX_EMAIL_LENGTH = 128
 const val MIN_PASSWORD_LENGTH = 8
 
