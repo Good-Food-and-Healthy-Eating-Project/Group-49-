@@ -15,7 +15,7 @@
 		color: #111111;
 	}
 
-	/* Hide shared site navbar for this simple wireframe layout */
+	/* Hide shared site navbar*/
 	.site-header {
 		display: none;
 	}
