@@ -1,0 +1,155 @@
+{% extends "layouts/base.peb" %}
+
+{% block title %}{{ pageTitle | default("Food | Recipes") }}{% endblock %}
+
+{% block head %}
+<style>
+	* {
+		box-sizing: border-box;
+	}
+
+	body {
+		margin: 0;
+		font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+		background: #ffffff;
+		color: #111111;
+	}
+
+	/* Hide shared site navbar for this simple wireframe layout */
+	.site-header {
+		display: none;
+	}
+
+	.recipes-wireframe {
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 1.25rem;
+	}
+
+	.top-row {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		margin-bottom: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.profile-circle {
+		width: 44px;
+		height: 44px;
+		border-radius: 50%;
+		background: #ffffff;
+		border: 2px solid #b9b9b9;
+		flex: 0 0 auto;
+	}
+
+	.top-tab {
+		height: 44px;
+		padding: 0 1rem;
+		background: #ffffff;
+		border: 2px solid #b9b9b9;
+		border-radius: 6px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 0.95rem;
+	}
+
+	.layout {
+		display: grid;
+		grid-template-columns: 250px 1fr;
+		gap: 1rem;
+	}
+
+	.favourites {
+		background: #ffffff;
+		border: 2px solid #b9b9b9;
+		border-radius: 8px;
+		padding: 1rem;
+		min-height: 520px;
+	}
+
+	.right-content {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.search-bar {
+		height: 52px;
+		background: #ffffff;
+		border: 2px solid #b9b9b9;
+		border-radius: 8px;
+		padding: 0.9rem 1rem;
+	}
+
+	.cards-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.8rem;
+	}
+
+	.recipe-card {
+		background: #ffffff;
+		border: 2px solid #b9b9b9;
+		border-radius: 8px;
+		min-height: 115px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 1rem;
+	}
+
+	@media (max-width: 900px) {
+		.layout {
+			grid-template-columns: 1fr;
+		}
+
+		.favourites {
+			min-height: 180px;
+		}
+
+		.cards-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 560px) {
+		.cards-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="recipes-wireframe">
+	<div class="top-row">
+		<div class="profile-circle" aria-hidden="true"></div>
+		<div class="top-tab">food diary</div>
+		<div class="top-tab">recipes</div>
+		<div class="top-tab">plan</div>
+		<div class="top-tab">home</div>
+		<div class="top-tab">messages</div>
+		<div class="top-tab">view professionals</div>
+	</div>
+
+	<div class="layout">
+		<aside class="favourites">favourites</aside>
+
+		<div class="right-content">
+			<div class="search-bar">search</div>
+			<div class="cards-grid">
+				<div class="recipe-card">recipe</div>
+				<div class="recipe-card">recipe</div>
+				<div class="recipe-card">recipe</div>
+				<div class="recipe-card">recipe</div>
+				<div class="recipe-card">recipe</div>
+				<div class="recipe-card">recipe</div>
+				<div class="recipe-card">recipe</div>
+				<div class="recipe-card">recipe</div>
+				<div class="recipe-card">recipe</div>
+			</div>
+		</div>
+	</div>
+</section>
+{% endblock %}

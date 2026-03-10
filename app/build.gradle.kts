@@ -14,6 +14,7 @@ dependencies {
     implementation("io.ktor:ktor-server-call-logging-jvm:2.3.12")
     implementation("io.ktor:ktor-server-status-pages-jvm:2.3.12")
     implementation("io.ktor:ktor-server-config-yaml-jvm:2.3.12")
+    implementation("io.ktor:ktor-server-pebble-jvm:2.3.12")
 
     implementation("io.pebbletemplates:pebble:4.1.1")
 

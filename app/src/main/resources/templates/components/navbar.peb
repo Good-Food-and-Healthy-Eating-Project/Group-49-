@@ -1,0 +1,10 @@
+<header class="site-header">
+	<nav class="site-nav" aria-label="Main navigation">
+		<a href="/" class="brand">Good Food</a>
+		<ul class="nav-links">
+			<li><a href="/recipes" aria-current="page">Recipes</a></li>
+			<li><a href="/">Home</a></li>
+			<li><a href="/health">Health</a></li>
+		</ul>
+	</nav>
+</header>
