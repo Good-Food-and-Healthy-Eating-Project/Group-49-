@@ -75,12 +75,14 @@ suspend fun ApplicationCall.LoginUser() {
     val email = credentials.first
     val password = credentials.second
 
-    if(UserDatabase.checkCreds(email, password)){
-        sessions.set(UserSession(email))
-        respondRedirect("/client_dash/client_dash.peb")
-    }
-    else{
-        respondTemplate("auth/login.peb", model = mapOf("error" to "Invalid email or password"))
+    val result = runCatching { UserDatabase.checkCreds(email, password) }
+    when {
+        result.isFailure -> respondTemplate("auth/login.peb", model = mapOf("error" to "Something went wrong, please try again"))
+        result.getOrDefault(false) -> {
+            sessions.set(UserSession(email))
+            respondRedirect("/client_dash/client_dash.peb")
+        }
+        else -> respondTemplate("auth/login.peb", model = mapOf("error" to "Invalid email or password"))
     }
 }
 
@@ -95,9 +97,6 @@ suspend fun ApplicationCall.Logout() {
     sessions.clear<UserSession>()
     respondRedirect("/landing_page/landing_page.peb")
 }
-
-
-
 
 private suspend fun ApplicationCall.getCredentials(): Pair<String, String> {
     val parameters = receiveParameters()
