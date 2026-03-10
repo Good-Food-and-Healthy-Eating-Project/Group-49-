@@ -1,7 +1,11 @@
 import io.ktor.server.application.*
 import io.ktor.server.pebble.*
-import io.ktor.server.plugins.*
+import io.pebbletemplates.pebble.loader.ClasspathLoader
 
 fun Application.configureTemplating() {
-    install(Pebble)
+    install(Pebble) {
+        loader(ClasspathLoader().apply {
+            prefix = "templates"
+        })
+    }
 }
