@@ -15,7 +15,6 @@
 		color: #111111;
 	}
 
-	/* not implemented */
 	.site-header {
 		display: none;
 	}
@@ -34,39 +33,51 @@
 		flex-wrap: wrap;
 	}
 
+	.top-tabs {
+		display: flex;
+		gap: 0.6rem;
+		flex: 1;
+		flex-wrap: wrap;
+	}
+
 	.profile-circle {
 		width: 44px;
 		height: 44px;
 		border-radius: 50%;
-		background: #ffffff;
-		border: 2px solid #b9b9b9;
+		background: #a0a0a0;
+		border: 2px solid #888888;
 		flex: 0 0 auto;
+		margin-left: auto;
 	}
 
 	.top-tab {
 		height: 44px;
-		padding: 0 1rem;
-		background: #ffffff;
-		border: 2px solid #b9b9b9;
+		flex: 1 1 0;
+		min-width: 80px;
+		background: #f4a96a;
+		border: 2px solid #e08a3c;
 		border-radius: 6px;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		font-size: 0.95rem;
+		font-size: 0.88rem;
+		text-align: center;
+		white-space: nowrap;
 	}
 
 	.layout {
 		display: grid;
-		grid-template-columns: 250px 1fr;
+		grid-template-columns: 1fr 250px;
 		gap: 1rem;
 	}
 
 	.favourites {
-		background: #ffffff;
-		border: 2px solid #b9b9b9;
+		background: #3a6b4a;
+		border: 2px solid #2d5239;
 		border-radius: 8px;
 		padding: 1rem;
 		min-height: 520px;
+		color: #e8f5ec;
 	}
 
 	.right-content {
@@ -85,18 +96,19 @@
 	.cards-grid {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 0.8rem;
+		gap: 1rem;
 	}
 
 	.recipe-card {
-		background: #ffffff;
-		border: 2px solid #b9b9b9;
+		background: #c8ecd4;
+		border: 2px solid #8fcca2;
 		border-radius: 8px;
-		min-height: 115px;
+		min-height: 100px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		font-size: 1rem;
+		font-size: 0.9rem;
+		color: #2a5c38;
 	}
 
 	@media (max-width: 900px) {
@@ -106,6 +118,11 @@
 
 		.favourites {
 			min-height: 180px;
+			order: 2;
+		}
+
+		.left-content {
+			order: 1;
 		}
 
 		.cards-grid {
@@ -114,6 +131,11 @@
 	}
 
 	@media (max-width: 560px) {
+		.top-tab {
+			font-size: 0.78rem;
+			padding: 0 0.5rem;
+		}
+
 		.cards-grid {
 			grid-template-columns: 1fr;
 		}
@@ -124,32 +146,16 @@
 {% block content %}
 <section class="recipes-wireframe">
 	<div class="top-row">
+		<div class="top-tabs">
+			<div class="top-tab">food diary</div>
+			<div class="top-tab">recipes</div>
+			<div class="top-tab">plan</div>
+			<div class="top-tab">home</div>
+			<div class="top-tab">messages</div>
+			<div class="top-tab">view professionals</div>
+		</div>
 		<div class="profile-circle" aria-hidden="true"></div>
-		<div class="top-tab">food diary</div>
-		<div class="top-tab">recipes</div>
-		<div class="top-tab">plan</div>
-		<div class="top-tab">home</div>
-		<div class="top-tab">messages</div>
-		<div class="top-tab">view professionals</div>
 	</div>
 
 	<div class="layout">
-		<aside class="favourites">favourites</aside>
-
-		<div class="right-content">
-			<div class="search-bar">search</div>
-			<div class="cards-grid">
-				<div class="recipe-card">recipe</div>
-				<div class="recipe-card">recipe</div>
-				<div class="recipe-card">recipe</div>
-				<div class="recipe-card">recipe</div>
-				<div class="recipe-card">recipe</div>
-				<div class="recipe-card">recipe</div>
-				<div class="recipe-card">recipe</div>
-				<div class="recipe-card">recipe</div>
-				<div class="recipe-card">recipe</div>
-			</div>
-		</div>
-	</div>
-</section>
-{% endblock %}
+		<div class="l
