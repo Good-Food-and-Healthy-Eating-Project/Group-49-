@@ -11,11 +11,6 @@ fun main(args: Array<String>) {
 fun Application.module() {
     DatabaseFactory.init()
 
-    TemporaryRecipeSeeder.seed(
-        systemUserId = 1,
-        limitPerCategory = 2
-    )
-
     configureAuthentication()
     configureRouting()
     configureTemplates()
