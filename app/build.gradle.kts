@@ -30,6 +30,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("io.ktor:ktor-server-test-host-jvm:3.3.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:2.2.20")
+    testImplementation("com.h2database:h2:2.2.224")
 }
 
 java {
