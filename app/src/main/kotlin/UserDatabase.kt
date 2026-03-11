@@ -10,18 +10,19 @@ import org.mindrot.jbcrypt.BCrypt
 
 object UserDatabase {
     fun checkCreds(email: String, password: String): Boolean = transaction {
-        //check email exists and password matches it
-        val emailRow = Users
-            .selectAll()
-            .where { Users.email eq email.lowercase() }
-            .firstOrNull()
+        runCatching {
+            val emailRow = Users
+                .selectAll()
+                .where { Users.email eq email.lowercase() }
+                .firstOrNull()
 
-        if(emailRow == null){
-            return@transaction false
-        }
-
-        val DBHash = emailRow[Users.password_hash]
-        return@transaction BCrypt.checkpw(password, DBHash)
+            if (emailRow == null) {
+                false
+            } else {
+                val dbHash = emailRow[Users.password_hash]
+                BCrypt.checkpw(password, dbHash)
+            }
+        }.getOrDefault(false)
     }
 
     fun addUser(email: String, password: String): Boolean = transaction {

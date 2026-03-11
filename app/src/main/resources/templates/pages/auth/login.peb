@@ -74,12 +74,12 @@
 	<div class="outer-frame">
 		<div class="inner-frame">
 			<h1 class="title">Login</h1>
-			<p>{{ message }}</p>
+			{% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
 
 			<form action="/Login" method="post">
 				<div class="field-group">
-					<label for="username">username</label>
-					<input id="username" name="username" type="text" required>
+					<label for="email">email</label>
+					<input id="email" name="email" type="email" autocomplete="off" required>
 				</div>
 
 				<div class="field-group">
