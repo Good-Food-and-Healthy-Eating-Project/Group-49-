@@ -55,7 +55,7 @@ class RecipeIngredientsTableTest{
             val foodId = Foods.insert{
                 it[food_name] = "banana"
                 it[calories_per_100g] = BigDecimal("50.10")
-                it[protien_per_100g] = BigDecimal("7.00")
+                it[protein_per_100g] = BigDecimal("7.00")
                 it[carbs_per_100g] = BigDecimal("15.20")
                 it[fat_per_100g] = BigDecimal("2.00")
             }get Foods.food_id
@@ -97,7 +97,7 @@ class RecipeIngredientsTableTest{
             val foodId = Foods.insert{
                 it[food_name] = "banana"
                 it[calories_per_100g] = BigDecimal("50.10")
-                it[protien_per_100g] = BigDecimal("7.00")
+                it[protein_per_100g] = BigDecimal("7.00")
                 it[carbs_per_100g] = BigDecimal("15.20")
                 it[fat_per_100g] = BigDecimal("2.00")
                 }get Foods.food_id
@@ -138,7 +138,7 @@ class RecipeIngredientsTableTest{
             val foodId = Foods.insert{
                 it[food_name] = "banana"
                 it[calories_per_100g] = BigDecimal("50.10")
-                it[protien_per_100g] = BigDecimal("7.00")
+                it[protein_per_100g] = BigDecimal("7.00")
                 it[carbs_per_100g] = BigDecimal("15.20")
                 it[fat_per_100g] = BigDecimal("2.00")
                 }get Foods.food_id
@@ -183,7 +183,7 @@ class RecipeIngredientsTableTest{
             val foodId = Foods.insert{
                 it[food_name] = "banana"
                 it[calories_per_100g] = BigDecimal("50.10")
-                it[protien_per_100g] = BigDecimal("7.00")
+                it[protein_per_100g] = BigDecimal("7.00")
                 it[carbs_per_100g] = BigDecimal("15.20")
                 it[fat_per_100g] = BigDecimal("2.00")
                 }get Foods.food_id
@@ -225,7 +225,7 @@ class RecipeIngredientsTableTest{
             val foodId = Foods.insert{
                 it[food_name] = "banana"
                 it[calories_per_100g] = BigDecimal("50.10")
-                it[protien_per_100g] = BigDecimal("7.00")
+                it[protein_per_100g] = BigDecimal("7.00")
                 it[carbs_per_100g] = BigDecimal("15.20")
                 it[fat_per_100g] = BigDecimal("2.00")
                 }get Foods.food_id
