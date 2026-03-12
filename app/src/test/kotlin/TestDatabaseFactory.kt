@@ -32,17 +32,12 @@ object TestDatabaseFactory {
                 Roles,
                 Users,
                 Foods,
-
                 Clients,
                 Professionals,
                 Recipes,
-
                 UserRoles,
-
                 FoodLogs,
-
                 ClientProfessionalLink,
-
                 FoodLogItems,
                 RecipeIngredients
             )
