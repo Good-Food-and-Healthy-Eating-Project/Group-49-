@@ -65,6 +65,11 @@
 		white-space: nowrap;
 	}
 
+	.top-tab:hover {
+		background: #e07a2f;
+		border-color: #c45e10;
+	}
+
 	.layout {
 		display: grid;
 		grid-template-columns: 1fr 250px;
@@ -77,6 +82,20 @@
 		border-radius: 8px;
 		padding: 1rem;
 		min-height: 520px;
+		color: #e8f5ec;
+	}
+
+	.favourites-title {
+		margin: 0 0 0.75rem 0;
+		font-size: 0.95rem;
+	}
+
+	.favourite-entry {
+		background: #2d5239;
+		border-radius: 6px;
+		padding: 0.5rem 0.75rem;
+		margin-bottom: 0.5rem;
+		font-size: 0.85rem;
 		color: #e8f5ec;
 	}
 
@@ -109,6 +128,58 @@
 		justify-content: center;
 		font-size: 0.9rem;
 		color: #2a5c38;
+		cursor: pointer;
+    	transition: border-color 0.2s ease;
+		position: relative;
+	}
+
+	.recipe-card:hover {
+    border-color: #2a5c38;
+	}
+
+	.heart {
+		position: absolute;
+		top: 8px;
+		right: 10px;
+		width: 18px;
+		height: 16px;
+		background: #e05555;
+		transform: rotate(-45deg);
+		transition: background 0.2s ease;
+		cursor: pointer;
+	}
+
+	.heart::before,
+	.heart::after {
+		content: "";
+		position: absolute;
+		width: 18px;
+		height: 18px;
+		background: #e05555;
+		border-radius: 50%;
+		transition: background 0.2s ease;
+	}
+
+	.heart::before {
+		top: -9px;
+		left: 0;
+	}
+
+	.heart::after {
+		top: 0;
+		left: 9px;
+	}
+
+	.heart:hover,
+	.heart:hover::before,
+	.heart:hover::after {
+		background: #b01e1e;
+	}
+
+	.heart.active,
+	.heart.active::before,
+	.heart.active::after {
+		background: #b01e1e;
 	}
 
 	@media (max-width: 900px) {
@@ -162,20 +233,48 @@
 			<div class="right-content">
 				<div class="search-bar">search</div>
 				<div class="cards-grid">
-					<div class="recipe-card">recipe</div>
-					<div class="recipe-card">recipe</div>
-					<div class="recipe-card">recipe</div>
-					<div class="recipe-card">recipe</div>
-					<div class="recipe-card">recipe</div>
-					<div class="recipe-card">recipe</div>
-					<div class="recipe-card">recipe</div>
-					<div class="recipe-card">recipe</div>
-					<div class="recipe-card">recipe</div>
+					<div class="recipe-card" data-recipe="Recipe 1"><div class="heart" aria-label="favourite"></div>recipe 1</div>
+					<div class="recipe-card" data-recipe="Recipe 2"><div class="heart" aria-label="favourite"></div>recipe 2</div>
+					<div class="recipe-card" data-recipe="Recipe 3"><div class="heart" aria-label="favourite"></div>recipe 3</div>
+					<div class="recipe-card" data-recipe="Recipe 4"><div class="heart" aria-label="favourite"></div>recipe 4</div>
+					<div class="recipe-card" data-recipe="Recipe 5"><div class="heart" aria-label="favourite"></div>recipe 5</div>
+					<div class="recipe-card" data-recipe="Recipe 6"><div class="heart" aria-label="favourite"></div>recipe 6</div>
+					<div class="recipe-card" data-recipe="Recipe 7"><div class="heart" aria-label="favourite"></div>recipe 7</div>
+					<div class="recipe-card" data-recipe="Recipe 8"><div class="heart" aria-label="favourite"></div>recipe 8</div>
+					<div class="recipe-card" data-recipe="Recipe 9"><div class="heart" aria-label="favourite"></div>recipe 9</div>
 				</div>
 			</div>
 		</div>
 
-		<aside class="favourites">favourites</aside>
+		<aside class="favourites" id="favourites-panel">
+    		<p class="favourites-title">favourites</p>
+		</aside>
 	</div>
 </section>
+
+<script>
+    document.querySelectorAll(".heart").forEach(function(heart) {
+        heart.addEventListener("click", function(e) {
+            e.stopPropagation();
+
+            var card = heart.closest(".recipe-card");
+            var recipeName = card.getAttribute("data-recipe");
+            var isActive = heart.classList.contains("active");
+
+            if (isActive) {
+                heart.classList.remove("active");
+                var entry = document.getElementById("fav-" + recipeName.replace(/\s+/g, "-"));
+                if (entry) entry.remove();
+            } else {
+                heart.classList.add("active");
+                var entry = document.createElement("div");
+                entry.classList.add("favourite-entry");
+                entry.id = "fav-" + recipeName.replace(/\s+/g, "-");
+                entry.textContent = recipeName;
+                document.getElementById("favourites-panel").appendChild(entry);
+            }
+        });
+    });
+</script>
+
 {% endblock %}
