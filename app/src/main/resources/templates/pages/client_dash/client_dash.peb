@@ -1,0 +1,12 @@
+    {% extends "layouts/base.peb" %}
+
+        {% block title %}
+Home
+{% endblock %}
+
+    {% block content %}
+
+<h1>Welcome to Good Food</h1>
+<p>This is my first page.</p>
+
+{% endblock %}
