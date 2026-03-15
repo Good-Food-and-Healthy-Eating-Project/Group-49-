@@ -9,12 +9,23 @@ import io.ktor.server.pebble.respondTemplate
 import io.ktor.server.sessions.*
 import io.ktor.server.request.*
 import io.ktor.server.util.getOrFail
+import io.ktor.server.pebble.PebbleContent
 import io.ktor.http.*
+import io.ktor.server.http.content.resources
+import io.ktor.server.http.content.static
 
 fun Application.configureRouting() {
     routing {
+        static("/static") {
+            resources("static")
+        }
         get("/") {
-            call.respondText("Good Food & Healthy Eating is running")
+            call.respond(
+                PebbleContent(
+                "pages/client_dash/client_dash.peb",
+                mapOf<String, Any>()
+            )
+            )
         }
 
         get("/health") {
