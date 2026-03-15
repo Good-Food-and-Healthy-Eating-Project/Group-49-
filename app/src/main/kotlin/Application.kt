@@ -11,11 +11,7 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
-    install(Pebble) {
-        loader(ClasspathLoader().apply {
-            prefix = "templates"  // Add this line
-        })
-    }
+
     DatabaseFactory.init()
 
     configureAuthentication()

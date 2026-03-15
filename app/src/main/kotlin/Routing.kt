@@ -20,7 +20,7 @@ fun Application.configureRouting() {
             resources("static")
         }
         get("/") {
-            call.respondText(
+            call.respond(
                 PebbleContent(
                 "pages/client_dash/client_dash.peb",
                 mapOf<String, Any>()
