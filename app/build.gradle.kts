@@ -14,15 +14,20 @@ dependencies {
     implementation("io.ktor:ktor-server-call-logging-jvm:2.3.12")
     implementation("io.ktor:ktor-server-status-pages-jvm:2.3.12")
     implementation("io.ktor:ktor-server-config-yaml-jvm:2.3.12")
+    implementation("io.ktor:ktor-server-sessions-jvm:2.3.12")
+    implementation("io.ktor:ktor-server-auth-jvm:2.3.12")
     implementation("io.ktor:ktor-server-pebble-jvm:2.3.12")
 
     implementation("io.pebbletemplates:pebble:4.1.1")
 
-    implementation("org.jetbrains.exposed:exposed-core:0.50.1")
-    implementation("org.jetbrains.exposed:exposed-dao:0.50.1")
-    implementation("org.jetbrains.exposed:exposed-jdbc:0.50.1")
+    implementation("org.jetbrains.exposed:exposed-core:1.1.1")
+    implementation("org.jetbrains.exposed:exposed-dao:1.1.1")
+    implementation("org.jetbrains.exposed:exposed-jdbc:1.1.1")
+    implementation("org.jetbrains.exposed:exposed-java-time:1.1.1")
 
     runtimeOnly("com.h2database:h2:2.4.240")
+    implementation("org.postgresql:postgresql:42.7.3")
+    implementation("org.mindrot:jbcrypt:0.4")
     implementation("ch.qos.logback:logback-classic:1.5.22")
 
     testImplementation(libs.junit.jupiter)
