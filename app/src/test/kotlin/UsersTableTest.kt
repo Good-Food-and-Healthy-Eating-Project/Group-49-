@@ -148,4 +148,59 @@ class UsersTableTest{
             assertEquals("new_password_hash", user[Users.password_hash])
         }
     }
+    @Test
+    fun should_insert_user_with_any_case(){
+        transaction{
+            val time = Instant.now()
+            val userId = Users.insert{
+            it[first_name] = "Sponge"
+            it[second_name] = "Bob"
+            it[email] = "test@test.com"
+            it[password_hash] = "password_hash"
+            it[created_at] = time
+            }get Users.user_id
+            val user = Users
+            .selectAll()
+            .where{Users.user_id eq userId}
+            .single()
+            assertEquals("Sponge",user[Users.first_name])
+            assertEquals("Bob",user[Users.second_name])
+        }
+    }
+    @Test
+    fun should_insert_user_with_special_characters(){
+        transaction{
+            val time = Instant.now()
+            val userId = Users.insert{
+            it[first_name] = "Spo-nge"
+            it[second_name] = "Bo=b"
+            it[email] = "test@test.com"
+            it[password_hash] = "password_hash"
+            it[created_at] = time
+            }get Users.user_id
+            val user = Users
+            .selectAll()
+            .where{Users.user_id eq userId}
+            .single()
+            assertEquals("Spo-nge",user[Users.first_name])
+            assertEquals("Bo=b",user[Users.second_name])
+        }
+    }
+    //Uncomment when adding a time limit
+    // @Test
+    // fun should_fail_when_create_at_is_in_furure(){
+    //     transaction{
+    //         val futureTime = Instant.parse("2099-09-09T00:00:00Z")
+    //         assertFailsWith<ExposedSQLException>{
+    //             Users.insert{
+    //                 it[first_name] = "Sponge"
+    //                 it[second_name] = "Bob"
+    //                 it[email] = "test@test.com"
+    //                 it[password_hash] = "password_hash"
+    //                 it[created_at] = futureTime
+    //             }
+    //         }
+    //     }
+    // }
+    
 }

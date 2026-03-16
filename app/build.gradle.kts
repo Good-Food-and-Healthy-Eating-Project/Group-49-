@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
     id("io.ktor.plugin") version "3.3.0"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
     application
 }
 
