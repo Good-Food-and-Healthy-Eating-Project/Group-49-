@@ -75,7 +75,14 @@
 	<div class="outer-frame">
 		<div class="inner-frame">
 			<h1 class="title">Sign Up</h1>
-			<p>{{ message }}</p>
+			{% if success %}
+				<p style="color: green;">Successfully signed up</p>
+				<p><a href="/Login">Go to login</a></p>
+			{% endif %}
+
+			{% if error %}
+				<p style="color: red;">{{ error }}</p>
+			{% endif %}
 
 			<form action="/Sign-Up" method="post">
 				<div class="field-group">
