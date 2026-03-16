@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
     id("io.ktor.plugin") version "3.3.0"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
     application
 }
 
@@ -36,6 +35,9 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host-jvm:3.3.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:2.2.20")
     testImplementation("com.h2database:h2:2.2.224")
+    testImplementation(kotlin("test"))
+    testImplementation("io.ktor:ktor-server-test-host")
+    testImplementation("io.ktor:ktor-client-content-negotiation")
 
     implementation("org.mindrot:jbcrypt:0.4")
 }
