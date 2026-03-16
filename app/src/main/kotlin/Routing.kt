@@ -19,7 +19,17 @@ fun Application.configureRouting() {
         static("/static") {
             resources("static")
         }
+        
         get("/") {
+            call.respond(
+                PebbleContent(
+                "pages/landing_page/landing_page.peb",
+                mapOf<String, Any>()
+            )
+            )
+        }
+
+        get("/client_dash") {
             call.respond(
                 PebbleContent(
                 "pages/client_dash/client_dash.peb",
