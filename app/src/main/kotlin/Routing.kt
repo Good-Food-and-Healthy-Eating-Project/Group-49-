@@ -57,7 +57,7 @@ fun Application.configureRouting() {
 }
 
 suspend fun ApplicationCall.SignUpPage() {
-    respondTemplate("auth/signup.peb", model = emptyMap())
+    respondTemplate("pages/auth/signup.peb", model = emptyMap())
 }
 
 suspend fun ApplicationCall.SignUpUser() {
@@ -69,16 +69,16 @@ suspend fun ApplicationCall.SignUpUser() {
         UserDatabase.addUser(email, password)
     }
     if (result.isSuccess) {
-        respondTemplate("auth/signup.peb", model = mapOf("success" to true))
+        respondTemplate("pages/auth/signup.peb", model = mapOf("success" to true))
     }
     else {
         val error = result.exceptionOrNull()?.message ?: "Unknown error"
-        respondTemplate("auth/signup.peb", model = mapOf("error" to error))
+        respondTemplate("pages/auth/signup.peb", model = mapOf("error" to error))
     }
 }
 
 suspend fun ApplicationCall.LoginPage() {
-    respondTemplate("auth/login.peb", model = mapOf("message" to "Enter your credentials"))
+    respondTemplate("pages/auth/login.peb", model = mapOf("message" to "Enter your credentials"))
 }
 
 suspend fun ApplicationCall.LoginUser() {
@@ -88,12 +88,12 @@ suspend fun ApplicationCall.LoginUser() {
 
     val result = runCatching { UserDatabase.checkCreds(email, password) }
     when {
-        result.isFailure -> respondTemplate("auth/login.peb", model = mapOf("error" to "Something went wrong, please try again"))
+        result.isFailure -> respondTemplate("pages/auth/login.peb", model = mapOf("error" to "Something went wrong, please try again"))
         result.getOrDefault(false) -> {
             sessions.set(UserSession(email))
             respondRedirect("/client_dash/client_dash.peb")
         }
-        else -> respondTemplate("auth/login.peb", model = mapOf("error" to "Invalid email or password"))
+        else -> respondTemplate("pages/auth/login.peb", model = mapOf("error" to "Invalid email or password"))
     }
 }
 
