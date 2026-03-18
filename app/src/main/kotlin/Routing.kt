@@ -5,6 +5,7 @@ import io.ktor.server.routing.*
 import diettracker.db.tables.Recipes
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.core.SortOrder
 
 fun Application.configureRouting() {
     routing {
@@ -18,14 +19,17 @@ fun Application.configureRouting() {
 
         get("/recipes") {
             val recipes = transaction {
-                Recipes.selectAll().map {
-                    mapOf(
-                        "id" to it[Recipes.recipes_id],
-                        "name" to it[Recipes.recipe_name],
-                        "thumbnail" to it[Recipes.thumbnail_url],
-                        "category" to it[Recipes.category]
-                    )
-                }
+                Recipes.selectAll()
+                    .orderBy(Recipes.recipes_id to SortOrder.RANDOM)
+                    .limit(9)
+                    .map {
+                        mapOf(
+                            "id" to it[Recipes.recipes_id],
+                            "name" to it[Recipes.recipe_name],
+                            "thumbnail" to it[Recipes.thumbnail_url],
+                            "category" to it[Recipes.category]
+                        )
+                    }
             }
             call.respond(
                 PebbleContent(

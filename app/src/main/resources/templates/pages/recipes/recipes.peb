@@ -232,20 +232,19 @@
 		<div class="left-content">
 			<div class="right-content">
 				<div class="search-bar">search</div>
-				<div class="cards-grid">
-					<div class="recipe-card" data-recipe="Recipe 1"><div class="heart" aria-label="favourite"></div>recipe 1</div>
-					<div class="recipe-card" data-recipe="Recipe 2"><div class="heart" aria-label="favourite"></div>recipe 2</div>
-					<div class="recipe-card" data-recipe="Recipe 3"><div class="heart" aria-label="favourite"></div>recipe 3</div>
-					<div class="recipe-card" data-recipe="Recipe 4"><div class="heart" aria-label="favourite"></div>recipe 4</div>
-					<div class="recipe-card" data-recipe="Recipe 5"><div class="heart" aria-label="favourite"></div>recipe 5</div>
-					<div class="recipe-card" data-recipe="Recipe 6"><div class="heart" aria-label="favourite"></div>recipe 6</div>
-					<div class="recipe-card" data-recipe="Recipe 7"><div class="heart" aria-label="favourite"></div>recipe 7</div>
-					<div class="recipe-card" data-recipe="Recipe 8"><div class="heart" aria-label="favourite"></div>recipe 8</div>
-					<div class="recipe-card" data-recipe="Recipe 9"><div class="heart" aria-label="favourite"></div>recipe 9</div>
+					<div class="cards-grid">
+					{% for recipe in recipes %}
+						<div class="recipe-card" data-recipe="{{ recipe.name }}" data-id="{{ recipe.id }}">
+							<div class="heart" aria-label="favourite"></div>
+							{% if recipe.thumbnail %}
+								<img src="{{ recipe.thumbnail }}" alt="{{ recipe.name }}">
+							{% endif %}
+							{{ recipe.name }}
+						</div>
+					{% endfor %}
 				</div>
 			</div>
 		</div>
-
 		<aside class="favourites" id="favourites-panel">
     		<p class="favourites-title">favourites</p>
 		</aside>
