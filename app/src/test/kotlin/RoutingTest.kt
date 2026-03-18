@@ -94,7 +94,7 @@ class RoutingTest{
         transaction{
             val users = Users.selectAll().toList()
             assertTrue(users.any{it[Users.email] == "test@test.com"})
-            assertTrue(result.status.value == 200 || result.status.value == 200)
+            assertTrue(result.status.value == 200)
         }
     }
     @Test
@@ -127,6 +127,26 @@ class RoutingTest{
         }
         assertEquals(400, result.status.value)
     }
+    //now return 200 but it should be 400
+    @Test
+    fun should_signup_fail_when_have_same_eamil() = testApplication{
+        application{
+            module(testing = true)
+        }
+        val beforCount = transaction{Users.selectAll().count()}
+        val result = client.post("/Sign-Up"){
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf(
+                    "email" to "test@test.com",
+                    "password" to "test@test.com"
+                ).formUrlEncode()
+            )
+        }
+        val afterCount = transaction{Users.selectAll().count()}
+        assertEquals(beforCount,afterCount)
+        assertEquals(400,result.status.value)
+    }
     @Test
     fun should_login_success_when_password_right() = testApplication{
         application{
@@ -141,7 +161,6 @@ class RoutingTest{
                 ).formUrlEncode()
             )
         }
-        val body = result.bodyAsText()
         assertEquals(302,result.status.value)
     }
     @Test
