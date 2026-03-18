@@ -9,103 +9,200 @@ import io.ktor.http.formUrlEncode
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.parameters
+import io.ktor.http.contentType
+import io.ktor.http.HttpHeaders
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
-import io.ktor.server.testing.testApplication
+import io.ktor.server.testing.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.deleteAll
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.mindrot.jbcrypt.BCrypt
+import diettracker.db.tables.Users
+import java.time.Instant
 
 class RoutingTest{
+    @BeforeEach
+    fun setUP(){
+        TestDatabaseFactory.init()
+        transaction{
+            Users.deleteAll()
+            val time = Instant.now()
+            val salt = BCrypt.gensalt()
+            Users.insert{
+                it[first_name] = "Sponge"
+                it[second_name] = "Bob"
+                it[email] = "test@test.com"
+                it[password_hash] = BCrypt.hashpw("test@test.com",salt)
+                it[created_at] = time
+            }
+        }
+    }
     @Test
     fun should_return_ok_for_heath_check() = testApplication{
         application{
-            routing{
-                get("/health"){
-                    call.respondText("OK")
-                }
-            }
+            module(testing = true)
         }
         val result = client.get("/health")
         assertEquals(200,result.status.value)
-        assertEquals("OK", result.bodyAsText())
     }
     @Test
     fun should_load_landing_page() = testApplication{
         application{
-            routing{
-                get("/"){
-                    call.respondText("OK")
-                }
-            }
+            module(testing = true)
         }
         val result = client.get("/")
         assertEquals(200,result.status.value)
-        assertEquals("OK", result.bodyAsText())
     }
     @Test
     fun should_load_login_page() = testApplication{
         application{
-            routing{
-                get("/Login"){
-                    call.respondText("OK")
-                }
-            }
+            module(testing = true)
         }
         val result = client.get("/Login")
         assertEquals(200,result.status.value)
-        assertEquals("OK", result.bodyAsText())
     }
     @Test
     fun should_load_signup_page() = testApplication{
         application{
-            routing{
-                get("/Sign-Up"){
-                    call.respondText("OK")
-                }
-            }
+            module(testing = true)
         }
         val result = client.get("/Sign-Up")
         assertEquals(200,result.status.value)
-        assertEquals("OK", result.bodyAsText())
-    }
-    @Test
-    fun should_login_user() = testApplication{
-        application{
-            routing{
-                post("/Login"){
-                    call.respondText("OK")
-                }
-            }
-        }
-        val result = client.submitForm(
-            url = "/Login",
-            formParameters = parameters{
-                append("email","test@test.com")
-                append("password","test")
-            }
-        )
-        assertEquals(200,result.status.value)
-        assertEquals("OK", result.bodyAsText())
     }
     @Test
     fun should_signup_user() = testApplication{
         application{
-            routing{
-                post("/Sign-Up"){
-                    call.respondText("OK")
-                }
+            module(testing = true)
             }
+        val result = client.post("/Sign-Up"){
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf(
+                    "email" to "newuser@test.com",
+                    "password" to "test@test.com"
+                ).formUrlEncode()
+            )
         }
-        val result = client.submitForm(
-            url = "/Sign-Up",
-            formParameters = parameters{
-                append("email","test@test.com")
-                append("password","test")
-            }
-        )
+        transaction{
+            val users = Users.selectAll().toList()
+            assertTrue(users.any{it[Users.email] == "test@test.com"})
+            assertTrue(result.status.value == 200 || result.status.value == 200)
+        }
+    }
+    @Test
+    fun should_signup_fail_when_missing_email() = testApplication{
+        application{
+            module(testing = true)
+        }
+        val result = client.post("/Sign-Up"){
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf(
+                    "password" to "test@test.com"
+                ).formUrlEncode()
+            )
+        }
+        assertEquals(400, result.status.value)
+    }
+    @Test
+    fun should_signup_fail_when_missing_password() = testApplication{
+        application{
+            module(testing = true)
+        }
+        val result = client.post("/Sign-Up"){
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf(
+                    "email" to "test@test.com"
+                ).formUrlEncode()
+            )
+        }
+        assertEquals(400, result.status.value)
+    }
+    @Test
+    fun should_login_success_when_password_right() = testApplication{
+        application{
+            module(testing = true)
+        }
+        val result = client.post("/Login"){
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf(
+                    "email" to "test@test.com",
+                    "password" to "test@test.com"
+                ).formUrlEncode()
+            )
+        }
+        val body = result.bodyAsText()
+        assertEquals(302,result.status.value)
+    }
+    @Test
+    fun should_login_fail_when_password_wrong() = testApplication{
+        application{
+            module(testing = true)
+        }
+        val result = client.post("/Login"){
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf(
+                    "email" to "test@test.com",
+                    "password" to "wrongpassword@test.com"
+                ).formUrlEncode()
+            )
+        }
         assertEquals(200,result.status.value)
-        assertEquals("OK", result.bodyAsText())
+    }
+    @Test
+    fun should_login_fail_when_missing_email() = testApplication{
+        application{
+            module(testing = true)
+        }
+        val result = client.post("/Login"){
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf(
+                    "password" to "test@test.com"
+                ).formUrlEncode()
+            )
+        }
+        assertEquals(400, result.status.value)
+    }
+    @Test
+    fun should_login_fail_when_missing_password() = testApplication{
+        application{
+            module(testing = true)
+        }
+        val result = client.post("/Login"){
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf(
+                    "email" to "test@test.com"
+                ).formUrlEncode()
+            )
+        }
+        assertEquals(400, result.status.value)
+    }
+    @Test
+    fun should_login_fail_when_missing_password_and_email() = testApplication{
+        application{
+            module(testing = true)
+        }
+        val result = client.post("/Login"){
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf(
+                    "" to ""
+                ).formUrlEncode()
+            )
+        }
+        assertEquals(400, result.status.value)
     }
 }
