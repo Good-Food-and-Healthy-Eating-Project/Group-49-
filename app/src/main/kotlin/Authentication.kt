@@ -8,9 +8,10 @@ import io.ktor.server.response.respondRedirect
 import io.ktor.server.sessions.Sessions
 import io.ktor.server.sessions.cookie
 import kotlinx.serialization.Serializable
+import io.ktor.server.auth.Principal
 
 @Serializable
-data class UserSession(val email: String)
+data class UserSession(val email: String) : Principal
 
 fun Application.configureAuthentication() {
     
