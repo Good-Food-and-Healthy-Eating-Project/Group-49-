@@ -1,5 +1,9 @@
 package diettracker
 
+import diettracker.db.tables.Recipes
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import diettracker.db.tables.Users
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -13,6 +17,7 @@ import io.ktor.server.pebble.PebbleContent
 import io.ktor.http.*
 import io.ktor.server.http.content.resources
 import io.ktor.server.http.content.static
+import org.jetbrains.exposed.v1.core.Random
 
 fun Application.configureRouting() {
     routing {
@@ -47,6 +52,8 @@ fun Application.configureRouting() {
         post("/Login") { 
             call.LoginUser() 
         }
+
+        get("/recipes") { call.RecipesPage() }
 
         authenticate("group49-client_auth") {
             get("/") { call.DashboardPage() } //change get dashboard when made.
@@ -91,7 +98,7 @@ suspend fun ApplicationCall.LoginUser() {
         result.isFailure -> respondTemplate("pages/auth/login.peb", model = mapOf("error" to "Something went wrong, please try again"))
         result.getOrDefault(false) -> {
             sessions.set(UserSession(email))
-            respondRedirect("/client_dash/client_dash.peb")
+            respondRedirect("/")
         }
         else -> respondTemplate("pages/auth/login.peb", model = mapOf("error" to "Invalid email or password"))
     }
@@ -106,7 +113,30 @@ suspend fun ApplicationCall.Logout() {
     val email = sessions.get<UserSession>()?.email.toString()
     application.log.info("User $email logged out")
     sessions.clear<UserSession>()
-    respondRedirect("/landing_page/landing_page.peb")
+    respondRedirect("/Login")
+}
+
+suspend fun ApplicationCall.RecipesPage() {
+    val recipes = transaction {
+        Recipes.selectAll()
+        .orderBy(Random())
+        .limit(9)
+        .map {
+            mapOf(
+                "id" to it[Recipes.recipes_id],
+                "name" to it[Recipes.recipe_name],
+                "thumbnail" to it[Recipes.thumbnail_url],
+                "category" to it[Recipes.category]
+            )
+        }
+    }
+    respondTemplate(
+        "pages/recipes/recipes.peb",
+        mapOf(
+            "pageTitle" to "Recipes",
+            "recipes" to recipes
+        )
+    )
 }
 
 private suspend fun ApplicationCall.getCredentials(): Pair<String, String> {

@@ -1,23 +1,9 @@
 {% extends "layouts/base.peb" %}
 
-{% block title %}{{ pageTitle | default("Food | Recipes") }}{% endblock %}
+{% block title %}{{ pageTitle | default("Recipes") }}{% endblock %}
 
 {% block head %}
 <style>
-	* {
-		box-sizing: border-box;
-	}
-
-	body {
-		margin: 0;
-		font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-		background: #ffffff;
-		color: #111111;
-	}
-
-	.site-header {
-		display: none;
-	}
 
 	.recipes-wireframe {
 		max-width: 1200px;
@@ -25,50 +11,6 @@
 		padding: 1.25rem;
 	}
 
-	.top-row {
-		display: flex;
-		align-items: center;
-		gap: 0.6rem;
-		margin-bottom: 1rem;
-		flex-wrap: wrap;
-	}
-
-	.top-tabs {
-		display: flex;
-		gap: 0.6rem;
-		flex: 1;
-		flex-wrap: wrap;
-	}
-
-	.profile-circle {
-		width: 44px;
-		height: 44px;
-		border-radius: 50%;
-		background: #a0a0a0;
-		border: 2px solid #888888;
-		flex: 0 0 auto;
-		margin-left: auto;
-	}
-
-	.top-tab {
-		height: 44px;
-		flex: 1 1 0;
-		min-width: 80px;
-		background: #f4a96a;
-		border: 2px solid #e08a3c;
-		border-radius: 6px;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 0.88rem;
-		text-align: center;
-		white-space: nowrap;
-	}
-
-	.top-tab:hover {
-		background: #e07a2f;
-		border-color: #c45e10;
-	}
 
 	.layout {
 		display: grid;
@@ -77,8 +19,8 @@
 	}
 
 	.favourites {
-		background: #3a6b4a;
-		border: 2px solid #2d5239;
+		background: var(--terracotta-light);
+		border: 2px solid var(--terracotta);
 		border-radius: 8px;
 		padding: 1rem;
 		min-height: 520px;
@@ -88,15 +30,21 @@
 	.favourites-title {
 		margin: 0 0 0.75rem 0;
 		font-size: 0.95rem;
+		color: #e8f5ec;
 	}
 
 	.favourite-entry {
-		background: #2d5239;
+		background: var(--terracotta);
 		border-radius: 6px;
 		padding: 0.5rem 0.75rem;
 		margin-bottom: 0.5rem;
 		font-size: 0.85rem;
 		color: #e8f5ec;
+		transition: background 0.2s ease;
+	}
+
+	.gavourite-entry-over {
+		background
 	}
 
 	.right-content {
@@ -122,7 +70,7 @@
 		background: #c8ecd4;
 		border: 2px solid #8fcca2;
 		border-radius: 8px;
-		min-height: 100px;
+		min-height: 200px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -171,6 +119,7 @@
 		transform: rotate(-45deg);
 		transition: background 0.2s ease;
 		cursor: pointer;
+		z-index: 2;
 	}
 
 	.heart::before,
@@ -226,11 +175,6 @@
 	}
 
 	@media (max-width: 560px) {
-		.top-tab {
-			font-size: 0.78rem;
-			padding: 0 0.5rem;
-		}
-
 		.cards-grid {
 			grid-template-columns: 1fr;
 		}
@@ -240,17 +184,6 @@
 
 {% block content %}
 <section class="recipes-wireframe">
-	<div class="top-row">
-		<div class="top-tabs">
-			<div class="top-tab">food diary</div>
-			<div class="top-tab">recipes</div>
-			<div class="top-tab">plan</div>
-			<div class="top-tab">home</div>
-			<div class="top-tab">messages</div>
-			<div class="top-tab">view professionals</div>
-		</div>
-		<div class="profile-circle" aria-hidden="true"></div>
-	</div>
 
 	<div class="layout">
 		<div class="left-content">
@@ -270,7 +203,7 @@
 			</div>
 		</div>
 		<aside class="favourites" id="favourites-panel">
-    		<p class="favourites-title">favourites</p>
+    		<p class="favourites-title">Favourites</p>
 		</aside>
 	</div>
 </section>
