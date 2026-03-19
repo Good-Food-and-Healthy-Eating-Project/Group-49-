@@ -98,7 +98,7 @@ suspend fun ApplicationCall.LoginUser() {
         result.isFailure -> respondTemplate("pages/auth/login.peb", model = mapOf("error" to "Something went wrong, please try again"))
         result.getOrDefault(false) -> {
             sessions.set(UserSession(email))
-            respondRedirect("/")
+            respondRedirect("/client_dash/client_dash.peb")
         }
         else -> respondTemplate("pages/auth/login.peb", model = mapOf("error" to "Invalid email or password"))
     }
@@ -113,7 +113,7 @@ suspend fun ApplicationCall.Logout() {
     val email = sessions.get<UserSession>()?.email.toString()
     application.log.info("User $email logged out")
     sessions.clear<UserSession>()
-    respondRedirect("/Login")
+    respondRedirect("/landing_page/landing_page.peb")
 }
 
 suspend fun ApplicationCall.RecipesPage() {
