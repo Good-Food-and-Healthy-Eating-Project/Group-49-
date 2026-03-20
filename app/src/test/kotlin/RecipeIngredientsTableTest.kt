@@ -68,12 +68,12 @@ class RecipeIngredientsTableTest {
             }
 
             val result =
-                RecipeIngredients.selectAll()
+                RecipeIngredients
+                    .selectAll()
                     .where {
                         (RecipeIngredients.recipe_id eq recipeId) and
                             (RecipeIngredients.food_id eq foodId)
-                    }
-                    .singleOrNull()
+                    }.singleOrNull()
             assertNotNull(result)
             assertEquals(BigDecimal("120.00"), result[RecipeIngredients.quantity_g])
         }
@@ -119,12 +119,12 @@ class RecipeIngredientsTableTest {
                 (RecipeIngredients.recipe_id eq recipeId) and (RecipeIngredients.food_id eq foodId)
             }
             val result =
-                RecipeIngredients.selectAll()
+                RecipeIngredients
+                    .selectAll()
                     .where {
                         (RecipeIngredients.recipe_id eq recipeId) and
                             (RecipeIngredients.food_id eq foodId)
-                    }
-                    .singleOrNull()
+                    }.singleOrNull()
             assertNull(result)
         }
     }
@@ -170,12 +170,12 @@ class RecipeIngredientsTableTest {
                 (RecipeIngredients.recipe_id eq recipeId) and (RecipeIngredients.food_id eq foodId)
             }) { it[quantity_g] = BigDecimal("300.00") }
             val result =
-                RecipeIngredients.selectAll()
+                RecipeIngredients
+                    .selectAll()
                     .where {
                         (RecipeIngredients.recipe_id eq recipeId) and
                             (RecipeIngredients.food_id eq foodId)
-                    }
-                    .singleOrNull()
+                    }.singleOrNull()
             assertNotNull(result)
             assertEquals(BigDecimal("300.00"), result[RecipeIngredients.quantity_g])
         }
@@ -218,12 +218,12 @@ class RecipeIngredientsTableTest {
                 it[quantity_g] = BigDecimal("120.00")
             }
             val result =
-                RecipeIngredients.selectAll()
+                RecipeIngredients
+                    .selectAll()
                     .where {
                         (RecipeIngredients.recipe_id eq recipeId) and
                             (RecipeIngredients.food_id eq foodId)
-                    }
-                    .toList()
+                    }.toList()
             assertEquals(1, result.size)
             assertEquals(foodId, result[0][RecipeIngredients.food_id])
             assertEquals(BigDecimal("120.00"), result[0][RecipeIngredients.quantity_g])

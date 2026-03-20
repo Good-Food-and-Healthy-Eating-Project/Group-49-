@@ -125,4 +125,3 @@ private suspend fun ApplicationCall.getCredentials(): Pair<String, String> {
     val password = parameters.getOrFail("password")
     return email to password
 }
-

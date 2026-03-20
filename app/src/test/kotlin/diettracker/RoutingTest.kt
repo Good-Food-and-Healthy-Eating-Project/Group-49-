@@ -5,6 +5,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.formUrlEncode
 import io.ktor.server.routing.get
@@ -159,8 +160,7 @@ class RoutingTest {
                         listOf(
                             "email" to "test@test.com",
                             "password" to "wrongpassword@test.com",
-                        )
-                            .formUrlEncode(),
+                        ).formUrlEncode(),
                     )
                 }
             assertEquals(200, result.status.value)
@@ -200,5 +200,23 @@ class RoutingTest {
                     setBody(listOf("" to "").formUrlEncode())
                 }
             assertEquals(400, result.status.value)
+        }
+
+    @Test
+    fun should_redirect_to_client_dash_when_login_success() =
+        testApplication {
+            application { module(testing = true) }
+            val result =
+                client.post("/Login") {
+                    contentType(ContentType.Application.FormUrlEncoded)
+                    setBody(
+                        listOf(
+                            "email" to "test@test.com",
+                            "password" to "test@test.com",
+                        ).formUrlEncode(),
+                    )
+                }
+            assertEquals(302, result.status.value)
+            assertEquals("/client_dash", result.headers[HttpHeaders.Location])
         }
 }
