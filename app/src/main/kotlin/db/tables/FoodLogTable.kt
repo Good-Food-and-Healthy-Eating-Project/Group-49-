@@ -6,7 +6,7 @@ import diettracker.db.MAX_LEN
 
 object FoodLogs : Table("food_logs") {
     val food_log_id = integer("food_log_id").autoIncrement()
-    val client_id = integer("client_id").references(Clients.client_id)
+    val user_id = integer("user_id").references(Users.user_id)
     val log_date = timestamp("log_date")
     val meal_type = varchar("meal_type", MAX_LEN)
     val notes = text("notes")
