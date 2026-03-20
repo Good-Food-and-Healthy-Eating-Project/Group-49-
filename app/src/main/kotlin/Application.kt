@@ -10,10 +10,10 @@ fun main(args: Array<String>) {
     EngineMain.main(args)
 }
 
-fun Application.module() {
-
-    DatabaseFactory.init()
-
+fun Application.module(testing:Boolean = false) {
+    if(!testing){
+        DatabaseFactory.init()
+    }
     configureAuthentication()
     configureRouting()
     configureTemplates()

@@ -1,0 +1,236 @@
+{% extends "layouts/base.peb" %}
+
+{% block title %}{{ pageTitle | default("Recipes") }}{% endblock %}
+
+{% block head %}
+<style>
+
+	.recipes-wireframe {
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 1.25rem;
+	}
+
+
+	.layout {
+		display: grid;
+		grid-template-columns: 1fr 250px;
+		gap: 1rem;
+	}
+
+	.favourites {
+		background: var(--terracotta-light);
+		border: 2px solid var(--terracotta);
+		border-radius: 8px;
+		padding: 1rem;
+		min-height: 520px;
+		color: #e8f5ec;
+	}
+
+	.favourites-title {
+		margin: 0 0 0.75rem 0;
+		font-size: 0.95rem;
+		color: #e8f5ec;
+	}
+
+	.favourite-entry {
+		background: var(--terracotta);
+		border-radius: 6px;
+		padding: 0.5rem 0.75rem;
+		margin-bottom: 0.5rem;
+		font-size: 0.85rem;
+		color: #e8f5ec;
+		transition: background 0.2s ease;
+	}
+
+	.gavourite-entry-over {
+		background
+	}
+
+	.right-content {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.search-bar {
+		height: 52px;
+		background: #ffffff;
+		border: 2px solid #b9b9b9;
+		border-radius: 8px;
+		padding: 0.9rem 1rem;
+	}
+
+	.cards-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1rem;
+	}
+
+	.recipe-card {
+		background: #c8ecd4;
+		border: 2px solid #8fcca2;
+		border-radius: 8px;
+		min-height: 200px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 0.9rem;
+		color: #2a5c38;
+		cursor: pointer;
+    	transition: border-color 0.2s ease;
+		position: relative;
+	}
+
+	.recipe-card:hover {
+    border-color: #2a5c38;
+	}
+
+	.recipe-card img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 6px;
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
+
+	.recipe-card-label {
+		position: relative;
+		z-index: 1;
+		background: rgba(0, 0, 0, 0.35);
+		color: #ffffff;
+		width: 100%;
+		text-align: center;
+		padding: 0.3rem 0;
+		border-radius: 0 0 6px 6px;
+		position: absolute;
+		bottom: 0;
+		left: 0;
+	}
+
+	.heart {
+		position: absolute;
+		top: 8px;
+		right: 10px;
+		width: 18px;
+		height: 16px;
+		background: #e05555;
+		transform: rotate(-45deg);
+		transition: background 0.2s ease;
+		cursor: pointer;
+		z-index: 2;
+	}
+
+	.heart::before,
+	.heart::after {
+		content: "";
+		position: absolute;
+		width: 18px;
+		height: 18px;
+		background: #e05555;
+		border-radius: 50%;
+		transition: background 0.2s ease;
+	}
+
+	.heart::before {
+		top: -9px;
+		left: 0;
+	}
+
+	.heart::after {
+		top: 0;
+		left: 9px;
+	}
+
+	.heart:hover,
+	.heart:hover::before,
+	.heart:hover::after {
+		background: #b01e1e;
+	}
+
+	.heart.active,
+	.heart.active::before,
+	.heart.active::after {
+		background: #b01e1e;
+	}
+
+	@media (max-width: 900px) {
+		.layout {
+			grid-template-columns: 1fr;
+		}
+
+		.favourites {
+			min-height: 180px;
+			order: 2;
+		}
+
+		.left-content {
+			order: 1;
+		}
+
+		.cards-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 560px) {
+		.cards-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="recipes-wireframe">
+
+	<div class="layout">
+		<div class="left-content">
+			<div class="right-content">
+				<div class="search-bar">search</div>
+					<div class="cards-grid">
+					{% for recipe in recipes %}
+						<div class="recipe-card" data-recipe="{{ recipe.name }}" data-id="{{ recipe.id }}">
+							<div class="heart" aria-label="favourite"></div>
+							{% if recipe.thumbnail %}
+								<img src="{{ recipe.thumbnail }}" alt="{{ recipe.name }}">
+							{% endif %}
+							<div class="recipe-card-label">{{ recipe.name }}</div>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+		<aside class="favourites" id="favourites-panel">
+    		<p class="favourites-title">Favourites</p>
+		</aside>
+	</div>
+</section>
+
+<script>
+    document.querySelectorAll(".heart").forEach(function(heart) {
+        heart.addEventListener("click", function(e) {
+            e.stopPropagation();
+
+            var card = heart.closest(".recipe-card");
+            var recipeName = card.getAttribute("data-recipe");
+            var isActive = heart.classList.contains("active");
+
+            if (isActive) {
+                heart.classList.remove("active");
+                var entry = document.getElementById("fav-" + recipeName.replace(/\s+/g, "-"));
+                if (entry) entry.remove();
+            } else {
+                heart.classList.add("active");
+                var entry = document.createElement("div");
+                entry.classList.add("favourite-entry");
+                entry.id = "fav-" + recipeName.replace(/\s+/g, "-");
+                entry.textContent = recipeName;
+                document.getElementById("favourites-panel").appendChild(entry);
+            }
+        });
+    });
+</script>
+
+{% endblock %}

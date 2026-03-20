@@ -13,3 +13,4 @@ build
 .gradle-user-home/
 # Ignore local IDE/runtime output directory
 app/bin/
+ktlint
