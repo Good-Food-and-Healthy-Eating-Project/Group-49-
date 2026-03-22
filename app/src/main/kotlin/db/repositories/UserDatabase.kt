@@ -1,12 +1,14 @@
-package diettracker
+package diettracker.db.repositories
 
 import diettracker.db.tables.Users
-import org.jetbrains.exposed.v1.core.*
+import diettracker.services.hashPasswordIfValid
+import diettracker.services.isEmailValid
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import java.time.Instant
-import org.jetbrains.exposed.v1.jdbc.insert
 import org.mindrot.jbcrypt.BCrypt
+import java.time.Instant
 
 object UserDatabase {
     fun checkCreds(email: String, password: String): Boolean = transaction {

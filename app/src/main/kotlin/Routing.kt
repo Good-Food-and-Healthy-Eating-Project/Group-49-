@@ -1,5 +1,6 @@
 package diettracker
 
+import diettracker.db.repositories.UserDatabase
 import diettracker.db.tables.Users
 import io.ktor.server.application.*
 import io.ktor.server.response.*

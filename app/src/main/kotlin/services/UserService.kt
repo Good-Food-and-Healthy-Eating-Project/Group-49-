@@ -1,5 +1,4 @@
-package diettracker
-import java.io.File
+package diettracker.services
 import org.mindrot.jbcrypt.BCrypt
 
 const val MAX_EMAIL_LENGTH = 128
