@@ -56,6 +56,16 @@
 			background: #ffffff;
 		}
 
+		input[type="email"] {
+			width: 100%;
+			height: 54px;			
+			box-sizing: border-box;
+			border: 2px solid #bdbdbd;
+			font-size: 22px;
+			padding: 0 12px;
+			background: #ffffff;
+		}
+
 		.actions {
 			margin-top: 12px;
 		}
@@ -74,9 +84,10 @@
 	<div class="outer-frame">
 		<div class="inner-frame">
 			<h1 class="title">Login</h1>
-			{% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
+			{% if error %}<p style="color:red;">{{ error }}</p>
+			{% endif %}
 
-			<form action="/Login" method="post">
+			<form action="/Login" method="post" autocomplete="off">
 				<div class="field-group">
 					<label for="email">email</label>
 					<input id="email" name="email" type="email" autocomplete="off" required>
@@ -84,7 +95,7 @@
 
 				<div class="field-group">
 					<label for="password">Password</label>
-					<input id="password" name="password" type="password" required>
+					<input id="password" name="password" type="password" autocomplete="current-password" required>
 				</div>
 
 				<div class="actions">
