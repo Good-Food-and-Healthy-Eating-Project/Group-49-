@@ -1,14 +1,12 @@
-package diettracker.db.repositories
+package diettracker
 
 import diettracker.db.tables.Users
-import diettracker.services.hashPasswordIfValid
-import diettracker.services.isEmailValid
-import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.mindrot.jbcrypt.BCrypt
 import java.time.Instant
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.mindrot.jbcrypt.BCrypt
 
 object UserDatabase {
     fun checkCreds(email: String, password: String): Boolean = transaction {
@@ -50,4 +48,13 @@ object UserDatabase {
         }
         true
     }
+
+    fun isEmailDuplicate(email: String): Boolean{
+        val preexistingUser = transaction{
+            Users.selectAll().where{ Users.email eq email.lowercase() }.count() > 0
+        }
+        return preexistingUser
+    }
 }
+
+
