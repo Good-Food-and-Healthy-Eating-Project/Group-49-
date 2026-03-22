@@ -55,6 +55,14 @@ object UserDatabase {
         }
         return preexistingUser
     }
+
+    fun findUserIdByEmail(email: String): Int? = transaction {
+        Users
+            .selectAll()
+            .where { Users.email eq email.lowercase() }
+            .firstOrNull()
+            ?.get(Users.user_id)
+    }
 }
 
 

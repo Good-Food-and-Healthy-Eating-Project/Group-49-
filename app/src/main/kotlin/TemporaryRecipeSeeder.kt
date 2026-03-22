@@ -6,6 +6,7 @@ import diettracker.db.tables.Recipes
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.isNotDistinctFrom
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -32,7 +33,6 @@ object TemporaryRecipeSeeder {
 
     fun seed(
         systemUserId: Int,
-        limitPerCategory: Int = 3,
         usdaApiKey: String = System.getenv("USDA_API_KEY") ?: ""
     ) {
         val categories = fetchCategories()
@@ -40,7 +40,7 @@ object TemporaryRecipeSeeder {
         for (category in categories) {
             println("Seeding category: $category")
 
-            val meals = fetchMealsByCategory(category).take(limitPerCategory)
+            val meals = fetchMealsByCategory(category)
 
             for (mealSummary in meals) {
                 try {
@@ -71,11 +71,11 @@ object TemporaryRecipeSeeder {
 
             if (existing == null) {
                 val inserted = Recipes.insert {
-                    it[recipe_name] = meal.strMeal
-                    it[instructions] = meal.strInstructions ?: ""
+                    it[recipe_name] = meal.strMeal.lowercase()
+                    it[instructions] = meal.strInstructions?.lowercase() ?: ""
                     it[external_mealdb_id] = meal.idMeal
-                    it[category] = meal.strCategory
-                    it[area] = meal.strArea
+                    it[category] = meal.strCategory?.lowercase()
+                    it[area] = meal.strArea?.lowercase()
                     it[thumbnail_url] = meal.strMealThumb
                     it[created_by_user_id] = systemUserId
                     it[is_system_recipe] = true
@@ -84,10 +84,10 @@ object TemporaryRecipeSeeder {
             } else {
                 val id = existing[Recipes.recipes_id]
                 Recipes.update({ Recipes.recipes_id.isNotDistinctFrom(id) }) {
-                    it[recipe_name] = meal.strMeal
-                    it[instructions] = meal.strInstructions ?: ""
-                    it[category] = meal.strCategory
-                    it[area] = meal.strArea
+                    it[recipe_name] = meal.strMeal.lowercase()
+                    it[instructions] = meal.strInstructions?.lowercase() ?: ""
+                    it[category] = meal.strCategory?.lowercase()
+                    it[area] = meal.strArea?.lowercase()
                     it[thumbnail_url] = meal.strMealThumb
                     it[is_system_recipe] = true
                 }
@@ -110,7 +110,7 @@ object TemporaryRecipeSeeder {
                     it[recipe_id] = recipeId
                     it[food_id] = foodId
                     it[RecipeIngredients.quantity_g] = quantityG
-                    it[original_measure] = measureText
+                    it[original_measure] = measureText?.lowercase()
                 }
             }
         }
@@ -123,11 +123,7 @@ object TemporaryRecipeSeeder {
         val normalised = normaliseFoodName(ingredientName)
 
         val existingId = transaction {
-            Foods
-                .selectAll()
-                .where { Foods.food_name.isNotDistinctFrom(normalised) }
-                .firstOrNull()
-                ?.get(Foods.food_id)
+            findCanonicalFoodIdByNormalisedName(normalised)
         }
 
         if (existingId != null) return existingId
@@ -184,6 +180,81 @@ object TemporaryRecipeSeeder {
         }
     }
 
+    private fun findCanonicalFoodIdByNormalisedName(normalisedFoodName: String): Int? {
+        val matchingFoods = Foods
+            .selectAll()
+            .filter { row -> normaliseFoodName(row[Foods.food_name]) == normalisedFoodName }
+            .sortedBy { row -> row[Foods.food_id] }
+
+        if (matchingFoods.isEmpty()) return null
+
+        val canonicalId = matchingFoods.first()[Foods.food_id]
+        val duplicateIds = matchingFoods.drop(1).map { row -> row[Foods.food_id] }
+
+        if (duplicateIds.isNotEmpty()) {
+            mergeDuplicateFoods(canonicalId, duplicateIds)
+        }
+
+        Foods.update({ Foods.food_id.isNotDistinctFrom(canonicalId) }) {
+            it[food_name] = normalisedFoodName
+        }
+
+        return canonicalId
+    }
+
+    private fun mergeDuplicateFoods(canonicalFoodId: Int, duplicateFoodIds: List<Int>) {
+        for (duplicateFoodId in duplicateFoodIds) {
+            val duplicateIngredients = RecipeIngredients
+                .selectAll()
+                .where { RecipeIngredients.food_id.isNotDistinctFrom(duplicateFoodId) }
+                .toList()
+
+            for (duplicateIngredient in duplicateIngredients) {
+                val recipeId = duplicateIngredient[RecipeIngredients.recipe_id]
+                val duplicateQty = duplicateIngredient[RecipeIngredients.quantity_g]
+                val duplicateMeasure = duplicateIngredient[RecipeIngredients.original_measure]
+
+                val canonicalIngredient = RecipeIngredients
+                    .selectAll()
+                    .where { RecipeIngredients.recipe_id.isNotDistinctFrom(recipeId) }
+                    .firstOrNull { it[RecipeIngredients.food_id] == canonicalFoodId }
+
+                if (canonicalIngredient == null) {
+                    RecipeIngredients.update({
+                        RecipeIngredients.recipe_id.isNotDistinctFrom(recipeId) and
+                            RecipeIngredients.food_id.isNotDistinctFrom(duplicateFoodId)
+                    }) {
+                        it[food_id] = canonicalFoodId
+                    }
+                    continue
+                }
+
+                val combinedQty = canonicalIngredient[RecipeIngredients.quantity_g]
+                    .add(duplicateQty)
+                    .setScale(2, RoundingMode.HALF_UP)
+
+                val canonicalMeasure = canonicalIngredient[RecipeIngredients.original_measure]
+
+                RecipeIngredients.update({
+                    RecipeIngredients.recipe_id.isNotDistinctFrom(recipeId) and
+                        RecipeIngredients.food_id.isNotDistinctFrom(canonicalFoodId)
+                }) {
+                    it[quantity_g] = combinedQty
+                    if (canonicalMeasure.isNullOrBlank() && !duplicateMeasure.isNullOrBlank()) {
+                        it[original_measure] = duplicateMeasure.lowercase()
+                    }
+                }
+
+                RecipeIngredients.deleteWhere {
+                    RecipeIngredients.recipe_id.isNotDistinctFrom(recipeId) and
+                        RecipeIngredients.food_id.isNotDistinctFrom(duplicateFoodId)
+                }
+            }
+
+            Foods.deleteWhere { Foods.food_id.isNotDistinctFrom(duplicateFoodId) }
+        }
+    }
+
     private fun extractIngredients(meal: MealDbMeal): List<Pair<String, String?>> {
         val raw = listOf(
             meal.strIngredient1 to meal.strMeasure1,
@@ -209,8 +280,8 @@ object TemporaryRecipeSeeder {
         )
 
         return raw.mapNotNull { (ingredient, measure) ->
-            val cleanIngredient = ingredient?.trim().orEmpty()
-            if (cleanIngredient.isBlank()) null else cleanIngredient to measure?.trim()
+            val cleanIngredient = ingredient?.trim()?.lowercase().orEmpty()
+            if (cleanIngredient.isBlank()) null else cleanIngredient to measure?.trim()?.lowercase()
         }
     }
 
@@ -336,7 +407,7 @@ object TemporaryRecipeSeeder {
     }
 
     private fun normaliseFoodName(name: String): String {
-        return name.trim().replace(Regex("""\s+"""), " ")
+        return name.trim().lowercase().replace(Regex("""\s+"""), " ")
     }
 
     private fun get(url: String): String {
