@@ -1,17 +1,11 @@
 package diettracker
 
-import diettracker.db.repositories.UserDatabase
-import diettracker.db.tables.Users
+import diettracker.routing.foodDiaryRoutes
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.auth.*
-import io.ktor.server.pebble.respondTemplate
-import io.ktor.server.sessions.*
-import io.ktor.server.request.*
-import io.ktor.server.util.getOrFail
 import io.ktor.server.pebble.PebbleContent
-import io.ktor.http.*
 import io.ktor.server.http.content.resources
 import io.ktor.server.http.content.static
 
@@ -64,6 +58,8 @@ fun Application.configureRouting() {
             get("/logout") { call.Logout() } 
             // get("/profile") { ... } 
         }
+
+        foodDiaryRoutes()
     }
 }
 
