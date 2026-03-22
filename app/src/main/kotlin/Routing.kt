@@ -101,7 +101,7 @@ suspend fun ApplicationCall.LoginUser() {
         result.isFailure -> respondTemplate("pages/auth/login.peb", model = mapOf("error" to "Something went wrong, please try again"))
         result.getOrDefault(false) -> {
             sessions.set(UserSession(email))
-            respondRedirect("/client_dash/client_dash.peb")
+            respondRedirect("/client_dash")
         }
         else -> respondTemplate("pages/auth/login.peb", model = mapOf("error" to "Invalid email or password"))
     }
@@ -109,14 +109,14 @@ suspend fun ApplicationCall.LoginUser() {
 
 suspend fun ApplicationCall.DashboardPage() {
     val username = sessions.get<UserSession>()?.email?.substringBefore("@") ?: ""
-    respondTemplate("client_dash/client_dash.peb", mapOf("username" to username))
+    respondTemplate("pages/client_dash/client_dash.peb", mapOf("username" to username))
 }
 
 suspend fun ApplicationCall.Logout() {
     val email = sessions.get<UserSession>()?.email.toString()
     application.log.info("User $email logged out")
     sessions.clear<UserSession>()
-    respondRedirect("/landing_page/landing_page.peb")
+    respondRedirect("/")
 }
 
 private suspend fun ApplicationCall.getCredentials(): Pair<String, String> {
