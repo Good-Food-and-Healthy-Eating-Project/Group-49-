@@ -25,7 +25,7 @@ fun Application.configureRouting() {
                 PebbleContent(
                 "pages/landing_page/landing_page.peb",
                 mapOf<String, Any>()
-            )
+                )
             )
         }
 
@@ -34,7 +34,7 @@ fun Application.configureRouting() {
                 PebbleContent(
                 "pages/client_dash/client_dash.peb",
                 mapOf<String, Any>()
-            )
+                )
             )
         }
 
@@ -58,10 +58,55 @@ fun Application.configureRouting() {
             call.LoginUser() 
         }
 
+
+
+        get("/food_log") {
+            val recipeQuery = call.request.queryParameters["query"]
+            val foodQuery = call.request.queryParameters["foodquery"]
+
+            if (recipeQuery != null && recipeQuery.isNotBlank()) {
+                val recipes = SearchRecipes(recipeQuery)
+                call.respondTemplate(
+                    "pages/client_dash/add_food.peb",
+                    mapOf("recipes" to recipes)
+                )
+            } else if (foodQuery != null && foodQuery.isNotBlank()) {
+                val foods = SearchFoods(foodQuery)
+                call.respondTemplate(
+                    "pages/client_dash/add_food.peb",
+                    mapOf("foods" to foods)
+                )
+            } else {
+                call.FoodLogPage()
+            }
+        }
+
+        post("/food_log_recipe"){
+            call.FoodLogRecipe()
+        }
+
+        post("/food_log_custom"){
+            call.FoodLogCustom()
+        }
+
+        get("/recipe_search") {
+            val query = call.request.queryParameters["query"] ?: ""
+            val recipes = SearchRecipes(query)
+            call.respondTemplate("pages/client_dash/add_food.peb", mapOf("recipes" to recipes))
+        }
+
+        get("/food_search") {
+            val query = call.request.queryParameters["foodquery"] ?: ""
+            val foods = SearchFoods(query)
+            val grams = call.request.queryParameters["grams"]?.toIntOrNull() ?: 100
+            
+            call.respondTemplate("pages/client_dash/add_food.peb", mapOf("foods" to foods))
+        }
+
+
         authenticate("group49-client_auth") {
-            get("/") { call.DashboardPage() } //change get dashboard when made.
+            get("/") { call.DashboardPage() }
             get("/logout") { call.Logout() } 
-            // get("/profile") { ... } 
         }
     }
 }
