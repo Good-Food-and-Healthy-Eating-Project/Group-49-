@@ -22,15 +22,15 @@ suspend fun ApplicationCall.SignUpUser() {
     val email = credentials.first
     val password = credentials.second
 
-    val result = runCatching{
-        UserDatabase.addUser(email, password)
-    }
-    if (result.isSuccess) {
-        respondTemplate("pages/auth/signup.peb", model = mapOf("success" to true))
-    }
-    else {
-        val error = result.exceptionOrNull()?.message ?: "Unknown error"
-        respondTemplate("pages/auth/signup.peb", model = mapOf("error" to error))
+    val result = runCatching{UserDatabase.addUser(email, password)}
+
+
+    when {
+        result.isFailure -> respondTemplate("pages/auth/signup.peb", model = mapOf("error" to "Something went wrong, please try again"))
+
+        result.getOrDefault(false) -> respondTemplate("pages/auth/signup.peb", model = mapOf("success" to true))
+
+        else -> respondTemplate("pages/auth/signup.peb", model = mapOf("error" to "Email already used or invalid input"))
     }
 }
 
@@ -48,7 +48,7 @@ suspend fun ApplicationCall.LoginUser() {
         result.isFailure -> respondTemplate("pages/auth/login.peb", model = mapOf("error" to "Something went wrong, please try again"))
         result.getOrDefault(false) -> {
             sessions.set(UserSession(email))
-            respondRedirect("/client_dash/client_dash.peb")
+            respondRedirect("/client_dash")
         }
         else -> respondTemplate("pages/auth/login.peb", model = mapOf("error" to "Invalid email or password"))
     }

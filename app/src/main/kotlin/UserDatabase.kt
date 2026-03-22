@@ -48,4 +48,13 @@ object UserDatabase {
         }
         true
     }
+
+    fun isEmailDuplicate(email: String): Boolean{
+        val preexistingUser = transaction{
+            Users.selectAll().where{ Users.email eq email.lowercase() }.count() > 0
+        }
+        return preexistingUser
+    }
 }
+
+
