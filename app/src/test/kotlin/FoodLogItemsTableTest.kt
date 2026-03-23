@@ -50,7 +50,7 @@ class FoodLogItemsTableTest {
             it[weight_kg] = 80
         }
         return FoodLogs.insert {
-            it[user_id] = userId
+            it[users_id] = userId
             it[log_date] = time
             it[meal_type] = "Launch"
             it[notes] = "test_notes"
