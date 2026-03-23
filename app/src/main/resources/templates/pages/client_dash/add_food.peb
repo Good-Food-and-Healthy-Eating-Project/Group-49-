@@ -69,7 +69,11 @@
             <div class="calorie-section">
                 <h2 class="section-title">Calorie Info</h2>
                 <div class="info-box">
-                    <!-- Calories will appear here -->
+                    {% if calories is defined %}
+                        <p>Total Calories: {{ calories }}</p>
+                    {% else %}
+                        <p>No calories calculated yet.</p>
+                    {% endif %}
                 </div>
             </div>
 
@@ -78,7 +82,7 @@
 
                 <!-- RECIPES SECTION -->
                 <div class="mode-section">
-                    <h3 class="section-title">Diet Mode</h3>
+                    <h3 class="section-title">Meals</h3>
 
                     <!-- SEARCH -->
                     <div class="mode-content">

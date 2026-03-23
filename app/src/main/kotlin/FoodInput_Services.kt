@@ -10,6 +10,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import diettracker.models.Recipe
 import diettracker.db.tables.Foods
+import diettracker.db.tables.RecipeIngredients
 import diettracker.models.Food
 import org.jetbrains.exposed.v1.core.*
 
@@ -20,10 +21,36 @@ suspend fun ApplicationCall.FoodLogPage() {
 
 
 suspend fun ApplicationCall.FoodLogRecipe() {
-    respondRedirect("/food_log")
-        // gets recipe id and calls get recipe by id, calc calories etc and adds to calories section
-        //val id = call.receiveParameters()["recipeId"]!!.toInt()
-        //val recipe = getRecipeById(id)
+    var totalCalories = 0
+    val params = receiveParameters()
+    val recipeIdStr = params["recipeId"]
+    val recipeid = recipeIdStr?.toIntOrNull()
+    if (recipeid == null) {
+        respondTemplate(
+            "pages/client_dash/add_food.peb",
+            mapOf("calories" to 0, "error" to "Invalid or missing recipeId: $recipeIdStr")
+        )
+        return
+    }
+
+    transaction {
+        val ingredients = RecipeIngredients
+            .selectAll()
+            .where { RecipeIngredients.recipe_id eq recipeid }
+            .map { row -> row }
+
+        for (i in ingredients) {
+            val foodId = i[RecipeIngredients.food_id]
+            val grams = i[RecipeIngredients.quantity_g].toInt()
+            val calories = calcCalcsById(foodId, grams)
+            totalCalories += calories
+        }
+    }
+
+    respondTemplate(
+        "pages/client_dash/add_food.peb",
+        mapOf("calories" to totalCalories)
+    )
 }
 
 suspend fun ApplicationCall.FoodLogCustom() {
@@ -81,7 +108,7 @@ fun SearchFoods(foodquery: String): List<Food> = transaction {
 
 
 
-fun getRecipeById(id: Int): Recipe? {
+/*fun getRecipeById(id: Int): Recipe? { // add ? in case user press add without selecting a recipe
     return Recipes
         .selectAll()
         .where { Recipes.recipes_id eq id }
@@ -90,5 +117,16 @@ fun getRecipeById(id: Int): Recipe? {
             name = row[Recipes.recipe_name],
         ) }
         .firstOrNull()
+} */
+
+fun calcCalcsById(foodid: Int, grams: Int): Int {
+    val multiplier = grams / 100.0
+    val caloriesPer100g = Foods
+    .selectAll()
+    .where { Foods.food_id eq foodid }
+    .map { row -> row[Foods.calories_per_100g].toDouble().toInt() }
+    .firstOrNull() ?: return 0
+
+    return (caloriesPer100g * multiplier).toInt()
 }
 

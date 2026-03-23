@@ -64,6 +64,7 @@ fun Application.configureRouting() {
             val recipeQuery = call.request.queryParameters["query"]
             val foodQuery = call.request.queryParameters["foodquery"]
 
+
             if (recipeQuery != null && recipeQuery.isNotBlank()) {
                 val recipes = SearchRecipes(recipeQuery)
                 call.respondTemplate(
@@ -99,7 +100,7 @@ fun Application.configureRouting() {
             val query = call.request.queryParameters["foodquery"] ?: ""
             val foods = SearchFoods(query)
             val grams = call.request.queryParameters["grams"]?.toIntOrNull() ?: 100
-            
+
             call.respondTemplate("pages/client_dash/add_food.peb", mapOf("foods" to foods))
         }
 
