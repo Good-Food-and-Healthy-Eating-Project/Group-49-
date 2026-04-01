@@ -11,8 +11,8 @@
 </head>
 <body>
 
-{% if showNavbar != false %}
-    {% include "components/navbar.peb" %}
+{% if showNavbar  %}
+    {% include "components/navbar.peb" with { "userRoles" : userRoles } %}
 {% endif %}
 
     <main class="main-content">

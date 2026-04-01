@@ -13,20 +13,21 @@ import kotlinx.serialization.Serializable
 data class UserSession(val email: String)
 
 fun Application.configureAuthentication() {
-    
+    install(Sessions) {
+        cookie<UserSession>("Session")
+    }
 
     install(Authentication) {
-
         session<UserSession>("group49-client_auth") {
-        validate { session ->
-            val isValid = session.email.isNotEmpty()
-            if (isValid) {
-                session
-            } else {
-                null
+            validate { session ->
+                val isValid = session.email.isNotEmpty()
+                if (isValid) {
+                    session
+                } else {
+                    null
+                }
             }
+            challenge { call.respondRedirect("/login") }
         }
-        challenge { call.respondRedirect("/login") }
-        }  
     }
 }

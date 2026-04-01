@@ -1,7 +1,7 @@
 package diettracker.db.tables
 
-import org.jetbrains.exposed.v1.core.Table
 import diettracker.db.MAX_LEN
+import org.jetbrains.exposed.v1.core.Table
 
 object RecipeIngredients : Table("recipe_ingredients") {
     val recipe_id = integer("recipe_id").references(Recipes.recipes_id)

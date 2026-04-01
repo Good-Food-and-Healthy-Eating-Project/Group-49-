@@ -1,7 +1,7 @@
 package diettracker.db.tables
 
-import org.jetbrains.exposed.v1.core.Table
 import diettracker.db.MAX_LEN
+import org.jetbrains.exposed.v1.core.Table
 
 object Foods : Table("foods") {
     val food_id = integer("food_id").autoIncrement()
@@ -10,7 +10,7 @@ object Foods : Table("foods") {
     val usda_fdc_id = long("usda_fdc_id").nullable().uniqueIndex()
 
     val calories_per_100g = decimal("calories_per_100g", 8, 2)
-    val protein_per_100g = decimal("protein_per_100g", 8, 2)   // keeping your current spelling
+    val protein_per_100g = decimal("protein_per_100g", 8, 2) // keeping your current spelling
     val carbs_per_100g = decimal("carbs_per_100g", 8, 2)
     val fat_per_100g = decimal("fat_per_100g", 8, 2)
 

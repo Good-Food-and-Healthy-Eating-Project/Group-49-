@@ -1,14 +1,14 @@
-import diettracker.db.tables.ClientProfessionalLink
-import diettracker.db.tables.Clients
-import diettracker.db.tables.FoodLogItems
-import diettracker.db.tables.FoodLogs
-import diettracker.db.tables.Foods
-import diettracker.db.tables.Professionals
-import diettracker.db.tables.RecipeIngredients
-import diettracker.db.tables.Recipes
-import diettracker.db.tables.Roles
-import diettracker.db.tables.UserRoles
-import diettracker.db.tables.Users
+import diettracker.diettracker.db.tables.ClientProfessionalLink
+import diettracker.diettracker.db.tables.Clients
+import diettracker.diettracker.db.tables.FoodLogItems
+import diettracker.diettracker.db.tables.FoodLogs
+import diettracker.diettracker.db.tables.Foods
+import diettracker.diettracker.db.tables.Professionals
+import diettracker.diettracker.db.tables.RecipeIngredients
+import diettracker.diettracker.db.tables.Recipes
+import diettracker.diettracker.db.tables.Roles
+import diettracker.diettracker.db.tables.UserRoles
+import diettracker.diettracker.db.tables.Users
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteAll
@@ -92,7 +92,7 @@ class MultiTableIntegrationTest {
         val time = Instant.now()
         val foodLogId =
             FoodLogs.insert {
-                it[client_id] = userId
+                it[users_id] = userId
                 it[log_date] = time
                 it[meal_type] = "Launch"
                 it[notes] = "test_notes"
@@ -187,7 +187,7 @@ class MultiTableIntegrationTest {
                     .toList()
             assertNotNull(foodLog)
             assertEquals(1, item.size)
-            assertEquals(userId, foodLog[FoodLogs.client_id])
+            assertEquals(userId, foodLog[FoodLogs.users_id])
             assertEquals(foodId, item[0][FoodLogItems.food_id])
             assertEquals(BigDecimal("200.00"), item[0][FoodLogItems.quantity_g])
         }
@@ -204,8 +204,7 @@ class MultiTableIntegrationTest {
             val ingredient =
                 RecipeIngredients.selectAll()
                     .where {
-                        (RecipeIngredients.food_id eq foodId) and
-                            (RecipeIngredients.recipe_id eq recipeId)
+                        (RecipeIngredients.food_id eq foodId) and (RecipeIngredients.recipe_id eq recipeId)
                     }
                     .singleOrNull()
             assertNotNull(recipe)
@@ -232,8 +231,7 @@ class MultiTableIntegrationTest {
             val link =
                 ClientProfessionalLink.selectAll()
                     .where {
-                        (ClientProfessionalLink.client_id eq clientId) and
-                            (ClientProfessionalLink.professional_id eq professionalId)
+                        (ClientProfessionalLink.client_id eq clientId) and (ClientProfessionalLink.professional_id eq professionalId)
                     }
                     .singleOrNull()
             assertNotNull(link)

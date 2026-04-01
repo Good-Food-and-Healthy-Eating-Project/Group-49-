@@ -70,8 +70,7 @@ class RecipeIngredientsTableTest {
             val result =
                 RecipeIngredients.selectAll()
                     .where {
-                        (RecipeIngredients.recipe_id eq recipeId) and
-                            (RecipeIngredients.food_id eq foodId)
+                        (RecipeIngredients.recipe_id eq recipeId) and (RecipeIngredients.food_id eq foodId)
                     }
                     .singleOrNull()
             assertNotNull(result)
@@ -121,8 +120,7 @@ class RecipeIngredientsTableTest {
             val result =
                 RecipeIngredients.selectAll()
                     .where {
-                        (RecipeIngredients.recipe_id eq recipeId) and
-                            (RecipeIngredients.food_id eq foodId)
+                        (RecipeIngredients.recipe_id eq recipeId) and (RecipeIngredients.food_id eq foodId)
                     }
                     .singleOrNull()
             assertNull(result)
@@ -172,8 +170,7 @@ class RecipeIngredientsTableTest {
             val result =
                 RecipeIngredients.selectAll()
                     .where {
-                        (RecipeIngredients.recipe_id eq recipeId) and
-                            (RecipeIngredients.food_id eq foodId)
+                        (RecipeIngredients.recipe_id eq recipeId) and (RecipeIngredients.food_id eq foodId)
                     }
                     .singleOrNull()
             assertNotNull(result)
@@ -220,8 +217,7 @@ class RecipeIngredientsTableTest {
             val result =
                 RecipeIngredients.selectAll()
                     .where {
-                        (RecipeIngredients.recipe_id eq recipeId) and
-                            (RecipeIngredients.food_id eq foodId)
+                        (RecipeIngredients.recipe_id eq recipeId) and (RecipeIngredients.food_id eq foodId)
                     }
                     .toList()
             assertEquals(1, result.size)

@@ -1,4 +1,5 @@
 import diettracker.db.tables.Clients
+import diettracker.db.tables.Clients.client_id
 import diettracker.db.tables.FoodLogItems
 import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.Foods
