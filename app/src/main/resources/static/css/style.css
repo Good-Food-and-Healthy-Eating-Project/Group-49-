@@ -413,6 +413,87 @@ a:hover { color: var(--brown); }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
 
+/* Client Diet Trend */
+.client-dashboard-page {
+    padding: 40px;
+}
+.calendar-widget {
+    width: 25%;
+    min-width: 280px;
+    padding: 12px;
+}
+.calendar-weekdays,
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 42px);
+    gap: 10px;
+}
+.calendar-weekdays {
+    margin-bottom: 10px;
+}
+.calendar-weekdays div {
+    width: 42px;
+    height: 20px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+.day-cell {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.empty-cell {
+    width: 42px;
+    height: 42px;
+}
+.day-box {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.day-box.green {
+    background-color: #65f096;
+}
+.day-box.red {
+    background-color: #f34444;
+}
+.day-box.empty-day {
+    background-color: #eee;
+    color: #6b6a6a;
+    cursor: default;
+}
+.tooltip {
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #242424;
+    color: white;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+}
+.day-box:hover .tooltip {
+    opacity: 1;
+}
+.no-data {
+    font-size: 14px;
+    color: #646363;
+    margin-top: 12px;
+    text-align: center;
+}
+
 /* =============================================
    RESPONSIVE
    ============================================= */

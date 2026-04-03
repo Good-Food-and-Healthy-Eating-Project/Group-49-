@@ -1,12 +1,54 @@
-    {% extends "layouts/base.peb" %}
+{% extends "layouts/base.peb" %}
 
-        {% block title %}
+{% block title %}
 Home
 {% endblock %}
 
-    {% block content %}
-
-<h1>Welcome to Good Food</h1>
-<p>This is my first page.</p>
-
+{% block content %}
+<div class="client-dashboard-page">
+    <div class="calendar-widget">
+<div class="calendar-title">
+    <h3>Diet Trend</h3>
+    <h2>{{ currentYear }} / {{ currentMonth }}</h2>
+</div>
+        <div class="calendar-weekdays">
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+            <div>Sun</div>
+        </div>
+        <div class="calendar-grid">
+            {% for i in 1..leadingEmptyDays %}
+                <div class="day-cell empty-cell"></div>
+            {% endfor %}
+            {% for day in 1..daysInMonth %}
+                {% set found = false %}
+                <div class="day-cell">
+                    {% for trend in trends %}
+                        {% if trend.dayOfMonth == day %}
+                            {% set found = true %}
+                            <div class="day-box {{ trend.exceeds ? 'red' : 'green' }}">
+                                {{ day }}
+                                <div class="tooltip">
+                                    Kcal: {{ trend.totalCalorie }} / {{ trend.targetCalorie }}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    {% if not found %}
+                        <div class="day-box empty-day">
+                            {{ day }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        {% if trends is empty %}
+            <div class="no-data">No diet data</div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

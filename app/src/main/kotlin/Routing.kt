@@ -29,15 +29,6 @@ fun Application.configureRouting() {
             )
         }
 
-        get("/client_dash") {
-            call.respond(
-                PebbleContent(
-                "pages/client_dash/client_dash.peb",
-                mapOf<String, Any>()
-            )
-            )
-        }
-
         get("/health") {
             call.respondText("OK")
         }
@@ -61,6 +52,7 @@ fun Application.configureRouting() {
         authenticate("group49-client_auth") {
             get("/") { call.DashboardPage() } //change get dashboard when made.
             get("/logout") { call.Logout() } 
+            get("/client_dash") { call.dietTrend() }
             // get("/profile") { ... } 
         }
     }
