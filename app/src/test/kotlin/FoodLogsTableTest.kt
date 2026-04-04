@@ -56,7 +56,7 @@ class FoodLogsTableTest {
                 } get FoodLogs.food_log_id
             val foodLogs = FoodLogs.selectAll().where { FoodLogs.food_log_id eq foodLogId }.toList()
             assertEquals(1, foodLogs.size)
-            assertEquals(userId, foodLogs[0][FoodLogs.client_id])
+            assertEquals(userId, foodLogs[0][FoodLogs.users_id])
             assertEquals("Launch", foodLogs[0][FoodLogs.meal_type])
             assertEquals("test_notes", foodLogs[0][FoodLogs.notes])
         }

@@ -29,7 +29,7 @@ private const val SCALE = 4
 private const val RESPONSE_CODE_MIN = 200
 private const val RESPONSE_CODE_MAX = 299
 
-@Suppress("unused", "SpellCheckingInspection")
+@Suppress("unused", "SpellCheckingInspection", "TooManyFunctions")
 object TemporaryRecipeSeeder {
     private val http = HttpClient.newHttpClient()
     private val json = Json { ignoreUnknownKeys = true }
@@ -58,8 +58,10 @@ object TemporaryRecipeSeeder {
                         usdaApiKey = usdaApiKey,
                     )
                     println("Seeded: ${meal.strMeal}")
-                } catch (e: RuntimeException) {
+                } catch (e: java.io.IOException) {
                     println("Failed to seed meal ${mealSummary.idMeal}: ${e.message}")
+                } catch (e: kotlinx.serialization.SerializationException) {
+                    println("Failed to parse meal ${mealSummary.idMeal}: ${e.message}")
                 }
             }
         }
@@ -256,8 +258,11 @@ object TemporaryRecipeSeeder {
                 )
             val response = json.decodeFromString<UsdaSearchResponse>(body)
             response.foods.firstOrNull()
-        } catch (e: RuntimeException) {
+        } catch (e: java.io.IOException) {
             println("USDA lookup failed for '$query': ${e.message}")
+            null
+        } catch (e: kotlinx.serialization.SerializationException) {
+            println("Failed to parse USDA response for '$query': ${e.message}")
             null
         }
     }
@@ -282,50 +287,52 @@ object TemporaryRecipeSeeder {
         measureText: String?,
         ingredientName: String,
     ): BigDecimal {
-        if (measureText.isNullOrBlank()) return BigDecimal("100.00")
+        val defaultValue = BigDecimal("100.00")
 
-        val text = measureText.lowercase().trim()
+        val text = measureText?.lowercase()?.trim()
 
-        parseMass(text)?.let { return it }
-        parseVolume(text)?.let { return it }
-        parseCount(text, ingredientName)?.let { return it }
+        val mass = text?.let { parseMass(it) }
+        val volume = text?.let { parseVolume(it) }
+        val count = text?.let { parseCount(it, ingredientName) }
 
-        return BigDecimal("100.00")
+        return mass ?: volume ?: count ?: defaultValue
     }
 
     private fun parseMass(text: String): BigDecimal? {
         val regex = Regex("""(\d+(?:\.\d+)?|\d+/\d+)\s*(kg|g)""")
-        val match = regex.find(text) ?: return null
-        val amount = parseNumber(match.groupValues[1]) ?: return null
-        val unit = match.groupValues[2]
+        val match = regex.find(text)
+
+        val amount = match?.let { parseNumber(it.groupValues[1]) }
+        val unit = match?.groupValues?.get(2)
 
         val grams =
             when (unit) {
-                "kg" -> amount.multiply(BigDecimal("1000"))
+                "kg" -> amount?.multiply(BigDecimal("1000"))
                 "g" -> amount
-                else -> return null
+                else -> null
             }
 
-        return grams.setScale(2, RoundingMode.HALF_UP)
+        return grams?.setScale(2, RoundingMode.HALF_UP)
     }
 
     private fun parseVolume(text: String): BigDecimal? {
         val regex = Regex("""(\d+(?:\.\d+)?|\d+/\d+)\s*(ml|l|tsp|tbsp|cup)""")
-        val match = regex.find(text) ?: return null
-        val amount = parseNumber(match.groupValues[1]) ?: return null
-        val unit = match.groupValues[2]
+        val match = regex.find(text)
+
+        val amount = match?.let { parseNumber(it.groupValues[1]) }
+        val unit = match?.groupValues?.get(2)
 
         val grams =
             when (unit) {
                 "ml" -> amount
-                "l" -> amount.multiply(BigDecimal("1000"))
-                "tsp" -> amount.multiply(BigDecimal("5"))
-                "tbsp" -> amount.multiply(BigDecimal("15"))
-                "cup" -> amount.multiply(BigDecimal("240"))
-                else -> return null
+                "l" -> amount?.multiply(BigDecimal("1000"))
+                "tsp" -> amount?.multiply(BigDecimal("5"))
+                "tbsp" -> amount?.multiply(BigDecimal("15"))
+                "cup" -> amount?.multiply(BigDecimal("240"))
+                else -> null
             }
 
-        return grams.setScale(2, RoundingMode.HALF_UP)
+        return grams?.setScale(2, RoundingMode.HALF_UP)
     }
 
     private fun parseCount(
@@ -333,20 +340,21 @@ object TemporaryRecipeSeeder {
         ingredientName: String,
     ): BigDecimal? {
         val regex = Regex("""(\d+(?:\.\d+)?|\d+/\d+)""")
-        val match = regex.find(text) ?: return null
-        val count = parseNumber(match.groupValues[1]) ?: return null
+        val match = regex.find(text)
+
+        val count = match?.let { parseNumber(it.groupValues[1]) }
 
         val perUnit =
             when {
-                ingredientName.contains("egg", ignoreCase = true) -> BigDecimal("50")
-                ingredientName.contains("garlic", ignoreCase = true) -> BigDecimal("5")
-                ingredientName.contains("onion", ignoreCase = true) -> BigDecimal("110")
-                ingredientName.contains("tomato", ignoreCase = true) -> BigDecimal("120")
-                ingredientName.contains("carrot", ignoreCase = true) -> BigDecimal("60")
+                ingredientName.contains("egg", true) -> BigDecimal("50")
+                ingredientName.contains("garlic", true) -> BigDecimal("5")
+                ingredientName.contains("onion", true) -> BigDecimal("110")
+                ingredientName.contains("tomato", true) -> BigDecimal("120")
+                ingredientName.contains("carrot", true) -> BigDecimal("60")
                 else -> BigDecimal("100")
             }
 
-        return count.multiply(perUnit).setScale(2, RoundingMode.HALF_UP)
+        return count?.multiply(perUnit)?.setScale(2, RoundingMode.HALF_UP)
     }
 
     private fun parseNumber(value: String): BigDecimal? {
