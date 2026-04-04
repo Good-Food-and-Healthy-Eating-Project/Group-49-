@@ -63,19 +63,19 @@ fun Application.configureRouting() {
         get("/food_log") {
             val recipeQuery = call.request.queryParameters["query"]
             val foodQuery = call.request.queryParameters["foodquery"]
-
+            val calories = call.sessions.get<CaloriesSession>()?.calories ?: 0
 
             if (recipeQuery != null && recipeQuery.isNotBlank()) {
                 val recipes = SearchRecipes(recipeQuery)
                 call.respondTemplate(
                     "pages/client_dash/add_food.peb",
-                    mapOf("recipes" to recipes)
+                    mapOf("recipes" to recipes, "calories" to calories)
                 )
             } else if (foodQuery != null && foodQuery.isNotBlank()) {
                 val foods = SearchFoods(foodQuery)
                 call.respondTemplate(
                     "pages/client_dash/add_food.peb",
-                    mapOf("foods" to foods)
+                    mapOf("foods" to foods, "calories" to calories)
                 )
             } else {
                 call.FoodLogPage()
@@ -90,18 +90,24 @@ fun Application.configureRouting() {
             call.FoodLogCustom()
         }
 
+        post("/food_log_reset") {
+            call.FoodLogReset()
+        }
+
         get("/recipe_search") {
             val query = call.request.queryParameters["query"] ?: ""
             val recipes = SearchRecipes(query)
-            call.respondTemplate("pages/client_dash/add_food.peb", mapOf("recipes" to recipes))
+            val calories = call.sessions.get<CaloriesSession>()?.calories ?: 0
+            call.respondTemplate("pages/client_dash/add_food.peb", mapOf("recipes" to recipes, "calories" to calories))
         }
 
         get("/food_search") {
             val query = call.request.queryParameters["foodquery"] ?: ""
             val foods = SearchFoods(query)
             val grams = call.request.queryParameters["grams"]?.toIntOrNull() ?: 100
+            val calories = call.sessions.get<CaloriesSession>()?.calories ?: 0
 
-            call.respondTemplate("pages/client_dash/add_food.peb", mapOf("foods" to foods))
+            call.respondTemplate("pages/client_dash/add_food.peb", mapOf("foods" to foods, "calories" to calories))
         }
 
 

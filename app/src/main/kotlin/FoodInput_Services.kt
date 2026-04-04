@@ -1,4 +1,6 @@
 package diettracker
+
+import io.ktor.server.sessions.*
 import diettracker.db.tables.Recipes
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -13,15 +15,22 @@ import diettracker.db.tables.Foods
 import diettracker.db.tables.RecipeIngredients
 import diettracker.models.Food
 import org.jetbrains.exposed.v1.core.*
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class CaloriesSession(val calories: Int)
+
+
+
 
 suspend fun ApplicationCall.FoodLogPage() {
-    respondTemplate("pages/client_dash/add_food.peb", model = emptyMap())
+    val caloriesSession = sessions.get<CaloriesSession>()
+    val calories = caloriesSession?.calories ?: 0
+    respondTemplate("pages/client_dash/add_food.peb", model = mapOf("calories" to calories))
 }
 
-
-
 suspend fun ApplicationCall.FoodLogRecipe() {
-    var totalCalories = 0
+    var addCalories = 0
     val params = receiveParameters()
     val recipeIdStr = params["recipeId"]
     val recipeid = recipeIdStr?.toIntOrNull()
@@ -43,22 +52,51 @@ suspend fun ApplicationCall.FoodLogRecipe() {
             val foodId = i[RecipeIngredients.food_id]
             val grams = i[RecipeIngredients.quantity_g].toInt()
             val calories = calcCalcsById(foodId, grams)
-            totalCalories += calories
+            addCalories += calories
         }
     }
 
+    // Get or create session
+    val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession(0)
+    val newTotal = caloriesSession.calories + addCalories
+    sessions.set(CaloriesSession(newTotal))
+
     respondTemplate(
         "pages/client_dash/add_food.peb",
-        mapOf("calories" to totalCalories)
+        mapOf("calories" to newTotal)
     )
 }
 
 suspend fun ApplicationCall.FoodLogCustom() {
-    respondRedirect("/food_log")
+    val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession(0)
+    val params = receiveParameters()
+    val foodIdStr = params["foodId"]
+    val gramsStr = params["grams"]
+    val foodId = foodIdStr?.toIntOrNull()
+    val grams = gramsStr?.toIntOrNull() ?: 100
+    var addCalories = 0
+
+    if (foodId == null) {
+        respondTemplate(
+            "pages/client_dash/add_food.peb",
+            mapOf("calories" to 0, "error" to "Invalid or missing foodId: $foodIdStr")
+        )
+        return
+    }
+
+    transaction {
+        val calories = calcCalcsById(foodId, grams)
+        addCalories += calories
+    }
+
+    val newTotal = caloriesSession.calories + addCalories
+    sessions.set(CaloriesSession(newTotal))
+
+    respondTemplate(
+        "pages/client_dash/add_food.peb",
+        mapOf("calories" to newTotal)
+    )
 }
-
-
-
 
 fun SearchRecipes(query: String): List<Recipe> = transaction {
     val searchTerm = query.lowercase()
@@ -105,9 +143,6 @@ fun SearchFoods(foodquery: String): List<Food> = transaction {
     return@transaction foods
 }
 
-
-
-
 /*fun getRecipeById(id: Int): Recipe? { // add ? in case user press add without selecting a recipe
     return Recipes
         .selectAll()
@@ -130,3 +165,10 @@ fun calcCalcsById(foodid: Int, grams: Int): Int {
     return (caloriesPer100g * multiplier).toInt()
 }
 
+suspend fun ApplicationCall.FoodLogReset() {
+    sessions.set(CaloriesSession(0))
+    respondTemplate(
+        "pages/client_dash/add_food.peb",
+        mapOf("calories" to 0)
+    )
+}
