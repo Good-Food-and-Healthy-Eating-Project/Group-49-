@@ -1,4 +1,4 @@
-import diettracker.diettracker.db.tables.Roles
+import diettracker.db.tables.Roles
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.insert

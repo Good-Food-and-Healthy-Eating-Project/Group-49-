@@ -1,14 +1,14 @@
-import diettracker.diettracker.db.tables.ClientProfessionalLink
-import diettracker.diettracker.db.tables.Clients
-import diettracker.diettracker.db.tables.FoodLogItems
-import diettracker.diettracker.db.tables.FoodLogs
-import diettracker.diettracker.db.tables.Foods
-import diettracker.diettracker.db.tables.Professionals
-import diettracker.diettracker.db.tables.RecipeIngredients
-import diettracker.diettracker.db.tables.Recipes
-import diettracker.diettracker.db.tables.Roles
-import diettracker.diettracker.db.tables.UserRoles
-import diettracker.diettracker.db.tables.Users
+import diettracker.db.tables.ClientProfessionalLink
+import diettracker.db.tables.Clients
+import diettracker.db.tables.FoodLogItems
+import diettracker.db.tables.FoodLogs
+import diettracker.db.tables.Foods
+import diettracker.db.tables.Professionals
+import diettracker.db.tables.RecipeIngredients
+import diettracker.db.tables.Recipes
+import diettracker.db.tables.Roles
+import diettracker.db.tables.UserRoles
+import diettracker.db.tables.Users
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteAll
@@ -231,9 +231,11 @@ class MultiTableIntegrationTest {
             val link =
                 ClientProfessionalLink.selectAll()
                     .where {
-                        (ClientProfessionalLink.client_id eq clientId) and (ClientProfessionalLink.professional_id eq professionalId)
+                        (ClientProfessionalLink.client_id eq clientId) and
+                            (ClientProfessionalLink.professional_id eq professionalId)
                     }
                     .singleOrNull()
+
             assertNotNull(link)
             assertEquals(clientId, link[ClientProfessionalLink.client_id])
             assertEquals(professionalId, link[ClientProfessionalLink.professional_id])

@@ -9,17 +9,17 @@ import io.ktor.server.sessions.clear
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
-import io.ktor.server.util.*
+import io.ktor.server.util.getOrFail
 import org.mindrot.jbcrypt.BCrypt
 
 const val MAX_EMAIL_LENGTH = 128
 const val MIN_PASSWORD_LENGTH = 8
 
-suspend fun ApplicationCall.SignUpPage() {
+suspend fun ApplicationCall.signUpPage() {
     respondTemplate("pages/auth/signup.peb", model = emptyMap())
 }
 
-suspend fun ApplicationCall.SignUpUser() {
+suspend fun ApplicationCall.signUpUser() {
     val credentials = getCredentials()
     val email = credentials.first
     val password = credentials.second
@@ -33,8 +33,7 @@ suspend fun ApplicationCall.SignUpUser() {
         result.isFailure ->
             respondTemplate(
                 "pages/auth/signup.peb",
-                model =
-                    mapOf("error" to "Something went wrong, please try again"),
+                model = mapOf("error" to "Something went wrong, please try again"),
             )
 
         result.getOrDefault(false) -> respondTemplate("pages/auth/signup.peb", model = mapOf("success" to true))
@@ -47,11 +46,11 @@ suspend fun ApplicationCall.SignUpUser() {
     }
 }
 
-suspend fun ApplicationCall.LoginPage() {
+suspend fun ApplicationCall.loginPage() {
     respondTemplate("pages/auth/login.peb", model = mapOf("message" to "Enter your credentials"))
 }
 
-suspend fun ApplicationCall.LoginUser() {
+suspend fun ApplicationCall.loginUser() {
     val credentials = getCredentials()
     val email = credentials.first
     val password = credentials.second
@@ -73,12 +72,12 @@ suspend fun ApplicationCall.LoginUser() {
     }
 }
 
-suspend fun ApplicationCall.DashboardPage() {
+suspend fun ApplicationCall.dashboardPage() {
     val username = sessions.get<UserSession>()?.email?.substringBefore("@") ?: ""
     respondTemplate("client_dash/client_dash.peb", mapOf("username" to username))
 }
 
-suspend fun ApplicationCall.Logout() {
+suspend fun ApplicationCall.logout() {
     val email = sessions.get<UserSession>()?.email.toString()
     application.log.info("User $email logged out")
     sessions.clear<UserSession>()

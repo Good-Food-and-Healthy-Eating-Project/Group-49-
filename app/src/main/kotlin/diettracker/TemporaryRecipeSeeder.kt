@@ -21,6 +21,14 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 
+private const val LIMIT_PER_CATEGORY = 3
+private const val PARTS_SIZE = 2
+private const val PARTS_ZERO = 0
+private const val PARTS_ONE = 1
+private const val SCALE = 4
+private const val RESPONSE_CODE_MIN = 200
+private const val RESPONSE_CODE_MAX = 299
+
 @Suppress("unused", "SpellCheckingInspection")
 object TemporaryRecipeSeeder {
     private val http = HttpClient.newHttpClient()
@@ -31,7 +39,7 @@ object TemporaryRecipeSeeder {
 
     fun seed(
         systemUserId: Int,
-        limitPerCategory: Int = 3,
+        limitPerCategory: Int = LIMIT_PER_CATEGORY,
         usdaApiKey: String = System.getenv("USDA_API_KEY") ?: "",
     ) {
         val categories = fetchCategories()
@@ -50,7 +58,7 @@ object TemporaryRecipeSeeder {
                         usdaApiKey = usdaApiKey,
                     )
                     println("Seeded: ${meal.strMeal}")
-                } catch (e: Exception) {
+                } catch (e: RuntimeException) {
                     println("Failed to seed meal ${mealSummary.idMeal}: ${e.message}")
                 }
             }
@@ -248,7 +256,7 @@ object TemporaryRecipeSeeder {
                 )
             val response = json.decodeFromString<UsdaSearchResponse>(body)
             response.foods.firstOrNull()
-        } catch (e: Exception) {
+        } catch (e: RuntimeException) {
             println("USDA lookup failed for '$query': ${e.message}")
             null
         }
@@ -345,10 +353,10 @@ object TemporaryRecipeSeeder {
         return try {
             if (value.contains("/")) {
                 val parts = value.split("/")
-                if (parts.size != 2) return null
-                val numerator = BigDecimal(parts[0])
-                val denominator = BigDecimal(parts[1])
-                numerator.divide(denominator, 4, RoundingMode.HALF_UP)
+                if (parts.size != PARTS_SIZE) return null
+                val numerator = BigDecimal(parts[PARTS_ZERO])
+                val denominator = BigDecimal(parts[PARTS_ONE])
+                numerator.divide(denominator, SCALE, RoundingMode.HALF_UP)
             } else {
                 BigDecimal(value)
             }
@@ -370,7 +378,7 @@ object TemporaryRecipeSeeder {
 
         val response = http.send(request, HttpResponse.BodyHandlers.ofString())
 
-        if (response.statusCode() !in 200..299) {
+        if (response.statusCode() !in RESPONSE_CODE_MIN..RESPONSE_CODE_MAX) {
             error("HTTP ${response.statusCode()} for $url")
         }
 
