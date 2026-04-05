@@ -1,5 +1,6 @@
 package diettracker
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.log
 import io.ktor.server.pebble.respondTemplate
@@ -30,19 +31,28 @@ suspend fun ApplicationCall.signUpUser() {
         }
 
     when {
-        result.isFailure ->
+        result.isFailure -> {
+            response.status(HttpStatusCode.BadRequest)
             respondTemplate(
                 "pages/auth/signup.peb",
                 model = mapOf("error" to "Something went wrong, please try again"),
             )
+        }
 
-        result.getOrDefault(false) -> respondTemplate("pages/auth/signup.peb", model = mapOf("success" to true))
+        result.getOrDefault(false) -> {
+            respondTemplate(
+                "pages/auth/signup.peb",
+                model = mapOf("success" to true),
+            )
+        }
 
-        else ->
+        else -> {
+            response.status(HttpStatusCode.BadRequest)
             respondTemplate(
                 "pages/auth/signup.peb",
                 model = mapOf("error" to "Email already used or invalid input"),
             )
+        }
     }
 }
 

@@ -1,5 +1,4 @@
 import diettracker.db.tables.Clients
-import diettracker.db.tables.Clients.client_id
 import diettracker.db.tables.FoodLogItems
 import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.Foods
@@ -51,7 +50,7 @@ class FoodLogItemsTableTest {
             it[weight_kg] = 80
         }
         return FoodLogs.insert {
-            it[client_id] = userId
+            it[users_id] = userId
             it[log_date] = time
             it[meal_type] = "Launch"
             it[notes] = "test_notes"

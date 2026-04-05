@@ -49,7 +49,7 @@ class FoodLogsTableTest {
             }
             val foodLogId =
                 FoodLogs.insert {
-                    it[client_id] = userId
+                    it[users_id] = userId
                     it[log_date] = time
                     it[meal_type] = "Launch"
                     it[notes] = "test_notes"
@@ -82,7 +82,7 @@ class FoodLogsTableTest {
             }
             val foodLogId =
                 FoodLogs.insert {
-                    it[client_id] = userId
+                    it[users_id] = userId
                     it[log_date] = time
                     it[meal_type] = "Launch"
                     it[notes] = "test_notes"
@@ -113,7 +113,7 @@ class FoodLogsTableTest {
             }
             val foodLogId =
                 FoodLogs.insert {
-                    it[client_id] = userId
+                    it[users_id] = userId
                     it[log_date] = time
                     it[meal_type] = "Launch"
                     it[notes] = "old_test_notes"
@@ -145,7 +145,7 @@ class FoodLogsTableTest {
             }
             val foodLogId =
                 FoodLogs.insert {
-                    it[client_id] = userId
+                    it[users_id] = userId
                     it[log_date] = time
                     it[meal_type] = "Launch"
                     it[notes] = "test_notes"
