@@ -8,12 +8,14 @@ import diettracker.models.Recipe
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.pebble.respondTemplate
 import io.ktor.server.request.receiveParameters
+import io.ktor.server.response.respondRedirect
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.like
+import org.jetbrains.exposed.v1.core.lowerCase
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
@@ -60,11 +62,7 @@ suspend fun ApplicationCall.foodLogRecipe() {
     val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession(0)
     val newTotal = caloriesSession.calories + addCalories
     sessions.set(CaloriesSession(newTotal))
-
-    respondTemplate(
-        "pages/client_dash/add_food.peb",
-        mapOf("calories" to newTotal),
-    )
+    respondRedirect("/food_log")
 }
 
 suspend fun ApplicationCall.foodLogCustom() {
@@ -113,7 +111,7 @@ fun searchRecipes(query: String): List<Recipe> =
         val recipes =
             Recipes
                 .selectAll()
-                .where { (Recipes.recipe_name like "%$searchTerm%") }
+                .where { (Recipes.recipe_name.lowerCase() like "%$searchTerm%") }
                 .map { row ->
                     Recipe(
                         id = row[Recipes.recipes_id],
@@ -139,7 +137,7 @@ fun searchFoods(foodquery: String): List<Food> =
         val foods =
             Foods
                 .selectAll()
-                .where { (Foods.food_name like "%$searchTerm%") }
+                .where { (Foods.food_name.lowerCase() like "%$searchTerm%") }
                 .map { row ->
                     Food(
                         id = row[Foods.food_id],
