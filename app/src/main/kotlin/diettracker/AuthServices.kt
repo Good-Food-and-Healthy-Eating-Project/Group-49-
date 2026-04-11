@@ -41,8 +41,8 @@ suspend fun ApplicationCall.signUpUser() {
 
         result.getOrDefault(false) -> {
             respondTemplate(
-                "pages/auth/signup.peb",
-                model = mapOf("success" to true),
+                "pages/auth/signup_quiz.peb",
+                model = mapOf("email" to email),
             )
         }
 
