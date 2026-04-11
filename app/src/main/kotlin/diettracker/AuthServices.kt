@@ -83,8 +83,14 @@ suspend fun ApplicationCall.loginUser() {
 }
 
 suspend fun ApplicationCall.dashboardPage() {
-    val username = sessions.get<UserSession>()?.email?.substringBefore("@") ?: ""
-    respondTemplate("client_dash/client_dash.peb", mapOf("username" to username))
+    val email = sessions.get<UserSession>()?.email ?: ""
+    val username = email.substringBefore("@")
+    val userId = getUserIdByEmail(email)
+    val userRoles = userId?.let { getUserRoles(it) } ?: emptyList()
+    respondTemplate(
+        "client_dash/client_dash.peb",
+        mapOf("username" to username, "showNavbar" to true, "userRoles" to userRoles),
+    )
 }
 
 suspend fun ApplicationCall.logout() {

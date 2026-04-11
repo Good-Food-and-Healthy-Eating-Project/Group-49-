@@ -13,9 +13,6 @@ import kotlinx.serialization.Serializable
 data class UserSession(val email: String)
 
 fun Application.configureAuthentication() {
-    install(Sessions) {
-        cookie<UserSession>("Session")
-    }
 
     install(Authentication) {
         session<UserSession>("group49-client_auth") {

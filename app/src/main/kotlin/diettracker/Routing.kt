@@ -1,6 +1,7 @@
 package diettracker
 
 import diettracker.db.tables.Professionals
+import diettracker.db.tables.Recipes
 import diettracker.db.tables.Roles
 import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
@@ -46,12 +47,81 @@ fun Route.configurePublicRoutes() {
     }
 
     get("/client_dash") {
+        val email = call.sessions.get<UserSession>()?.email
+        val userId = email?.let { getUserIdByEmail(it) }
+        val userRoles = userId?.let { getUserRoles(it) } ?: emptyList()
+
         call.respond(
             PebbleContent(
                 "pages/client_dash/client_dash.peb",
-                mapOf(),
+                mapOf("showNavbar" to true, "userRoles" to userRoles),
             ),
         )
+    }
+
+    get("/food_log") {
+        val recipeQuery = call.request.queryParameters["query"]
+        val foodQuery = call.request.queryParameters["foodquery"]
+        val calories = call.sessions.get<CaloriesSession>()?.calories ?: 0
+
+        if (recipeQuery != null && recipeQuery.isNotBlank()) {
+            val recipes = searchRecipes(recipeQuery)
+            call.respondTemplate(
+                "pages/client_dash/add_food.peb",
+                mapOf("recipes" to recipes, "calories" to calories)
+            )
+        } else if (foodQuery != null && foodQuery.isNotBlank()) {
+            val foods = searchFoods(foodQuery)
+            call.respondTemplate(
+                "pages/client_dash/add_food.peb",
+                mapOf("foods" to foods, "calories" to calories)
+            )
+        } else {
+            call.foodLogPage()
+        }
+    }
+    post("/food_log_recipe"){
+        call.foodLogRecipe()
+    }
+
+    post("/food_log_custom"){
+        call.foodLogCustom()
+    }
+
+    post("/food_log_reset") {
+        call.foodLogReset()
+    }
+
+    get("/recipe_search") {
+        val query = call.request.queryParameters["query"] ?: ""
+        val recipes = searchRecipes(query)
+        val calories = call.sessions.get<CaloriesSession>()?.calories ?: 0
+        call.respondTemplate("pages/client_dash/add_food.peb", mapOf("recipes" to recipes, "calories" to calories))
+    }
+
+    get("/food_search") {
+        val query = call.request.queryParameters["foodquery"] ?: ""
+        val foods = searchFoods(query)
+        val grams = call.request.queryParameters["grams"]?.toIntOrNull() ?: 100
+        val calories = call.sessions.get<CaloriesSession>()?.calories ?: 0
+
+        call.respondTemplate("pages/client_dash/add_food.peb", mapOf("foods" to foods, "calories" to calories))
+    }
+
+
+    authenticate("group49-client_auth") {
+        get("/") { call.dashboardPage() }
+        get("/logout") { call.logout() }
+    }
+
+
+    get("/diary") {
+        call.respond(PebbleContent("pages/client_dash/food_diary.peb", mapOf("showNavbar" to true)))
+    }
+
+    get("/recipes") {
+        val recipes = getAllRecipes()
+        call.respond(PebbleContent("pages/recipes/recipes.peb", mapOf("showNavbar" to true, "recipes" to recipes)))
     }
 
     get("/health") {
@@ -73,6 +143,17 @@ fun getUserRoles(userId: Int): List<String> =
             .selectAll()
             .where { UserRoles.user_id eq userId }
             .map { it[Roles.role_name] }
+    }
+
+fun getAllRecipes(): List<Map<String, Any?>> =
+    transaction {
+        Recipes.selectAll().map { row ->
+            mapOf(
+                "id" to row[Recipes.recipes_id],
+                "name" to row[Recipes.recipe_name],
+                "thumbnail" to row[Recipes.thumbnail_url],
+            )
+        }
     }
 
 fun getAllProfessionals(): List<Map<String, Any>> =

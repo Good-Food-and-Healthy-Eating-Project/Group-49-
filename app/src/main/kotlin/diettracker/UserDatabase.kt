@@ -1,5 +1,7 @@
 package diettracker
 
+import diettracker.db.tables.Roles
+import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -50,13 +52,26 @@ object UserDatabase {
 
             if (exists) return@transaction false
 
-            Users.insert {
+            val newUserId = Users.insert {
                 it[Users.first_name] = normalisedEmail.substringBefore("@")
                 it[Users.second_name] = ""
                 it[Users.email] = normalisedEmail
                 it[Users.password_hash] = passwordHash
                 it[Users.created_at] = Instant.now()
+            } get Users.user_id
+
+            val clientRoleId = Roles.selectAll()
+                .where { Roles.role_name eq "client" }
+                .map { it[Roles.role_id] }
+                .singleOrNull()
+
+            if (clientRoleId != null) {
+                UserRoles.insert {
+                    it[UserRoles.user_id] = newUserId
+                    it[UserRoles.role_id] = clientRoleId
+                }
             }
+
             true
         }
 

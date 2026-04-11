@@ -1,4 +1,3 @@
-{% set userRoles = userRoles | default([]) %}
 <nav class="navbar">
     <div class="nav-inner">
 
@@ -8,35 +7,24 @@
         </a>
 
         <ul class="nav-links">
-
-            {% if userRoles contains "client" %}
-                <li>
-                    <a href="/log" class="nav-link nav-link--highlight">+ Log Meal</a>
-                </li>
-                <li>
-                    <a href="/dashboard" class="nav-link">Dashboard</a>
-                </li>
-                <li>
-                    <a href="/diary" class="nav-link">Food Diary</a>
-                </li>
-                <li>
-                    <a href="/recipes" class="nav-link">Recipes</a>
-                </li>
-                <li>
-                    <a href="/professionals" class="nav-link">Professionals</a>
-                </li>
-            {% endif %}
-
-    {% if userRoles contains "professional" %}
-                <li>
-                    <a href="/professional/dashboard" class="nav-link">My Clients</a>
-                </li>
-            {% endif %}
-
+            <li>
+                <a href="/food_log" class="nav-link nav-link--highlight">+ Log Meal</a>
+            </li>
+            <li>
+                <a href="/client_dash" class="nav-link">Dashboard</a>
+            </li>
+            <li>
+                <a href="/diary" class="nav-link">Food Diary</a>
+            </li>
+            <li>
+                <a href="/recipes" class="nav-link">Recipes</a>
+            </li>
+            <li>
+                <a href="/professionals" class="nav-link">Professionals</a>
+            </li>
             <li>
                 <a href="/profile" class="nav-link nav-link--profile">Profile</a>
             </li>
-
         </ul>
 
     </div>

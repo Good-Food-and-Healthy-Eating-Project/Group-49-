@@ -12,7 +12,7 @@
 <body>
 
 {% if showNavbar  %}
-    {% include "components/navbar.peb" with { "userRoles" : userRoles } %}
+    {% include "components/navbar.peb" %}
 {% endif %}
 
     <main class="main-content">
