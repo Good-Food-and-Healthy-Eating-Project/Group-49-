@@ -11,14 +11,16 @@
                 <a href="/food_log" class="nav-link nav-link--highlight">+ Log Meal</a>
             </li>
             <li>
-                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/client_dash" class="nav-link">Dashboard</a>
             </li>
-
             <li>
                 <a href="/diary" class="nav-link">Food Diary</a>
             </li>
             <li>
                 <a href="/recipes" class="nav-link">Recipes</a>
+            </li>
+            <li>
+                <a href="/professionals" class="nav-link">Professionals</a>
             </li>
             <li>
                 <a href="/profile" class="nav-link nav-link--profile">Profile</a>

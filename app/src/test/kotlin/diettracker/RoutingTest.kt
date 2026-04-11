@@ -1,5 +1,6 @@
 package diettracker
 
+import TestDatabaseFactory
 import diettracker.db.tables.Users
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -7,8 +8,6 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.formUrlEncode
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
 import io.ktor.server.testing.testApplication
 import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.insert
