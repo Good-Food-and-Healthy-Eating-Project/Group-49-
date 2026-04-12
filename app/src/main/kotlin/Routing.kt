@@ -58,6 +58,15 @@ fun Application.configureRouting() {
             call.LoginUser() 
         }
 
+        get("/recipes") {
+            val query = call.request.queryParameters["query"]?.trim() ?: ""
+            val recipes = RecipeDatabaseQuery.searchRecipes(query)
+            call.respondTemplate("pages/recipes_page/recipes.peb", mapOf(
+                "recipes"  to recipes,
+                "query" to query
+            ))
+        }
+
         authenticate("group49-client_auth") {
             get("/") { call.DashboardPage() } //change get dashboard when made.
             get("/logout") { call.Logout() } 
