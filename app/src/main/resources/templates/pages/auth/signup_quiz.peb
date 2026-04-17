@@ -128,6 +128,7 @@
 		<p class="subtitle">Optional — helps us tailor your recommendations</p>
 
 		<form action="/quiz" method="post">
+			<input type="hidden" name="userId" value="{{ userId }}">
 
 			<div class="field-group">
 				<label for="height">Height (cm)</label>

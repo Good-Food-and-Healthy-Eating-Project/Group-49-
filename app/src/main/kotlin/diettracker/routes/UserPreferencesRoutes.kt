@@ -48,6 +48,6 @@ fun Route.quizRoutes() {
             }
         }
 
-        call.respondRedirect("/Login")
+        call.respondRedirect("/client_dash")
     }
 }

@@ -158,8 +158,9 @@ fun Route.configureAuthRoutes() {
                 ),
             ),
         )
-        quizRoutes()
     }
+
+    quizRoutes()
 }
 
 fun Route.configureProfessionalRoutes() {
