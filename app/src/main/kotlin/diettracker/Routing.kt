@@ -1,11 +1,15 @@
 package diettracker
 
+import diettracker.db.tables.ClientProfessionalLink
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate
 import io.ktor.server.http.content.staticResources
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.pebble.respondTemplate
+import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondRedirect
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -13,6 +17,9 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
+import org.jetbrains.exposed.v1.jdbc.insertIgnore
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 private const val DEFAULT_GRAMS = 100
 
@@ -158,6 +165,64 @@ fun Route.configureProfessionalRoutes() {
                 "userRoles" to userRoles,
             ),
         )
+    }
+
+    post("/select-professional") {
+        val session = call.sessions.get<UserSession>()
+        val email = session?.email ?: return@post call.respondRedirect("/Login")
+
+        val clientIdString = getUserIdByEmail(email)
+
+        // Convert the client ID to an integer for database use.
+        // If conversion fails, return an error to prevent invalid data being stored.
+        val clientId = clientIdString?.toString()?.toIntOrNull()
+            ?: return@post call.respondText(
+                "Invalid client ID",
+                status = HttpStatusCode.InternalServerError
+            )
+
+        val professionalId =
+            call.receiveParameters()["professional_id"]?.toIntOrNull()
+                ?: return@post call.respondText (
+                    "Invalid professional",
+                    status = HttpStatusCode.BadRequest,
+                )
+
+        linkClientToProfessional(clientId, professionalId)
+
+        call.respondRedirect("/client_dash")
+    }
+    get("/professional/clients") {
+        val session = call.sessions.get<UserSession>()
+        val email = session?.email ?: return@get call.respondRedirect("/Login")
+
+        val professionalId = getUserIdByEmail(email)
+            ?: return@get call.respondText("User not found")
+
+        val clients = getClientsForProfessional(professionalId)
+
+        call.respondTemplate(
+            "pages/professionals/clients.peb",
+            mapOf("clients" to clients)
+        )
+    }
+}
+
+fun linkClientToProfessional(clientId: Int, professionalId: Int) {
+    transaction {
+        ClientProfessionalLink.insertIgnore {
+            it[ClientProfessionalLink.client_id] = clientId
+            it[ClientProfessionalLink.professional_id] = professionalId
+        }
+    }
+}
+
+fun getClientsForProfessional(professionalId: Int): List<Int> {
+    return transaction {
+        ClientProfessionalLink
+            .selectAll()
+            .where { ClientProfessionalLink.professional_id eq professionalId }
+            .map { it[ClientProfessionalLink.client_id] }
     }
 }
 
