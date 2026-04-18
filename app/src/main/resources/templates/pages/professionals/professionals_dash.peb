@@ -1,0 +1,18 @@
+    {% extends "layouts/base.peb" %}
+
+        {% block title %}{{ pageTitle | default("Clients") }}{% endblock %}
+
+    {% block head %}
+    {% block content %}
+        <h1>Your Clients</h1>
+
+        {% if clients is empty %}
+          <p>No clients yet.</p>
+        {% else %}
+          <ul>
+            {% for client in clients %}
+              <li>Client ID: {{ client }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+    {% endblock %}

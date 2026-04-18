@@ -2,6 +2,7 @@ package diettracker
 
 import diettracker.db.tables.Professionals
 import diettracker.db.tables.Recipes
+import diettracker.models.Professional
 import diettracker.db.tables.Roles
 import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
@@ -39,16 +40,20 @@ fun getAllRecipes(): List<Map<String, Any?>> =
         }
     }
 
-fun getAllProfessionals(): List<Map<String, Any>> =
+fun getAllProfessionals(): List<Professional> =
     transaction {
-        Professionals.selectAll().map { row ->
-            mapOf(
-                "id" to row[Professionals.professional_id],
-                "job_title" to row[Professionals.job_title],
-                "organisation" to row[Professionals.organistation],
-                "bio" to row[Professionals.bio],
-            )
-        }
+        (Professionals innerJoin Users)
+            .selectAll()
+            .map { row ->
+                Professional(
+                    id = row[Professionals.professional_id],
+                    name = "${row[Users.first_name]} ${row[Users.second_name]}".trim(),
+                    email = row[Users.email],
+                    jobTitle = row[Professionals.job_title],
+                    organisation = row[Professionals.organistation],
+                    bio = row[Professionals.bio],
+                )
+            }
     }
 
 object UserDatabase {

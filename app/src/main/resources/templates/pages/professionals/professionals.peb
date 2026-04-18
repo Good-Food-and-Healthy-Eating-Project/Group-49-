@@ -1,0 +1,22 @@
+    {% extends "layouts/base.peb" %}
+
+        {% block title %}
+        {{ pageTitle | default("Clients") }}
+        {% endblock %}
+
+    {% block content %}
+    <h1>Available Professionals</h1>
+
+    {% for pro in Professional %}
+      <div>
+        <p>{{ pro.name }}</p>
+        <p>{{ pro.jobTitle }} at {{ pro.organisation }}</p>
+        <p>{{ pro.bio }}</p>
+
+        <form method="post" action="/select-professional">
+          <input type="hidden" name="professional_id" value="{{ pro.id }}">
+          <button type="submit">Select Professional</button>
+        </form>
+      </div>
+    {% endfor %}
+    {% endblock %}

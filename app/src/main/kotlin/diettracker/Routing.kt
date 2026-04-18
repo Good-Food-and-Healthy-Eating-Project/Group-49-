@@ -17,6 +17,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insertIgnore
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -192,7 +193,7 @@ fun Route.configureProfessionalRoutes() {
 
         call.respondRedirect("/client_dash")
     }
-    get("/professional/clients") {
+    get("/professionals_dash") {
         val session = call.sessions.get<UserSession>()
         val email = session?.email ?: return@get call.respondRedirect("/Login")
 
@@ -202,7 +203,7 @@ fun Route.configureProfessionalRoutes() {
         val clients = getClientsForProfessional(professionalId)
 
         call.respondTemplate(
-            "pages/professionals/clients.peb",
+            "pages/professionals/professionals_dash.peb",
             mapOf("clients" to clients)
         )
     }
@@ -214,8 +215,9 @@ fun linkClientToProfessional(clientId: Int, professionalId: Int) {
             it[ClientProfessionalLink.client_id] = clientId
             it[ClientProfessionalLink.professional_id] = professionalId
         }
-    }
+        }
 }
+
 
 fun getClientsForProfessional(professionalId: Int): List<Int> {
     return transaction {
