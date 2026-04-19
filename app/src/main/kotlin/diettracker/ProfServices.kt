@@ -1,21 +1,11 @@
 package diettracker
 
-
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.log
 import io.ktor.server.pebble.respondTemplate
-import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.respondRedirect
-import io.ktor.server.sessions.clear
-import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
-import io.ktor.server.util.getOrFail
-import org.mindrot.jbcrypt.BCrypt
-import diettracker.getCredentials
-import diettracker.UserDatabase
-import diettracker.ProfDatabase
 
 suspend fun ApplicationCall.profSignUpPage() {
     respondTemplate("pages/professionals/profsignup.peb", model = emptyMap())
@@ -65,17 +55,19 @@ suspend fun ApplicationCall.loginProfessional() {
     val credentials = getCredentials()
     val email = credentials.first
     val password = credentials.second
-
-    val result = runCatching {
-        UserDatabase.checkCreds(email, password)
-    }
+    val result =
+        runCatching {
+            UserDatabase.checkCreds(email, password)
+        }
     when {
-        result.isFailure ->
+        result.isFailure -> {
             respondTemplate(
                 "pages/professionals/proflogin.peb",
-                model = mapOf("error" to "Something went wrong, please try again"),
+                model = mapOf(
+                    "error" to "Something went wrong, please try again",
+                ),
             )
-
+        }
         result.getOrDefault(false) -> {
             val userId = getUserIdByEmail(email)
             val roles = getUserRoles(userId ?: -1)
@@ -85,13 +77,19 @@ suspend fun ApplicationCall.loginProfessional() {
             } else {
                 respondTemplate(
                     "pages/professionals/proflogin.peb",
-                    model = mapOf("error" to "You are not registered as a professional"),
+                    model = mapOf(
+                        "error" to "You are not registered as a professional",
+                    ),
                 )
             }
         }
-
-        else -> respondTemplate("pages/professionals/proflogin.peb", model = mapOf("error" to "Invalid email or password"))
+        else -> {
+            respondTemplate(
+                "pages/professionals/proflogin.peb",
+                model = mapOf(
+                    "error" to "Invalid email or password",
+                ),
+            )
+        }
     }
 }
-
-

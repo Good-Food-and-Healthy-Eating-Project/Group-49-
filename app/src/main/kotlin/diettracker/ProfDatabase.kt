@@ -1,7 +1,6 @@
 package diettracker
 
 import diettracker.db.tables.Professionals
-import diettracker.db.tables.Recipes
 import diettracker.db.tables.Roles
 import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
@@ -9,14 +8,9 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.mindrot.jbcrypt.BCrypt
 import java.time.Instant
-import diettracker.UserDatabase
-
-
 
 object ProfDatabase {
-
     fun addProfessional(
         email: String,
         password: String,
@@ -69,4 +63,3 @@ object ProfDatabase {
             true
         }
 }
-

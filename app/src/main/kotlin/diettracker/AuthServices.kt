@@ -126,6 +126,3 @@ fun hashPasswordIfValid(password: String): String? {
         null
     }
 }
-
-
-
