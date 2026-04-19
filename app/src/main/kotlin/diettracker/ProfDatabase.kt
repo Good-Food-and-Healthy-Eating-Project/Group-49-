@@ -13,10 +13,11 @@ import org.mindrot.jbcrypt.BCrypt
 import java.time.Instant
 import diettracker.UserDatabase
 
-// funcs need to code for profs ,            checkcreds, isemailduplicate
-// , checkcreds same but prof and see prof attributes, isemialduplicate same but for profs
 
-fun addProfessional(
+
+object ProfDatabase {
+
+    fun addProfessional(
         email: String,
         password: String,
     ): Boolean =
@@ -67,3 +68,5 @@ fun addProfessional(
 
             true
         }
+}
+

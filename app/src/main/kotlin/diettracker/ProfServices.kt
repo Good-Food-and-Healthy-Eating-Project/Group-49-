@@ -1,5 +1,6 @@
 package diettracker
 
+
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.log
@@ -12,7 +13,9 @@ import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
 import io.ktor.server.util.getOrFail
 import org.mindrot.jbcrypt.BCrypt
-
+import diettracker.getCredentials
+import diettracker.UserDatabase
+import diettracker.ProfDatabase
 
 suspend fun ApplicationCall.profSignUpPage() {
     respondTemplate("pages/professionals/profsignup.peb", model = emptyMap())
@@ -25,8 +28,7 @@ suspend fun ApplicationCall.signUpProfessional() {
 
     val result =
         runCatching {
-            // UserDatabase.addUser(email, password)
-            true
+            ProfDatabase.addProfessional(email, password)
         }
 
     when {
@@ -64,9 +66,8 @@ suspend fun ApplicationCall.loginProfessional() {
     val email = credentials.first
     val password = credentials.second
 
-    val result = runCatching { 
-        // UserDatabase.checkCreds(email, password)
-        true
+    val result = runCatching {
+        UserDatabase.checkCreds(email, password)
     }
     when {
         result.isFailure ->
@@ -76,8 +77,17 @@ suspend fun ApplicationCall.loginProfessional() {
             )
 
         result.getOrDefault(false) -> {
-            sessions.set(UserSession(email))
-            respondRedirect("/prof_dashboard")
+            val userId = getUserIdByEmail(email)
+            val roles = getUserRoles(userId ?: -1)
+            if (roles.contains("professional")) {
+                sessions.set(UserSession(email))
+                respondRedirect("/professionals")
+            } else {
+                respondTemplate(
+                    "pages/professionals/proflogin.peb",
+                    model = mapOf("error" to "You are not registered as a professional"),
+                )
+            }
         }
 
         else -> respondTemplate("pages/professionals/proflogin.peb", model = mapOf("error" to "Invalid email or password"))
