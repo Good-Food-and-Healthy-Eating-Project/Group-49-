@@ -158,10 +158,10 @@ fun Route.configureProfessionalRoutes() {
     }
 
     get("/Professional-Sign-Up") { call.profSignUpPage() }
-    post("/Professional-Sign-Up") { call.respondText("Professional signup POST not implemented") }
+    post("/Professional-Sign-Up") { call.signUpProfessional() }
 
     get("/Professional-Login") { call.profLoginPage() }
-    post("/Professional-Login") { call.respondText("Professional login POST not implemented") }
+    post("/Professional-Login") { call.loginProfessional() }
 }
 
 fun Route.configureProtectedRoutes() {
