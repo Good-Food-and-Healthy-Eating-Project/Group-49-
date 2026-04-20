@@ -1,5 +1,6 @@
 package diettracker
 
+import diettracker.routing.foodDiaryRoutes
 import diettracker.routes.quizRoutes
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate
