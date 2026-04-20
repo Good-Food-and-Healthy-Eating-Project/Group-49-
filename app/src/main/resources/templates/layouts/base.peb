@@ -11,7 +11,7 @@
 </head>
 <body>
 
-{% if showNavbar != false %}
+{% if showNavbar  %}
     {% include "components/navbar.peb" %}
 {% endif %}
 

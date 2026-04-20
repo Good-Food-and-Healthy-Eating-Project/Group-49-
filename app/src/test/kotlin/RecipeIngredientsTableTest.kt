@@ -71,8 +71,7 @@ class RecipeIngredientsTableTest {
                 RecipeIngredients
                     .selectAll()
                     .where {
-                        (RecipeIngredients.recipe_id eq recipeId) and
-                            (RecipeIngredients.food_id eq foodId)
+                        (RecipeIngredients.recipe_id eq recipeId) and (RecipeIngredients.food_id eq foodId)
                     }.singleOrNull()
             assertNotNull(result)
             assertEquals(BigDecimal("120.00"), result[RecipeIngredients.quantity_g])

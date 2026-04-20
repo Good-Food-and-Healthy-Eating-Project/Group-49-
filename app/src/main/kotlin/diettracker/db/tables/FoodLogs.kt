@@ -1,8 +1,8 @@
 package diettracker.db.tables
 
+import diettracker.db.MAX_LEN
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.javatime.timestamp
-import diettracker.db.MAX_LEN
 
 object FoodLogs : Table("food_logs") {
     val food_log_id = integer("food_log_id").autoIncrement()

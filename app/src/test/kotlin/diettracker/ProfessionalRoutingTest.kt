@@ -2,6 +2,9 @@ package diettracker
 
 import TestDatabaseFactory
 import diettracker.db.tables.Users
+import diettracker.db.tables.Roles
+import diettracker.db.tables.UserRoles
+import diettracker.db.tables.Professionals
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -21,127 +24,98 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class RoutingTest {
+class ProfessionalRoutingTest {
     @BeforeEach
     fun setUP() {
         TestDatabaseFactory.init()
         transaction {
+            UserRoles.deleteAll()
+            Roles.deleteAll()
+            Professionals.deleteAll()
             Users.deleteAll()
             val time = Instant.now()
             val salt = BCrypt.gensalt()
+            val userId = 
             Users.insert {
                 it[first_name] = "Sponge"
                 it[second_name] = "Bob"
-                it[email] = "test@test.com"
-                it[password_hash] = BCrypt.hashpw("test@test.com", salt)
+                it[email] = "testpro@test.com"
+                it[password_hash] = BCrypt.hashpw("testpro@test.com", salt)
                 it[created_at] = time
+            }get Users.user_id
+
+            Professionals.insert {
+                it[professional_id] = userId
+                it[job_title] = "test"
+                it[organistation] = "tester"
+                it[bio] = "for test"
             }
+
+            val roleId = 
+            Roles.insert {
+                it[role_name] = "professional"
+            }get Roles.role_id
+
+            UserRoles.insert {
+            it[user_id] = userId
+            it[role_id] = roleId
+        }
         }
     }
 
     @Test
-    fun should_return_ok_for_heath_check() =
-        testApplication {
-            application { module(testing = true) }
-            val result = client.get("/health")
-            assertEquals(200, result.status.value)
-        }
-
-    @Test
-    fun should_load_landing_page() =
-        testApplication {
-            application { module(testing = true) }
-            val result = client.get("/")
-            assertEquals(200, result.status.value)
-        }
-
-    @Test
-    fun should_load_login_page() =
-        testApplication {
-            application { module(testing = true) }
-            val result = client.get("/Login")
-            assertEquals(200, result.status.value)
-        }
-
-    @Test
-    fun should_load_signup_page() =
-        testApplication {
-            application { module(testing = true) }
-            val result = client.get("/Sign-Up")
-            assertEquals(200, result.status.value)
-        }
-
-    @Test
-    fun should_load_professional_signup_page() =
-        testApplication {
-            application { module(testing = true) }
-            val result = client.get("/Professional-Sign-Up")
-            assertEquals(200, result.status.value)
-        }
-
-    @Test
-    fun should_load_professional_login_page() =
-        testApplication {
-            application { module(testing = true) }
-            val result = client.get("/Professional-Login")
-            assertEquals(200, result.status.value)
-        }
-
-
-
-    @Test
-    fun should_signup_user() =
+    fun should_signup_professional_user() =
         testApplication {
             application { module(testing = true) }
             val result =
-                client.post("/Sign-Up") {
+                client.post("/Professional-Sign-Up") {
                     contentType(ContentType.Application.FormUrlEncoded)
                     setBody(
-                        listOf("email" to "newuser@test.com", "password" to "test@test.com")
+                        listOf("email" to "testpronew@test.com", "password" to "testpro@test.com")
                             .formUrlEncode(),
                     )
                 }
             transaction {
                 val users = Users.selectAll().toList()
-                assertTrue(users.any { it[Users.email] == "test@test.com" })
+                assertTrue(users.any { it[Users.email] == "testpronew@test.com" })
                 assertTrue(result.status.value == 200)
             }
         }
 
     @Test
-    fun should_signup_fail_when_missing_email() =
+    fun professional_sign_up_should_fail_when_missing_email() =
         testApplication {
             application { module(testing = true) }
             val result =
-                client.post("/Sign-Up") {
+                client.post("/Professional-Sign-Up") {
                     contentType(ContentType.Application.FormUrlEncoded)
-                    setBody(listOf("password" to "test@test.com").formUrlEncode())
+                    setBody(listOf("password" to "testpro@test.com").formUrlEncode())
                 }
             assertEquals(400, result.status.value)
         }
 
     @Test
-    fun should_signup_fail_when_missing_password() =
+    fun professional_sign_up_should_fail_when_missing_password() =
         testApplication {
             application { module(testing = true) }
             val result =
-                client.post("/Sign-Up") {
+                client.post("/Professional-Sign-Up") {
                     contentType(ContentType.Application.FormUrlEncoded)
-                    setBody(listOf("email" to "test@test.com").formUrlEncode())
+                    setBody(listOf("email" to "testpro@test.com").formUrlEncode())
                 }
             assertEquals(400, result.status.value)
         }
 
     @Test
-    fun should_signup_fail_when_have_same_eamil() =
+    fun  professional_sign_up_should_fail_when_have_same_eamil() =
         testApplication {
             application { module(testing = true) }
             val beforCount = transaction { Users.selectAll().count() }
             val result =
-                client.post("/Sign-Up") {
+                client.post("/Professional-Sign-Up") {
                     contentType(ContentType.Application.FormUrlEncoded)
                     setBody(
-                        listOf("email" to "test@test.com", "password" to "test@test.com")
+                        listOf("email" to "testpro@test.com", "password" to "testpro@test.com")
                             .formUrlEncode(),
                     )
                 }
@@ -151,14 +125,14 @@ class RoutingTest {
         }
 
     @Test
-    fun should_login_success_when_password_right() =
+    fun should_login_professional_success_when_password_right() =
         testApplication {
             application { module(testing = true) }
             val result =
-                client.post("/Login") {
+                client.post("/Professional-Login") {
                     contentType(ContentType.Application.FormUrlEncoded)
                     setBody(
-                        listOf("email" to "test@test.com", "password" to "test@test.com")
+                        listOf("email" to "testpro@test.com", "password" to "testpro@test.com")
                             .formUrlEncode(),
                     )
                 }
@@ -166,52 +140,35 @@ class RoutingTest {
         }
 
     @Test
-    fun should_login_fail_when_password_wrong() =
+    fun should_login_professional_fail_when_missing_email() =
         testApplication {
             application { module(testing = true) }
             val result =
-                client.post("/Login") {
+                client.post("/Professional-Login") {
                     contentType(ContentType.Application.FormUrlEncoded)
-                    setBody(
-                        listOf(
-                            "email" to "test@test.com",
-                            "password" to "wrongpassword@test.com",
-                        ).formUrlEncode(),
-                    )
-                }
-            assertEquals(200, result.status.value)
-        }
-
-    @Test
-    fun should_login_fail_when_missing_email() =
-        testApplication {
-            application { module(testing = true) }
-            val result =
-                client.post("/Login") {
-                    contentType(ContentType.Application.FormUrlEncoded)
-                    setBody(listOf("password" to "test@test.com").formUrlEncode())
+                    setBody(listOf("password" to "testpro@test.com").formUrlEncode())
                 }
             assertEquals(400, result.status.value)
         }
 
     @Test
-    fun should_login_fail_when_missing_password() =
+    fun should_login_professional_fail_when_missing_password() =
         testApplication {
             application { module(testing = true) }
             val result =
-                client.post("/Login") {
+                client.post("/Professional-Login") {
                     contentType(ContentType.Application.FormUrlEncoded)
-                    setBody(listOf("email" to "test@test.com").formUrlEncode())
+                    setBody(listOf("email" to "testpro@test.com").formUrlEncode())
                 }
             assertEquals(400, result.status.value)
         }
 
     @Test
-    fun should_login_fail_when_missing_password_and_email() =
+    fun should_login_professional_fail_when_missing_password_and_email() =
         testApplication {
             application { module(testing = true) }
             val result =
-                client.post("/Login") {
+                client.post("/Professional-Login") {
                     contentType(ContentType.Application.FormUrlEncoded)
                     setBody(listOf("" to "").formUrlEncode())
                 }
@@ -219,20 +176,20 @@ class RoutingTest {
         }
 
     @Test
-    fun should_redirect_to_client_dash_when_login_success() =
+    fun should_redirect_to_professionals_page_when_login_success() =
         testApplication {
             application { module(testing = true) }
             val result =
-                client.post("/Login") {
+                client.post("/Professional-Login") {
                     contentType(ContentType.Application.FormUrlEncoded)
                     setBody(
                         listOf(
-                            "email" to "test@test.com",
-                            "password" to "test@test.com",
+                            "email" to "testpro@test.com",
+                            "password" to "testpro@test.com",
                         ).formUrlEncode(),
                     )
                 }
             assertEquals(302, result.status.value)
-            assertEquals("/client_dash", result.headers[HttpHeaders.Location])
+            assertEquals("/professionals", result.headers[HttpHeaders.Location])
         }
 }

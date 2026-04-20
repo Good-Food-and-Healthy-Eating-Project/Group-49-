@@ -1,4 +1,5 @@
 import diettracker.db.tables.Clients
+import diettracker.db.tables.Clients.client_id
 import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.Users
 import org.jetbrains.exposed.v1.core.eq
