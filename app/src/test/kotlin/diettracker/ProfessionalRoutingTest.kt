@@ -1,10 +1,10 @@
 package diettracker
 
 import TestDatabaseFactory
-import diettracker.db.tables.Users
+import diettracker.db.tables.Professionals
 import diettracker.db.tables.Roles
 import diettracker.db.tables.UserRoles
-import diettracker.db.tables.Professionals
+import diettracker.db.tables.Users
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -35,14 +35,14 @@ class ProfessionalRoutingTest {
             Users.deleteAll()
             val time = Instant.now()
             val salt = BCrypt.gensalt()
-            val userId = 
-            Users.insert {
-                it[first_name] = "Sponge"
-                it[second_name] = "Bob"
-                it[email] = "testpro@test.com"
-                it[password_hash] = BCrypt.hashpw("testpro@test.com", salt)
-                it[created_at] = time
-            }get Users.user_id
+            val userId =
+                Users.insert {
+                    it[first_name] = "Sponge"
+                    it[second_name] = "Bob"
+                    it[email] = "testpro@test.com"
+                    it[password_hash] = BCrypt.hashpw("testpro@test.com", salt)
+                    it[created_at] = time
+                } get Users.user_id
 
             Professionals.insert {
                 it[professional_id] = userId
@@ -51,15 +51,15 @@ class ProfessionalRoutingTest {
                 it[bio] = "for test"
             }
 
-            val roleId = 
-            Roles.insert {
-                it[role_name] = "professional"
-            }get Roles.role_id
+            val roleId =
+                Roles.insert {
+                    it[role_name] = "professional"
+                } get Roles.role_id
 
             UserRoles.insert {
-            it[user_id] = userId
-            it[role_id] = roleId
-        }
+                it[user_id] = userId
+                it[role_id] = roleId
+            }
         }
     }
 
@@ -107,7 +107,7 @@ class ProfessionalRoutingTest {
         }
 
     @Test
-    fun  professional_sign_up_should_fail_when_have_same_eamil() =
+    fun professional_sign_up_should_fail_when_have_same_eamil() =
         testApplication {
             application { module(testing = true) }
             val beforCount = transaction { Users.selectAll().count() }

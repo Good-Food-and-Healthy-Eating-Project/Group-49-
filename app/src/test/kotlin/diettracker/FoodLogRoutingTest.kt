@@ -10,7 +10,6 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.HttpHeaders
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.formUrlEncode
@@ -19,8 +18,8 @@ import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.mindrot.jbcrypt.BCrypt
 import org.junit.jupiter.api.BeforeEach
+import org.mindrot.jbcrypt.BCrypt
 import java.math.BigDecimal
 import java.time.Instant
 import kotlin.test.Test
@@ -153,13 +152,13 @@ class FoodLogRoutingTest {
         testApplication {
             application { module(testing = true) }
 
-            val client = 
-            createClient {
-                install(io.ktor.client.plugins.cookies.HttpCookies)
-                followRedirects = false
-            }
+            val client =
+                createClient {
+                    install(io.ktor.client.plugins.cookies.HttpCookies)
+                    followRedirects = false
+                }
 
-            transaction{
+            transaction {
                 Users.insert {
                     it[email] = "test@test.com"
                     it[password_hash] = BCrypt.hashpw("test", BCrypt.gensalt())
@@ -168,17 +167,16 @@ class FoodLogRoutingTest {
                     it[created_at] = java.time.Instant.now()
                 }
             }
-            val loginResult = 
             client.post("/Login") {
                 contentType(ContentType.Application.FormUrlEncoded)
                 setBody(
                     listOf(
                         "email" to "test@test.com",
-                        "password" to "test"
-                    ).formUrlEncode()
+                        "password" to "test",
+                    ).formUrlEncode(),
                 )
             }
-            
+
             val recipeId =
                 transaction {
                     Recipes

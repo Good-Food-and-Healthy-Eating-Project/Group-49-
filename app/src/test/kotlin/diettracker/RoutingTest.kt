@@ -87,7 +87,13 @@ class RoutingTest {
             assertEquals(200, result.status.value)
         }
 
-
+    @Test
+    fun should_load_professional_page() =
+        testApplication {
+            application { module(testing = true) }
+            val result = client.get("/professionals")
+            assertEquals(200, result.status.value)
+        }
 
     @Test
     fun should_signup_user() =
