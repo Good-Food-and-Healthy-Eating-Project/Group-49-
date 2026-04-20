@@ -85,7 +85,7 @@ class RoutingTest {
             transaction {
                 val users = Users.selectAll().toList()
                 assertTrue(users.any { it[Users.email] == "test@test.com" })
-                assertTrue(result.status.value == 200)
+                assertTrue(result.status.value == 302)
             }
         }
 

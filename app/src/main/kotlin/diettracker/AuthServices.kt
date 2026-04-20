@@ -40,10 +40,13 @@ suspend fun ApplicationCall.signUpUser() {
         }
 
         result.getOrDefault(false) -> {
-            respondTemplate(
-                "pages/auth/signup_quiz.peb",
-                model = mapOf("email" to email),
-            )
+            sessions.set(UserSession(email))
+            val userId = getUserIdByEmail(email)
+            if (userId != null) {
+                respondRedirect("/quiz?userId=$userId")
+            } else {
+                respondRedirect("/client_dash")
+            }
         }
 
         else -> {

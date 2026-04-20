@@ -1,7 +1,7 @@
 package diettracker
 
-import diettracker.routing.foodDiaryRoutes
 import diettracker.routes.quizRoutes
+import diettracker.routing.foodDiaryRoutes
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate
 import io.ktor.server.http.content.staticResources
@@ -47,11 +47,17 @@ fun Route.configurePublicRoutes() {
         val email = call.sessions.get<UserSession>()?.email
         val userId = email?.let { getUserIdByEmail(it) }
         val userRoles = userId?.let { getUserRoles(it) } ?: emptyList()
+        val dailyCalorieGoal = userId?.let { getClientCalorieGoal(it) }
 
         call.respond(
             PebbleContent(
                 "pages/client_dash/client_dash.peb",
-                mapOf("showNavbar" to true, "userRoles" to userRoles),
+                mapOf(
+                    "showNavbar" to true,
+                    "userRoles" to userRoles,
+                    "userId" to (userId as Any? ?: ""),
+                    "dailyCalorieGoal" to (dailyCalorieGoal as Any? ?: ""),
+                ),
             ),
         )
     }
