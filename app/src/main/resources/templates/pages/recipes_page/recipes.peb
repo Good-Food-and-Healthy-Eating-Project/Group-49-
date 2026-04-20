@@ -188,7 +188,12 @@
 	<div class="layout">
 		<div class="left-content">
 			<div class="right-content">
-				<div class="search-bar">search</div>
+				<form method="get" action="/recipes" class = "search-bar" style="display:flex; gap:0.5rem;">
+					<input type="text" name="query" value="{{ query }}"
+						placeholder="Search for recipes..."
+						style="border:none; outline:none; flex:1; font-family:var(--font-body); font-size:0.95rem; background:transparent;">
+					<button type="submit" class="btn btn-primary" style="padding:0.4rem 1rem;">Search</button>
+				</form>
 					<div class="cards-grid">
 					{% for recipe in recipes %}
 						<div class="recipe-card" data-recipe="{{ recipe.name }}" data-id="{{ recipe.id }}">

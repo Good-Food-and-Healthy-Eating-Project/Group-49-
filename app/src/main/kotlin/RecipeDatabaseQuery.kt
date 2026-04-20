@@ -13,8 +13,8 @@ object RecipeDatabaseQuery {
             if (query.isBlank()) Op.TRUE
             else Recipes.recipe_name.lowerCase() like "%${query.lowercase()}%"
         }
-        .orderBy(Random())
-        .limit(9)
+        .apply { if (query.isBlank()) orderBy(Random()).limit(9) }
+
         .map { row ->
         RecipeSummary(
             id = row[Recipes.recipes_id],
