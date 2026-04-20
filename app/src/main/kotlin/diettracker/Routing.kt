@@ -1,5 +1,6 @@
 package diettracker
 
+import diettracker.routing.foodDiaryRoutes
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate
 import io.ktor.server.http.content.staticResources
@@ -54,14 +55,11 @@ fun Route.configurePublicRoutes() {
     }
 
     configureFoodRoutes()
+    foodDiaryRoutes()
 
     authenticate("group49-client_auth") {
         get("/") { call.dashboardPage() }
         get("/logout") { call.logout() }
-    }
-
-    get("/diary") {
-        call.respond(PebbleContent("pages/client_dash/food_diary.peb", mapOf("showNavbar" to true)))
     }
 
     get("/recipes") {

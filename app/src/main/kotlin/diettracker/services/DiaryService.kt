@@ -20,13 +20,13 @@ data class DayDiarySummary(
     val mealCount: Int,
     val status: String,
     val hasEntries: Boolean,
-    val viewUrl: String?
+    val viewUrl: String?,
 )
 
 data class WeekOption(
     val value: String,
     val label: String,
-    val selected: Boolean
+    val selected: Boolean,
 )
 
 data class WeeklyDiaryViewModel(
@@ -35,9 +35,14 @@ data class WeeklyDiaryViewModel(
     val weekEnd: String,
     val availableWeeks: List<WeekOption>,
     val days: List<DayDiarySummary>,
-    val weekHasEntries: Boolean
+    val weekHasEntries: Boolean,
 )
 
+private const val ZERO_NUTRITION = 0.0
+private const val WEEK_OFFSET_END_DAYS = 6L
+private const val WEEK_OFFSET_START_DAYS = 0L
+
+@Suppress("TooManyFunctions")
 object DiaryService {
     private val appZone: ZoneId = ZoneId.systemDefault()
     private val dayFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE d MMM")
@@ -45,7 +50,7 @@ object DiaryService {
 
     fun getWeeklyDiaryView(
         userId: Int,
-        selectedWeek: LocalDate?
+        selectedWeek: LocalDate?,
     ): WeeklyDiaryViewModel {
         val baseDate = selectedWeek ?: LocalDate.now(appZone)
         val weekStartDate = getWeekStart(baseDate)
@@ -58,14 +63,15 @@ object DiaryService {
         val groupedLogs = groupLogsByDate(logs)
         val nutritionByLogId = DiaryRepository.findNutritionTotalsByLogIds(logs.map { it.foodLogId })
 
-        val days = getWeekDates(weekStartDate).map { date ->
-            buildDayDiarySummary(
-                userId = userId,
-                date = date,
-                logs = groupedLogs[date].orEmpty(),
-                nutritionByLogId = nutritionByLogId
-            )
-        }
+        val days =
+            getWeekDates(weekStartDate).map { date ->
+                buildDayDiarySummary(
+                    userId = userId,
+                    date = date,
+                    logs = groupedLogs[date].orEmpty(),
+                    nutritionByLogId = nutritionByLogId,
+                )
+            }
 
         val availableWeekStarts = DiaryRepository.findAvailableDiaryWeeks(userId)
         val weekOptions = buildAvailableWeekOptions(availableWeekStarts, weekStartDate)
@@ -76,7 +82,7 @@ object DiaryService {
             weekEnd = weekEndDate.format(weekFormatter),
             availableWeeks = weekOptions,
             days = days,
-            weekHasEntries = days.any { it.hasEntries }
+            weekHasEntries = days.any { it.hasEntries },
         )
     }
 
@@ -84,12 +90,14 @@ object DiaryService {
         return date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     }
 
+    @Suppress("MagicNumber")
     private fun getWeekEnd(weekStart: LocalDate): LocalDate {
-        return weekStart.plusDays(6)
+        return weekStart.plusDays(WEEK_OFFSET_END_DAYS)
     }
 
+    @Suppress("MagicNumber")
     private fun getWeekDates(weekStart: LocalDate): List<LocalDate> {
-        return (0L..6L).map { weekStart.plusDays(it) }
+        return (WEEK_OFFSET_START_DAYS..WEEK_OFFSET_END_DAYS).map { weekStart.plusDays(it) }
     }
 
     private fun groupLogsByDate(logs: List<FoodLogRecord>): Map<LocalDate, List<FoodLogRecord>> {
@@ -100,7 +108,7 @@ object DiaryService {
         userId: Int,
         date: LocalDate,
         logs: List<FoodLogRecord>,
-        nutritionByLogId: Map<Int, NutritionTotals>
+        nutritionByLogId: Map<Int, NutritionTotals>,
     ): DayDiarySummary {
         val hasEntries = logs.isNotEmpty()
         val mealCount = logs.size
@@ -116,22 +124,29 @@ object DiaryService {
             mealCount = mealCount,
             status = getDayStatus(hasEntries),
             hasEntries = hasEntries,
-            viewUrl = buildDayViewUrl(userId, date, hasEntries)
+            viewUrl = buildDayViewUrl(userId, date, hasEntries),
         )
     }
 
     private fun getNutritionTotalsForDay(
         logs: List<FoodLogRecord>,
-        nutritionByLogId: Map<Int, NutritionTotals>
+        nutritionByLogId: Map<Int, NutritionTotals>,
     ): NutritionTotals {
         return logs
             .mapNotNull { log -> nutritionByLogId[log.foodLogId] }
-            .fold(NutritionTotals(0.0, 0.0, 0.0, 0.0)) { acc, current ->
+            .fold(
+                NutritionTotals(
+                    calories = ZERO_NUTRITION,
+                    protein = ZERO_NUTRITION,
+                    carbs = ZERO_NUTRITION,
+                    fats = ZERO_NUTRITION,
+                ),
+            ) { acc, current ->
                 NutritionTotals(
                     calories = acc.calories + current.calories,
                     protein = acc.protein + current.protein,
                     carbs = acc.carbs + current.carbs,
-                    fats = acc.fats + current.fats
+                    fats = acc.fats + current.fats,
                 )
             }
     }
@@ -142,23 +157,27 @@ object DiaryService {
 
     private fun buildAvailableWeekOptions(
         availableWeeks: List<LocalDate>,
-        selectedWeekStart: LocalDate
+        selectedWeekStart: LocalDate,
     ): List<WeekOption> {
-        val uniqueWeeks = (availableWeeks + selectedWeekStart)
-            .distinct()
-            .sortedDescending()
+        val uniqueWeeks =
+            (availableWeeks + selectedWeekStart)
+                .distinct()
+                .sortedDescending()
 
         return uniqueWeeks.map { weekStart ->
             val weekEnd = getWeekEnd(weekStart)
             WeekOption(
                 value = weekStart.toString(),
                 label = formatWeekLabel(weekStart, weekEnd),
-                selected = weekStart == selectedWeekStart
+                selected = weekStart == selectedWeekStart,
             )
         }
     }
 
-    private fun formatWeekLabel(weekStart: LocalDate, weekEnd: LocalDate): String {
+    private fun formatWeekLabel(
+        weekStart: LocalDate,
+        weekEnd: LocalDate,
+    ): String {
         return "${weekStart.format(weekFormatter)} - ${weekEnd.format(weekFormatter)}"
     }
 
@@ -166,7 +185,11 @@ object DiaryService {
         return date.format(dayFormatter)
     }
 
-    private fun buildDayViewUrl(userId: Int, date: LocalDate, hasEntries: Boolean): String? {
+    private fun buildDayViewUrl(
+        userId: Int,
+        date: LocalDate,
+        hasEntries: Boolean,
+    ): String? {
         return if (hasEntries) {
             "/food-diary/day?userId=$userId&date=$date"
         } else {

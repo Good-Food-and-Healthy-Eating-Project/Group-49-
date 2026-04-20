@@ -92,7 +92,7 @@ class MultiTableIntegrationTest {
         val time = Instant.now()
         val foodLogId =
             FoodLogs.insert {
-                it[users_id] = userId
+                it[user_id] = userId
                 it[log_date] = time
                 it[meal_type] = "Launch"
                 it[notes] = "test_notes"
@@ -187,7 +187,7 @@ class MultiTableIntegrationTest {
                     .toList()
             assertNotNull(foodLog)
             assertEquals(1, item.size)
-            assertEquals(userId, foodLog[FoodLogs.users_id])
+            assertEquals(userId, foodLog[FoodLogs.user_id])
             assertEquals(foodId, item[0][FoodLogItems.food_id])
             assertEquals(BigDecimal("200.00"), item[0][FoodLogItems.quantity_g])
         }
