@@ -56,7 +56,11 @@ fun Route.configurePublicRoutes() {
         call.respond(
             PebbleContent(
                 "pages/client_dash/client_dash.peb",
-                mapOf("showNavbar" to true, "userRoles" to userRoles),
+                mapOf(
+                    "showNavbar" to true,
+                    "userRoles" to userRoles,
+                    "isProfessional" to userRoles.contains("professional"),
+                ),
             ),
         )
     }
@@ -163,7 +167,7 @@ fun Route.configureProfessionalRoutes() {
             "pages/professionals/professionals.peb",
             mapOf(
                 "professionals" to professionals,
-                "userRoles" to userRoles,
+                "isProfessional" to userRoles.contains("professional"),
             ),
         )
     }
@@ -176,15 +180,16 @@ fun Route.configureProfessionalRoutes() {
 
         // Convert the client ID to an integer for database use.
         // If conversion fails, return an error to prevent invalid data being stored.
-        val clientId = clientIdString?.toString()?.toIntOrNull()
-            ?: return@post call.respondText(
-                "Invalid client ID",
-                status = HttpStatusCode.InternalServerError
-            )
+        val clientId =
+            clientIdString?.toString()?.toIntOrNull()
+                ?: return@post call.respondText(
+                    "Invalid client ID",
+                    status = HttpStatusCode.InternalServerError,
+                )
 
         val professionalId =
             call.receiveParameters()["professional_id"]?.toIntOrNull()
-                ?: return@post call.respondText (
+                ?: return@post call.respondText(
                     "Invalid professional",
                     status = HttpStatusCode.BadRequest,
                 )
@@ -197,27 +202,35 @@ fun Route.configureProfessionalRoutes() {
         val session = call.sessions.get<UserSession>()
         val email = session?.email ?: return@get call.respondRedirect("/Login")
 
-        val professionalId = getUserIdByEmail(email)
-            ?: return@get call.respondText("User not found")
+        val professionalId =
+            getUserIdByEmail(email)
+                ?: return@get call.respondText("User not found")
 
+        val userRoles = getUserRoles(professionalId)
         val clients = getClientsForProfessional(professionalId)
 
         call.respondTemplate(
             "pages/professionals/professionals_dash.peb",
-            mapOf("clients" to clients)
+            mapOf(
+                "showNavbar" to true,
+                "isProfessional" to userRoles.contains("professional"),
+                "clients" to clients,
+            ),
         )
     }
 }
 
-fun linkClientToProfessional(clientId: Int, professionalId: Int) {
+fun linkClientToProfessional(
+    clientId: Int,
+    professionalId: Int,
+) {
     transaction {
         ClientProfessionalLink.insertIgnore {
             it[ClientProfessionalLink.client_id] = clientId
             it[ClientProfessionalLink.professional_id] = professionalId
         }
-        }
+    }
 }
-
 
 fun getClientsForProfessional(professionalId: Int): List<Int> {
     return transaction {

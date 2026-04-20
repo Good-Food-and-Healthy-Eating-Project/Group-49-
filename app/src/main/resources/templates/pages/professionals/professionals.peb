@@ -7,9 +7,9 @@
     {% block content %}
     <h1>Available Professionals</h1>
 
-    {% for pro in Professional %}
+    {% for pro in professionals %}
       <div>
-        <p>{{ pro.name }}</p>
+        <p>{{ pro.firstName }} {{ pro.lastName }}</p>
         <p>{{ pro.jobTitle }} at {{ pro.organisation }}</p>
         <p>{{ pro.bio }}</p>
 

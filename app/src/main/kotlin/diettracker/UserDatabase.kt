@@ -2,10 +2,10 @@ package diettracker
 
 import diettracker.db.tables.Professionals
 import diettracker.db.tables.Recipes
-import diettracker.models.Professional
 import diettracker.db.tables.Roles
 import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
+import diettracker.models.Professional
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -47,8 +47,10 @@ fun getAllProfessionals(): List<Professional> =
             .map { row ->
                 Professional(
                     id = row[Professionals.professional_id],
-                    name = "${row[Users.first_name]} ${row[Users.second_name]}".trim(),
+                    firstName = row[Users.first_name],
+                    lastName = row[Users.second_name],
                     email = row[Users.email],
+                    passwordHash = row[Users.password_hash],
                     jobTitle = row[Professionals.job_title],
                     organisation = row[Professionals.organistation],
                     bio = row[Professionals.bio],
