@@ -52,7 +52,7 @@ fun getAllProfessionals(): List<Professional> =
                     email = row[Users.email],
                     passwordHash = row[Users.password_hash],
                     jobTitle = row[Professionals.job_title],
-                    organisation = row[Professionals.organistation],
+                    organization = row[Professionals.organistation],
                     bio = row[Professionals.bio],
                 )
             }

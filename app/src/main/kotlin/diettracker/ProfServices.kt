@@ -23,6 +23,7 @@ suspend fun ApplicationCall.signUpProfessional() {
 
     when {
         result.isFailure -> {
+            println("Sign-up error: ${result.exceptionOrNull()}")
             response.status(HttpStatusCode.BadRequest)
             respondTemplate(
                 "pages/professionals/profsignup.peb",
@@ -63,9 +64,7 @@ suspend fun ApplicationCall.loginProfessional() {
         result.isFailure -> {
             respondTemplate(
                 "pages/professionals/proflogin.peb",
-                model = mapOf(
-                    "error" to "Something went wrong, please try again",
-                ),
+                model = mapOf("error" to "Something went wrong, please try again"),
             )
         }
         result.getOrDefault(false) -> {
@@ -73,22 +72,18 @@ suspend fun ApplicationCall.loginProfessional() {
             val roles = getUserRoles(userId ?: -1)
             if (roles.contains("professional")) {
                 sessions.set(UserSession(email))
-                respondRedirect("/professionals")
+                respondRedirect("/professionals_dash")
             } else {
                 respondTemplate(
                     "pages/professionals/proflogin.peb",
-                    model = mapOf(
-                        "error" to "You are not registered as a professional",
-                    ),
+                    model = mapOf("error" to "You are not registered as a professional"),
                 )
             }
         }
         else -> {
             respondTemplate(
                 "pages/professionals/proflogin.peb",
-                model = mapOf(
-                    "error" to "Invalid email or password",
-                ),
+                model = mapOf("error" to "Invalid email or password"),
             )
         }
     }
