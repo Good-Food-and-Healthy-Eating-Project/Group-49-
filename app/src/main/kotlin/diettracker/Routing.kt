@@ -156,11 +156,8 @@ fun Route.configureAuthRoutes() {
 fun Route.configureProfessionalRoutes() {
     get("/professionals") {
         val email = call.sessions.get<UserSession>()?.email
-
         val userId = email?.let { getUserIdByEmail(it) }
-
         val userRoles = userId?.let { getUserRoles(it) } ?: emptyList()
-
         val professionals = getAllProfessionals()
 
         call.respondTemplate(
@@ -218,6 +215,12 @@ fun Route.configureProfessionalRoutes() {
             ),
         )
     }
+
+    get("/Professional-Sign-Up") { call.profSignUpPage() }
+    post("/Professional-Sign-Up") { call.signUpProfessional() }
+
+    get("/Professional-Login") { call.profLoginPage() }
+    post("/Professional-Login") { call.loginProfessional() }
 }
 
 fun linkClientToProfessional(
