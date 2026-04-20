@@ -1,5 +1,4 @@
 import diettracker.db.tables.Clients
-import diettracker.db.tables.Clients.client_id
 import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.Users
 import org.jetbrains.exposed.v1.core.eq
@@ -49,14 +48,14 @@ class FoodLogsTableTest {
             }
             val foodLogId =
                 FoodLogs.insert {
-                    it[users_id] = userId
+                    it[user_id] = userId
                     it[log_date] = time
                     it[meal_type] = "Launch"
                     it[notes] = "test_notes"
                 } get FoodLogs.food_log_id
             val foodLogs = FoodLogs.selectAll().where { FoodLogs.food_log_id eq foodLogId }.toList()
             assertEquals(1, foodLogs.size)
-            assertEquals(userId, foodLogs[0][FoodLogs.users_id])
+            assertEquals(userId, foodLogs[0][FoodLogs.user_id])
             assertEquals("Launch", foodLogs[0][FoodLogs.meal_type])
             assertEquals("test_notes", foodLogs[0][FoodLogs.notes])
         }
@@ -82,7 +81,7 @@ class FoodLogsTableTest {
             }
             val foodLogId =
                 FoodLogs.insert {
-                    it[users_id] = userId
+                    it[user_id] = userId
                     it[log_date] = time
                     it[meal_type] = "Launch"
                     it[notes] = "test_notes"
@@ -113,7 +112,7 @@ class FoodLogsTableTest {
             }
             val foodLogId =
                 FoodLogs.insert {
-                    it[users_id] = userId
+                    it[user_id] = userId
                     it[log_date] = time
                     it[meal_type] = "Launch"
                     it[notes] = "old_test_notes"
@@ -145,7 +144,7 @@ class FoodLogsTableTest {
             }
             val foodLogId =
                 FoodLogs.insert {
-                    it[users_id] = userId
+                    it[user_id] = userId
                     it[log_date] = time
                     it[meal_type] = "Launch"
                     it[notes] = "test_notes"
@@ -160,7 +159,7 @@ class FoodLogsTableTest {
         transaction {
             assertFailsWith<Exception> {
                 FoodLogs.insert {
-                    it[users_id] = 9999
+                    it[user_id] = 9999
                     it[log_date] = Instant.now()
                     it[meal_type] = "test_meal"
                     it[notes] = "test_notes"

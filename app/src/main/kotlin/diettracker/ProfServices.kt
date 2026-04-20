@@ -63,11 +63,10 @@ suspend fun ApplicationCall.loginProfessional() {
         result.isFailure -> {
             respondTemplate(
                 "pages/professionals/proflogin.peb",
-                model = mapOf(
-                    "error" to "Something went wrong, please try again",
-                ),
+                model = mapOf("error" to "Something went wrong, please try again"),
             )
         }
+
         result.getOrDefault(false) -> {
             val userId = getUserIdByEmail(email)
             val roles = getUserRoles(userId ?: -1)
@@ -77,18 +76,15 @@ suspend fun ApplicationCall.loginProfessional() {
             } else {
                 respondTemplate(
                     "pages/professionals/proflogin.peb",
-                    model = mapOf(
-                        "error" to "You are not registered as a professional",
-                    ),
+                    model = mapOf("error" to "You are not registered as a professional"),
                 )
             }
         }
+
         else -> {
             respondTemplate(
                 "pages/professionals/proflogin.peb",
-                model = mapOf(
-                    "error" to "Invalid email or password",
-                ),
+                model = mapOf("error" to "Invalid email or password"),
             )
         }
     }
