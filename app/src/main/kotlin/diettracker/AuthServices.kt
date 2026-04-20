@@ -100,7 +100,7 @@ suspend fun ApplicationCall.logout() {
     respondRedirect("/landing_page/landing_page.peb")
 }
 
-private suspend fun ApplicationCall.getCredentials(): Pair<String, String> {
+suspend fun ApplicationCall.getCredentials(): Pair<String, String> {
     val parameters = receiveParameters()
     val email = parameters.getOrFail("email")
     val password = parameters.getOrFail("password")
