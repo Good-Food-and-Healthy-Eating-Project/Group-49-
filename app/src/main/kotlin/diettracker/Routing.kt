@@ -2,6 +2,8 @@ package diettracker
 
 import diettracker.db.tables.ClientProfessionalLink
 import io.ktor.http.HttpStatusCode
+import diettracker.routes.quizRoutes
+import diettracker.routing.foodDiaryRoutes
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate
 import io.ktor.server.http.content.staticResources
@@ -52,6 +54,7 @@ fun Route.configurePublicRoutes() {
         val email = call.sessions.get<UserSession>()?.email
         val userId = email?.let { getUserIdByEmail(it) }
         val userRoles = userId?.let { getUserRoles(it) } ?: emptyList()
+        val dailyCalorieGoal = userId?.let { getClientCalorieGoal(it) }
 
         call.respond(
             PebbleContent(
@@ -60,12 +63,15 @@ fun Route.configurePublicRoutes() {
                     "showNavbar" to true,
                     "userRoles" to userRoles,
                     "isProfessional" to userRoles.contains("professional"),
+                    "userId" to (userId as Any? ?: ""),
+                    "dailyCalorieGoal" to (dailyCalorieGoal as Any? ?: ""),
                 ),
             ),
         )
     }
 
     configureFoodRoutes()
+    foodDiaryRoutes()
 
     authenticate("group49-client_auth") {
         get("/") { call.dashboardPage() }
@@ -151,6 +157,26 @@ fun Route.configureAuthRoutes() {
 
     get("/Login") { call.loginPage() }
     post("/Login") { call.loginUser() }
+
+    get("/quiz") {
+        val userId = call.request.queryParameters["userId"]
+
+        if (userId == null) {
+            call.respondRedirect("/Sign-Up")
+            return@get
+        }
+
+        call.respond(
+            PebbleContent(
+                "pages/auth/signup_quiz.peb",
+                mapOf(
+                    "userId" to userId as Any,
+                ),
+            ),
+        )
+    }
+
+    quizRoutes()
 }
 
 fun Route.configureProfessionalRoutes() {
@@ -218,6 +244,16 @@ fun Route.configureProfessionalRoutes() {
 
     get("/Professional-Sign-Up") { call.profSignUpPage() }
     post("/Professional-Sign-Up") { call.signUpProfessional() }
+
+    get("/professional-quiz") {
+        val userId = call.request.queryParameters["userId"]
+        if (userId == null) {
+            call.respondRedirect("/Professional-Sign-Up")
+            return@get
+        }
+        call.profQuizPage(userId)
+    }
+    post("/professional-quiz") { call.submitProfQuiz() }
 
     get("/Professional-Login") { call.profLoginPage() }
     post("/Professional-Login") { call.loginProfessional() }

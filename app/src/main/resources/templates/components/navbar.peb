@@ -27,7 +27,7 @@
                 <a href="/client_dash" class="nav-link">Dashboard</a>
             </li>
             <li>
-                <a href="/diary" class="nav-link">Food Diary</a>
+                <a href="/food_diary" class="nav-link">Food Diary</a>
             </li>
             <li>
                 <a href="/recipes" class="nav-link">Recipes</a>
