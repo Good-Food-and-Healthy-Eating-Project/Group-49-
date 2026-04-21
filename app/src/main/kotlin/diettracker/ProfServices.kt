@@ -54,17 +54,16 @@ suspend fun ApplicationCall.signUpProfessional() {
 }
 
 suspend fun ApplicationCall.profQuizPage(userId: String) {
-    respondTemplate(
-        "pages/professionals/prof_quiz.peb",
-        model = mapOf(
+    val model =
+        mapOf(
             "userId" to userId,
             "firstName" to "",
             "lastName" to "",
             "jobTitle" to "",
             "organisation" to "",
             "bio" to "",
-        ),
-    )
+        )
+    respondTemplate("pages/professionals/prof_quiz.peb", model = model)
 }
 
 suspend fun ApplicationCall.submitProfQuiz() {
@@ -85,9 +84,8 @@ suspend fun ApplicationCall.submitProfQuiz() {
     val missing = listOf(firstName, lastName, jobTitle, organisation, bio).any { it.isEmpty() }
     if (missing) {
         response.status(HttpStatusCode.BadRequest)
-        respondTemplate(
-            "pages/professionals/prof_quiz.peb",
-            model = mapOf(
+        val errorModel =
+            mapOf(
                 "userId" to userId.toString(),
                 "error" to "All fields are required.",
                 "firstName" to firstName,
@@ -95,12 +93,21 @@ suspend fun ApplicationCall.submitProfQuiz() {
                 "jobTitle" to jobTitle,
                 "organisation" to organisation,
                 "bio" to bio,
-            ),
-        )
+            )
+        respondTemplate("pages/professionals/prof_quiz.peb", model = errorModel)
         return
     }
 
-    ProfDatabase.updateProfessionalProfile(userId, firstName, lastName, jobTitle, organisation, bio)
+    ProfDatabase.updateProfessionalProfile(
+        userId,
+        ProfessionalProfile(
+            firstName,
+            lastName,
+            jobTitle,
+            organisation,
+            bio,
+        ),
+    )
     respondRedirect("/Professional-Login")
 }
 

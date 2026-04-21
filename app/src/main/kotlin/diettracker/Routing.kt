@@ -200,7 +200,6 @@ fun Route.configureProfessionalRoutes() {
     }
     post("/professional-quiz") { call.submitProfQuiz() }
 
-
     get("/Professional-Login") { call.profLoginPage() }
     post("/Professional-Login") { call.loginProfessional() }
 }
