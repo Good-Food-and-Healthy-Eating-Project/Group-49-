@@ -1,6 +1,7 @@
 package diettracker
 
 import diettracker.db.tables.ClientProfessionalLink
+import diettracker.db.tables.Clients
 import io.ktor.http.HttpStatusCode
 import diettracker.routes.quizRoutes
 import diettracker.routing.foodDiaryRoutes
@@ -191,6 +192,7 @@ fun Route.configureProfessionalRoutes() {
             mapOf(
                 "professionals" to professionals,
                 "isProfessional" to userRoles.contains("professional"),
+                "showNavbar" to true,
             ),
         )
     }
@@ -264,6 +266,9 @@ fun linkClientToProfessional(
     professionalId: Int,
 ) {
     transaction {
+        Clients.insertIgnore {
+            it[Clients.client_id] = clientId
+        }
         ClientProfessionalLink.insertIgnore {
             it[ClientProfessionalLink.client_id] = clientId
             it[ClientProfessionalLink.professional_id] = professionalId
