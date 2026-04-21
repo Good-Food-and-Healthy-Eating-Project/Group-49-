@@ -190,6 +190,17 @@ fun Route.configureProfessionalRoutes() {
     get("/Professional-Sign-Up") { call.profSignUpPage() }
     post("/Professional-Sign-Up") { call.signUpProfessional() }
 
+    get("/professional-quiz") {
+        val userId = call.request.queryParameters["userId"]
+        if (userId == null) {
+            call.respondRedirect("/Professional-Sign-Up")
+            return@get
+        }
+        call.profQuizPage(userId)
+    }
+    post("/professional-quiz") { call.submitProfQuiz() }
+
+
     get("/Professional-Login") { call.profLoginPage() }
     post("/Professional-Login") { call.loginProfessional() }
 }

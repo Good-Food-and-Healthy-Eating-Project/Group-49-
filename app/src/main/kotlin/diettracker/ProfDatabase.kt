@@ -8,6 +8,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
 
 object ProfDatabase {
@@ -62,4 +63,23 @@ object ProfDatabase {
 
             true
         }
+
+    fun updateProfessionalProfile(
+        userId: Int,
+        firstName: String,
+        lastName: String,
+        jobTitle: String,
+        organisation: String,
+        bio: String,
+    ) = transaction {
+        Users.update({ Users.user_id eq userId }) {
+            it[Users.first_name] = firstName
+            it[Users.second_name] = lastName
+        }
+        Professionals.update({ Professionals.professional_id eq userId }) {
+            it[Professionals.job_title] = jobTitle
+            it[Professionals.organistation] = organisation
+            it[Professionals.bio] = bio
+        }
+    }
 }

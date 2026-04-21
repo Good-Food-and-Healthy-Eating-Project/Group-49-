@@ -143,7 +143,7 @@
 
 				<!-- NEW BUTTON -->
 				<button type="button" class="secondary-btn"
-					onclick="window.location='/Sign-Up-Professional'">
+					onclick="window.location='/Professional-Sign-Up'">
 					Sign up as Professional
 				</button>
 			</div>
