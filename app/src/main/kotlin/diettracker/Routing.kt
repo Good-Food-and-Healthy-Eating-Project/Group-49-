@@ -2,6 +2,8 @@ package diettracker
 
 import diettracker.db.tables.ClientProfessionalLink
 import diettracker.db.tables.Clients
+import diettracker.db.tables.Users
+import diettracker.models.ClientInfo
 import io.ktor.http.HttpStatusCode
 import diettracker.routes.quizRoutes
 import diettracker.routing.foodDiaryRoutes
@@ -276,12 +278,22 @@ fun linkClientToProfessional(
     }
 }
 
-fun getClientsForProfessional(professionalId: Int): List<Int> {
+fun getClientsForProfessional(professionalId: Int): List<ClientInfo> {
     return transaction {
-        ClientProfessionalLink
+        (ClientProfessionalLink innerJoin Clients innerJoin Users)
             .selectAll()
             .where { ClientProfessionalLink.professional_id eq professionalId }
-            .map { it[ClientProfessionalLink.client_id] }
+            .map {
+                ClientInfo(
+                    id = it[ClientProfessionalLink.client_id],
+                    firstName = it[Users.first_name],
+                    lastName = it[Users.second_name],
+                    email = it[Users.email],
+                    goal = it[Clients.goal],
+                    heightCm = it[Clients.height_cm],
+                    weightKg = it[Clients.weight_kg],
+                )
+            }
     }
 }
 

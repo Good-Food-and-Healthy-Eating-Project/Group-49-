@@ -1,17 +1,97 @@
-    {% extends "layouts/base.peb" %}
+{% extends "layouts/base.peb" %}
 
-        {% block title %}{{ pageTitle | default("Clients") }}{% endblock %}
+{% block title %}{{ pageTitle | default("My Clients") }}{% endblock %}
 
-    {% block content %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
         <h1>Your Clients</h1>
+        <p>Manage and view the progress of your linked clients.</p>
+    </div>
 
-        {% if clients is empty %}
-          <p>No clients yet.</p>
-        {% else %}
-          <ul>
+    {% if clients is empty %}
+        <div class="empty-state" style="padding: 2.5rem; text-align: center; border-radius: var(--radius-lg);">
+            <p style="font-size: 1.05rem;">No clients yet. Clients will appear here once they select you as their professional.</p>
+        </div>
+    {% else %}
+        <div class="client-grid">
             {% for client in clients %}
-              <li>Client ID: {{ client }}</li>
+                <div class="card client-card">
+                    <div class="client-avatar">
+                        {% if client.firstName is not empty %}{{ client.firstName | slice(0, 1) }}{% endif %}{% if client.lastName is not empty %}{{ client.lastName | slice(0, 1) }}{% endif %}
+                    </div>
+                    <div class="client-info">
+                        <h3 class="client-name">{{ client.firstName }} {{ client.lastName }}</h3>
+                        <p class="client-email">{{ client.email }}</p>
+                        <div class="client-meta">
+                            {% if client.goal %}
+                                <span class="badge badge-terracotta">{{ client.goal }}</span>
+                            {% endif %}
+                            {% if client.heightCm %}
+                                <span class="badge badge-brown">{{ client.heightCm }} cm</span>
+                            {% endif %}
+                            {% if client.weightKg %}
+                                <span class="badge badge-sage">{{ client.weightKg }} kg</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             {% endfor %}
-          </ul>
-        {% endif %}
-    {% endblock %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .client-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .client-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .client-avatar {
+        flex-shrink: 0;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--terracotta-light), var(--terracotta));
+        color: var(--warm-white);
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        letter-spacing: 0.03em;
+    }
+
+    .client-info {
+        min-width: 0;
+    }
+
+    .client-name {
+        font-size: 1.05rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .client-email {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-bottom: 0.65rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .client-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+</style>
+{% endblock %}
