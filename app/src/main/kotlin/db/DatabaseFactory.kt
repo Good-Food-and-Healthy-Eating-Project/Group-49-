@@ -14,6 +14,7 @@ import diettracker.db.tables.Recipes
 import diettracker.db.tables.RecipeIngredients
 import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.FoodLogItems
+import diettracker.db.tables.UserFavouritedRecipes
 
 object DatabaseFactory {
     fun init() {
