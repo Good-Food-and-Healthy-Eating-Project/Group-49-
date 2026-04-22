@@ -22,4 +22,25 @@ object RecipeDatabaseQuery {
             thumbnail = row[Recipes.thumbnail_url]
         )}
     }
+
+    fun addFavourite(userId: Int, recipeId: Int) = transaction {
+        UserFavouritedRecipes.insert {
+            it[user_id] = userId
+            it[recipe_id] = recipeId
+        }
+    }
+
+    fun removeFavourite(userId: Int, recipeId: Int) = transaction {
+        UserFavouritedRecipes.deleteWhere {
+            UserFavouritedRecipes.user_id eq userId and
+            (UserFavouritedRecipes.recipe_id eq recipeId)
+        }
+    }
+
+    fun getFavourites(userId: Int): List<Int> = transaction {
+        UserFavouritedRecipes
+        .selectAll()
+        .where { UserFavouritedRecipes.user_id eq userId }
+        .map { row -> row[UserFavouritedRecipes.recipe_id] }
+    }
 }

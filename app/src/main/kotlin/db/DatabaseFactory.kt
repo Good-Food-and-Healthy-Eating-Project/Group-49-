@@ -36,6 +36,7 @@ object DatabaseFactory {
                 RecipeIngredients,
                 FoodLogs,
                 FoodLogItems,
+                UserFavouritedRecipes,
             )
         }
     }
