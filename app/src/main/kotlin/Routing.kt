@@ -67,6 +67,30 @@ fun Application.configureRouting() {
             ))
         }
 
+        post("/recipes/favourite/{recipeId}") {
+            val recipeId = call.parameters["recipeId"]?.toIntOrNull()
+            val email = call.sessions.get<UserSession>()?.email
+            if (recipeId != null && email != null) {
+                val userId = UserDatabase.getUserIdByEmail(email)
+                if (userId != null) {
+                    RecipeDatabaseQuery.addFavourite(userId, recipeId)
+                }
+            }
+            call.respond(HttpStatusCode.OK)
+        }
+
+        post("/recipes/unfavourite/{recipeId}") {
+            val recipeId = call.parameters["recipeId"]?.toIntOrNull()
+            val email = call.sessions.get<UserSession>()?.email
+            if (recipeId != null && email != null) {
+                val userId = UserDatabase.getUserIdByEmail(email)
+                if (userId != null) {
+                    RecipeDatabaseQuery.removeFavourite(userId, recipeId)
+                }
+            }
+            call.respond(HttpStatusCode.OK)
+        }
+
         authenticate("group49-client_auth") {
             get("/") { call.DashboardPage() } //change get dashboard when made.
             get("/logout") { call.Logout() } 
