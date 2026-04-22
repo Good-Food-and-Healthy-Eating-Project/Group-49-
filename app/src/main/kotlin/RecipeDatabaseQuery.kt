@@ -2,9 +2,13 @@ package diettracker
 
 import diettracker.db.tables.Recipes
 import diettracker.models.RecipeSummary
+import diettracker.db.tables.UserFavouritedRecipes
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+
 
 object RecipeDatabaseQuery {
     fun searchRecipes(query: String): List<RecipeSummary> = transaction {
