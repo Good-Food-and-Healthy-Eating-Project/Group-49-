@@ -61,21 +61,31 @@ fun Application.configureRouting() {
         get("/recipes") {
             val query = call.request.queryParameters["query"]?.trim() ?: ""
             val recipes = RecipeDatabaseQuery.searchRecipes(query)
+            val email = call.sessions.get<UserSession>()?.email
+
+            val favouriteIds = if (email != null) {
+                val userId = UserDatabase.getUserIdByEmail(email)
+                if (userId != null) RecipeDatabaseQuery.getFavourites(userId) else emptyList()
+            } else emptyList()
+
             call.respondTemplate("pages/recipes_page/recipes.peb", mapOf(
                 "recipes"  to recipes,
-                "query" to query
+                "query" to query,
+                "favouriteIds" to favouriteIds
             ))
         }
 
         post("/recipes/favourite/{recipeId}") {
             val recipeId = call.parameters["recipeId"]?.toIntOrNull()
             val email = call.sessions.get<UserSession>()?.email
+
             if (recipeId != null && email != null) {
                 val userId = UserDatabase.getUserIdByEmail(email)
                 if (userId != null) {
                     RecipeDatabaseQuery.addFavourite(userId, recipeId)
                 }
             }
+
             call.respond(HttpStatusCode.OK)
         }
 
