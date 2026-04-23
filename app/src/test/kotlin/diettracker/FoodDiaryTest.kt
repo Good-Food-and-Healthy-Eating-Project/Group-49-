@@ -143,22 +143,17 @@ class FoodDiaryTest {
             }
         }
         val result = DiaryService.getWeeklyDiaryView(userId, today)
+        val loggedDay = result.days.first { it.hasEntries }
 
         assertEquals(7, result.days.size)
         assertTrue(result.weekHasEntries)
-
-        val loggedDay =
-            result.days.first { day ->
-                day.hasEntries
-            }
-
         assertEquals(2, loggedDay.mealCount)
         assertEquals("Meals logged", loggedDay.status)
         assertEquals(130, loggedDay.totalCalories)
         assertEquals(24, loggedDay.protein)
         assertEquals(2, loggedDay.carbs)
         assertEquals(4, loggedDay.fats)
-        assertEquals(1, result.days.count { day -> day.hasEntries })
+        assertEquals(1, result.days.count { it.hasEntries })
     }
 
     @Test
@@ -200,19 +195,167 @@ class FoodDiaryTest {
         }
 
         val result = DiaryService.getWeeklyDiaryView(userId, selectedWeekDate)
+        val loggedDay = result.days.first { it.hasEntries }
         assertEquals(7, result.days.size)
         assertTrue(result.weekHasEntries)
-        assertEquals(1, result.days.count { day -> day.hasEntries })
-        val loggedDay =
-            result.days.first { day ->
-                day.hasEntries
-            }
-
+        assertEquals(1, result.days.count { it.hasEntries })
         assertEquals(1, loggedDay.mealCount)
         assertEquals("Meals logged", loggedDay.status)
         assertEquals(65, loggedDay.totalCalories)
         assertEquals(12, loggedDay.protein)
         assertEquals(1, loggedDay.carbs)
         assertEquals(2, loggedDay.fats)
+    }
+
+    @Test
+    fun should_return_empty_when_user_has_no_logs_for_day() {
+        val today = LocalDate.now(ZoneId.systemDefault())
+        val result = DiaryService.getDailyDiaryDetail(userId, today)
+        assertEquals(0, result.totalCalories)
+        assertEquals(0, result.protein)
+        assertEquals(0, result.carbs)
+        assertEquals(0, result.fats)
+        assertTrue(result.meals.isEmpty())
+    }
+
+    @Test
+    fun should_retrun_daily_deatil_for_single_log() {
+        val zone = ZoneId.systemDefault()
+        val today = LocalDate.now(ZoneId.systemDefault())
+        val logInstant = today.atStartOfDay(zone).toInstant()
+        val logId =
+            transaction {
+                FoodLogs.insert {
+                    it[FoodLogs.user_id] = userId
+                    it[log_date] = logInstant
+                    it[meal_type] = "Breakfast"
+                    it[notes] = "Test"
+                } get FoodLogs.food_log_id
+            }
+
+        transaction {
+            FoodLogItems.insert {
+                it[FoodLogItems.food_log_id] = logId
+                it[FoodLogItems.food_id] = appleId
+                it[quantity_g] = BigDecimal("100.00")
+            }
+        }
+        val result = DiaryService.getDailyDiaryDetail(userId, today)
+        val meal = result.meals.first()
+        val item = meal.items.first()
+        assertEquals(65, result.totalCalories)
+        assertEquals(12, result.protein)
+        assertEquals(1, result.carbs)
+        assertEquals(2, result.fats)
+        assertEquals(1, result.meals.size)
+        assertEquals("Breakfast", meal.mealType)
+        assertEquals("Test", meal.notes)
+        assertEquals(65, meal.totalCalories)
+        assertEquals(12, meal.protein)
+        assertEquals(1, meal.carbs)
+        assertEquals(2, meal.fats)
+        assertEquals(1, meal.items.size)
+        assertEquals("Apple", item.foodName)
+        assertEquals("100 g", item.quantityLabel)
+        assertEquals(65, meal.totalCalories)
+        assertEquals(12, meal.protein)
+        assertEquals(1, meal.carbs)
+        assertEquals(2, meal.fats)
+    }
+
+    @Test
+    fun should_sum_multipe_log_in_daily_deatil() {
+        val zone = ZoneId.systemDefault()
+        val today = LocalDate.now(zone)
+        val logInstant = today.atStartOfDay(zone).toInstant()
+
+        val breakfastLogId =
+            transaction {
+                FoodLogs.insert {
+                    it[FoodLogs.user_id] = userId
+                    it[log_date] = logInstant
+                    it[meal_type] = "Breakfast"
+                    it[notes] = "Test1"
+                } get FoodLogs.food_log_id
+            }
+        val lunchLogId =
+            transaction {
+                FoodLogs.insert {
+                    it[FoodLogs.user_id] = userId
+                    it[log_date] = logInstant
+                    it[meal_type] = "Lunch"
+                    it[notes] = "Test2"
+                } get FoodLogs.food_log_id
+            }
+        transaction {
+            FoodLogItems.insert {
+                it[FoodLogItems.food_log_id] = breakfastLogId
+                it[FoodLogItems.food_id] = appleId
+                it[quantity_g] = BigDecimal("100.00")
+            }
+            FoodLogItems.insert {
+                it[FoodLogItems.food_log_id] = lunchLogId
+                it[FoodLogItems.food_id] = appleId
+                it[quantity_g] = BigDecimal("100.00")
+            }
+        }
+
+        val result = DiaryService.getDailyDiaryDetail(userId, today)
+        assertEquals(130, result.totalCalories)
+        assertEquals(24, result.protein)
+        assertEquals(2, result.carbs)
+        assertEquals(4, result.fats)
+        assertEquals(2, result.meals.size)
+        assertEquals("Breakfast", result.meals[0].mealType)
+        assertEquals("Lunch", result.meals[1].mealType)
+    }
+
+    @Test
+    fun should_only_include_log_from_select_day_in_daily_deatil() {
+        val zone = ZoneId.systemDefault()
+        val selectedDate = LocalDate.of(2026, 4, 20)
+        val selectedInstant = selectedDate.atStartOfDay(zone).toInstant()
+        val otherDate = selectedDate.minusWeeks(1)
+        val otherInstant = otherDate.atStartOfDay(zone).toInstant()
+        val selectedLogId =
+            transaction {
+                FoodLogs.insert {
+                    it[FoodLogs.user_id] = userId
+                    it[log_date] = selectedInstant
+                    it[meal_type] = "Breakfast"
+                    it[notes] = "Testselected"
+                } get FoodLogs.food_log_id
+            }
+        val otherLogId =
+            transaction {
+                FoodLogs.insert {
+                    it[FoodLogs.user_id] = userId
+                    it[log_date] = otherInstant
+                    it[meal_type] = "Lunch"
+                    it[notes] = "Testother"
+                } get FoodLogs.food_log_id
+            }
+        transaction {
+            FoodLogItems.insert {
+                it[FoodLogItems.food_log_id] = selectedLogId
+                it[FoodLogItems.food_id] = appleId
+                it[quantity_g] = BigDecimal("100.00")
+            }
+            FoodLogItems.insert {
+                it[FoodLogItems.food_log_id] = otherLogId
+                it[FoodLogItems.food_id] = appleId
+                it[quantity_g] = BigDecimal("100.00")
+            }
+        }
+
+        val result = DiaryService.getDailyDiaryDetail(userId, selectedDate)
+
+        assertEquals(65, result.totalCalories)
+        assertEquals(12, result.protein)
+        assertEquals(1, result.carbs)
+        assertEquals(2, result.fats)
+        assertEquals(1, result.meals.size)
+        assertEquals("Breakfast", result.meals.first().mealType)
+        assertEquals("Testselected", result.meals.first().notes)
     }
 }

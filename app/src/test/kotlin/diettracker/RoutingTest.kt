@@ -2,6 +2,8 @@ package diettracker
 
 import TestDatabaseFactory
 import diettracker.db.tables.Users
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -20,6 +22,30 @@ import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+
+private suspend fun HttpClient.loginTestUser() {
+    post("/Login") {
+        contentType(ContentType.Application.FormUrlEncoded)
+        setBody(
+            listOf(
+                "email" to "test@test.com",
+                "password" to "test@test.com",
+            ).formUrlEncode(),
+        )
+    }
+}
+
+private suspend fun HttpClient.loginProTestUser() {
+    post("/Professional-Login") {
+        contentType(ContentType.Application.FormUrlEncoded)
+        setBody(
+            listOf(
+                "email" to "testpro@test.com",
+                "password" to "testpro@test.com",
+            ).formUrlEncode(),
+        )
+    }
+}
 
 class RoutingTest {
     @BeforeEach
@@ -43,6 +69,15 @@ class RoutingTest {
     fun should_return_ok_for_heath_check() =
         testApplication {
             application { module(testing = true) }
+
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+
+            client.loginTestUser()
+
             val result = client.get("/health")
             assertEquals(200, result.status.value)
         }
@@ -51,6 +86,14 @@ class RoutingTest {
     fun should_load_landing_page() =
         testApplication {
             application { module(testing = true) }
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+
+            client.loginTestUser()
+
             val result = client.get("/")
             assertEquals(200, result.status.value)
         }
@@ -88,9 +131,33 @@ class RoutingTest {
         }
 
     @Test
+    fun should_load_food_diary_day_page() =
+        testApplication {
+            application { module(testing = true) }
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+
+            client.loginTestUser()
+
+            val result = client.get("/food_diary/day")
+            assertEquals(200, result.status.value)
+        }
+
+    @Test
     fun should_load_professional_page() =
         testApplication {
             application { module(testing = true) }
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+
+            client.loginProTestUser()
+
             val result = client.get("/professionals")
             assertEquals(200, result.status.value)
         }
