@@ -38,6 +38,35 @@ data class WeeklyDiaryViewModel(
     val weekHasEntries: Boolean,
 )
 
+data class FoodDiaryItemViewModel(
+    val foodName: String,
+    val quantityLabel: String,
+    val calories: Int,
+    val protein: Int,
+    val carbs: Int,
+    val fats: Int,
+)
+
+data class MealDiaryDetailViewModel(
+    val mealType: String,
+    val notes: String,
+    val timeLabel: String,
+    val totalCalories: Int,
+    val protein: Int,
+    val carbs: Int,
+    val fats: Int,
+    val items: List<FoodDiaryItemViewModel>,
+)
+
+data class DailyDiaryDetailViewModel(
+    val dateLabel: String,
+    val totalCalories: Int,
+    val protein: Int,
+    val carbs: Int,
+    val fats: Int,
+    val meals: List<MealDiaryDetailViewModel>,
+)
+
 private const val ZERO_NUTRITION = 0.0
 private const val WEEK_OFFSET_END_DAYS = 6L
 private const val WEEK_OFFSET_START_DAYS = 0L
@@ -83,6 +112,56 @@ object DiaryService {
             availableWeeks = weekOptions,
             days = days,
             weekHasEntries = days.any { it.hasEntries },
+        )
+    }
+
+    fun getDailyDiaryDetail(
+        userId: Int,
+        date: LocalDate,
+    ): DailyDiaryDetailViewModel {
+        val startInstant = date.atStartOfDay(appZone).toInstant()
+        val endInstant = date.plusDays(1).atStartOfDay(appZone).toInstant()
+
+        val logs = DiaryRepository.findLogsByUserAndDateRange(userId, startInstant, endInstant)
+        val nutritionByLogId = DiaryRepository.findNutritionTotalsByLogIds(logs.map { it.foodLogId })
+        val itemsByLogId = DiaryRepository.findFoodItemsByLogIds(logs.map { it.foodLogId })
+
+        val meals =
+            logs.map { log ->
+                val mealTotals = nutritionByLogId[log.foodLogId] ?: emptyNutritionTotals()
+                val mealItems =
+                    itemsByLogId[log.foodLogId].orEmpty().map { item ->
+                        FoodDiaryItemViewModel(
+                            foodName = item.foodName,
+                            quantityLabel = "${item.quantityG.roundToInt()} g",
+                            calories = item.calories.roundToInt(),
+                            protein = item.protein.roundToInt(),
+                            carbs = item.carbs.roundToInt(),
+                            fats = item.fats.roundToInt(),
+                        )
+                    }
+
+                MealDiaryDetailViewModel(
+                    mealType = log.mealType,
+                    notes = log.notes,
+                    timeLabel = log.logDate.atZone(appZone).toLocalTime().toString(),
+                    totalCalories = mealTotals.calories.roundToInt(),
+                    protein = mealTotals.protein.roundToInt(),
+                    carbs = mealTotals.carbs.roundToInt(),
+                    fats = mealTotals.fats.roundToInt(),
+                    items = mealItems,
+                )
+            }
+
+        val dayTotals = getNutritionTotalsForDay(logs, nutritionByLogId)
+
+        return DailyDiaryDetailViewModel(
+            dateLabel = formatDateLabel(date),
+            totalCalories = dayTotals.calories.roundToInt(),
+            protein = dayTotals.protein.roundToInt(),
+            carbs = dayTotals.carbs.roundToInt(),
+            fats = dayTotals.fats.roundToInt(),
+            meals = meals,
         )
     }
 
@@ -134,14 +213,7 @@ object DiaryService {
     ): NutritionTotals {
         return logs
             .mapNotNull { log -> nutritionByLogId[log.foodLogId] }
-            .fold(
-                NutritionTotals(
-                    calories = ZERO_NUTRITION,
-                    protein = ZERO_NUTRITION,
-                    carbs = ZERO_NUTRITION,
-                    fats = ZERO_NUTRITION,
-                ),
-            ) { acc, current ->
+            .fold(emptyNutritionTotals()) { acc, current ->
                 NutritionTotals(
                     calories = acc.calories + current.calories,
                     protein = acc.protein + current.protein,
@@ -186,14 +258,23 @@ object DiaryService {
     }
 
     private fun buildDayViewUrl(
+        @Suppress("UNUSED_PARAMETER")
         userId: Int,
         date: LocalDate,
         hasEntries: Boolean,
     ): String? {
         return if (hasEntries) {
-            "/food-diary/day?userId=$userId&date=$date"
+            "/food_diary/day?date=$date"
         } else {
             null
         }
     }
+
+    private fun emptyNutritionTotals(): NutritionTotals =
+        NutritionTotals(
+            calories = ZERO_NUTRITION,
+            protein = ZERO_NUTRITION,
+            carbs = ZERO_NUTRITION,
+            fats = ZERO_NUTRITION,
+        )
 }
