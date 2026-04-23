@@ -7,6 +7,7 @@ import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
@@ -252,7 +253,9 @@ class RoutingTest {
                         ).formUrlEncode(),
                     )
                 }
+            val body = result.bodyAsText()
             assertEquals(200, result.status.value)
+            assertTrue(body.contains("Invalid email or password"))
         }
 
     @Test

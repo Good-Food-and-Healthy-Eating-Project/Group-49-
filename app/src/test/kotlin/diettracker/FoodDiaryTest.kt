@@ -257,10 +257,10 @@ class FoodDiaryTest {
         assertEquals(1, meal.items.size)
         assertEquals("Apple", item.foodName)
         assertEquals("100 g", item.quantityLabel)
-        assertEquals(65, meal.totalCalories)
-        assertEquals(12, meal.protein)
-        assertEquals(1, meal.carbs)
-        assertEquals(2, meal.fats)
+        assertEquals(65, item.calories)
+        assertEquals(12, item.protein)
+        assertEquals(1, item.carbs)
+        assertEquals(2, item.fats)
     }
 
     @Test

@@ -6,7 +6,6 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.formUrlEncode
 import io.ktor.server.testing.testApplication
@@ -55,7 +54,7 @@ class FoodDiaryRoutingTest {
             }
             val response = client.get("/food_diary")
 
-            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals(200, response.status.value)
         }
 
     @Test
@@ -77,7 +76,7 @@ class FoodDiaryRoutingTest {
 
             val response = client.get("/food_diary?week=2026-04-13")
 
-            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals(200, response.status.value)
         }
 
     @Test
@@ -99,6 +98,6 @@ class FoodDiaryRoutingTest {
 
             val response = client.get("/food_diary?week=not-a-date")
 
-            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals(200, response.status.value)
         }
 }
