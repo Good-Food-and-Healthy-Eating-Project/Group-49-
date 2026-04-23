@@ -32,6 +32,16 @@ data class NutritionTotals(
     val fats: Double,
 )
 
+data class FoodLogItemRecord(
+    val foodLogId: Int,
+    val foodName: String,
+    val quantityG: Double,
+    val calories: Double,
+    val protein: Double,
+    val carbs: Double,
+    val fats: Double,
+)
+
 object DiaryRepository {
     private val appZone: ZoneId = ZoneId.systemDefault()
     private const val GRAMS_PER_100 = 100.0
@@ -93,6 +103,32 @@ object DiaryRepository {
                             fats = totals.fats + (row[Foods.fat_per_100g].toDouble() * quantityFactor),
                         )
                     }.rounded(2)
+                }
+        }
+
+    fun findFoodItemsByLogIds(logIds: List<Int>): Map<Int, List<FoodLogItemRecord>> =
+        transaction {
+            if (logIds.isEmpty()) {
+                return@transaction emptyMap()
+            }
+
+            (FoodLogItems innerJoin Foods)
+                .selectAll()
+                .where { FoodLogItems.food_log_id inList logIds }
+                .groupBy { row -> row[FoodLogItems.food_log_id] }
+                .mapValues { (_, rows) ->
+                    rows.map { row ->
+                        val quantityFactor = row[FoodLogItems.quantity_g].toDouble() / GRAMS_PER_100
+                        FoodLogItemRecord(
+                            foodLogId = row[FoodLogItems.food_log_id],
+                            foodName = row[Foods.food_name],
+                            quantityG = row[FoodLogItems.quantity_g].toDouble(),
+                            calories = row[Foods.calories_per_100g].toDouble() * quantityFactor,
+                            protein = row[Foods.protein_per_100g].toDouble() * quantityFactor,
+                            carbs = row[Foods.carbs_per_100g].toDouble() * quantityFactor,
+                            fats = row[Foods.fat_per_100g].toDouble() * quantityFactor,
+                        )
+                    }
                 }
         }
 
