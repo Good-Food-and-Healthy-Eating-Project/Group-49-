@@ -197,7 +197,7 @@
 					<div class="cards-grid">
 					{% for recipe in recipes %}
 						<div class="recipe-card" data-recipe="{{ recipe.name }}" data-id="{{ recipe.id }}">
-							<div class="heart {% if recipe.id in favouriteIds %}active{% endif %}" aria-label="favourite"></div>
+							<div class="heart {% if favourite.Ids contains recipe.id %}active{% endif %}" aria-label="favourite"></div>
 							{% if recipe.thumbnail %}
 								<img src="{{ recipe.thumbnail }}" alt="{{ recipe.name }}">
 							{% endif %}
@@ -238,17 +238,16 @@
 				fetch("/recipes/favourite/" + recipeId, { method: "POST" });
             }
         });
-
-		document.querySelectorAll(".heart").forEach(function(heart) {
-            var card = heart.closest(".recipe-card");
-            var recipeName = card.getAttribute("data-recipe");
-			var entry = document.createElement("div");
-			entry.classList.add("favourite-entry");
-			entry.id = "fav-" + recipeName.replace(/\s+/g, "-");
-			entry.textContent = recipeName;
-            document.getElementById("favourites-panel").appendChild(entry);
-		});
     });
+	document.querySelectorAll(".heart.active").forEach(function(heart) {
+        var card = heart.closest(".recipe-card");
+        var recipeName = card.getAttribute("data-recipe");
+		var entry = document.createElement("div");
+		entry.classList.add("favourite-entry");
+		entry.id = "fav-" + recipeName.replace(/\s+/g, "-");
+		entry.textContent = recipeName;
+        document.getElementById("favourites-panel").appendChild(entry);
+	});
 </script>
 
 {% endblock %}
