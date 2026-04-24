@@ -14,3 +14,6 @@ build
 # Ignore local IDE/runtime output directory
 app/bin/
 ktlint
+
+# Ignore AI tool configuration
+.ai/

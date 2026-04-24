@@ -6,6 +6,19 @@
             <span class="brand-text">SiteName</span>
         </a>
 
+        {% if isProfessional %}
+        <ul class="nav-links">
+            <li>
+                <a href="/professionals_dash" class="nav-link">Dashboard</a>
+            </li>
+            <li>
+                <a href="/profile" class="nav-link">Profile</a>
+            </li>
+            <li>
+                <a href="/messages" class="nav-link">Messages</a>
+            </li>
+        </ul>
+        {% else %}
         <ul class="nav-links">
             <li>
                 <a href="/food_log" class="nav-link nav-link--highlight">+ Log Meal</a>
@@ -26,6 +39,7 @@
                 <a href="/profile" class="nav-link nav-link--profile">Profile</a>
             </li>
         </ul>
+        {% endif %}
 
     </div>
 </nav>

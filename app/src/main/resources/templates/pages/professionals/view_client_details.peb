@@ -1,0 +1,16 @@
+    {% extends "layouts/base.peb" %}
+
+        {% block title %}{{ pageTitle | default("View Client Details") }}{% endblock %}
+
+    {% block content %}
+
+        <h1>Client Overview</h1>
+
+        <p>Client ID: {{ client.clientId }}</p>
+        <p>Goal: {{ client.goal }}</p>
+        <p>Daily Calories: {{ client.calorieGoal }}</p>
+
+        <p>Age: {{ client.age }}</p>
+        <p>Gender: {{ client.gender }}</p>
+
+    {% endblock %}
