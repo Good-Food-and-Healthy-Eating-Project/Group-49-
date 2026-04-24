@@ -1,6 +1,9 @@
 package diettracker
 
 import diettracker.db.tables.Clients
+import diettracker.db.tables.FoodLogItems
+import diettracker.db.tables.FoodLogs
+import diettracker.db.tables.Foods
 import diettracker.routes.quizRoutes
 import diettracker.routing.foodDiaryRoutes
 import io.ktor.http.HttpStatusCode
@@ -19,7 +22,9 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.javatime.date
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDate
@@ -53,16 +58,59 @@ fun Route.configurePublicRoutes() {
     get("/client_dash") {
         val email = call.sessions.get<UserSession>()?.email
         val userId = email?.let { getUserIdByEmail(it) }
-        val userRoles = userId?.let { getUserRoles(it) } ?: emptyList()
-        val dailyCalorieGoal = userId?.let { getClientCalorieGoal(it) }
 
-        val trends = userId?.let { ClientDietTrend.getDietTrend(it) } ?: emptyList<DailyDietTrend>()
+        if (userId == null) {
+            call.respondRedirect("/login")
+            return@get
+        }
+
+        val userRoles = getUserRoles(userId)
+        val dailyCalorieGoal = getClientCalorieGoal(userId)
+        val trends = ClientDietTrend.getDietTrend(userId)
         val today = LocalDate.now()
         val currentYear = today.year
         val currentMonth = today.month
         val daysInMonth = today.lengthOfMonth()
         val firstDay = today.withDayOfMonth(1)
         val leadingEmptyDays = firstDay.dayOfWeek.value - 1
+
+        val client = transaction {
+            Clients
+                .selectAll()
+                .where { Clients.client_id eq userId }
+                .single()
+        }
+        val calorieGoal = client[Clients.daily_calorie_goal]
+        val goal = client[Clients.goal]
+        val dailyOverview =
+            transaction {
+                (FoodLogs innerJoin FoodLogItems innerJoin Foods)
+                    .selectAll()
+                    .where {
+                        (FoodLogs.user_id eq userId) and (FoodLogs.log_date.date() eq today)
+                    }
+                    .map {
+                        val quantity = it[FoodLogItems.quantity_g].toDouble()
+                        val caloriesPer100g = it[Foods.calories_per_100g].toDouble()
+                        val proteinPer100g = it[Foods.protein_per_100g].toDouble()
+                        val carbsPer100g = it[Foods.carbs_per_100g].toDouble()
+                        val fatPer100g = it[Foods.fat_per_100g].toDouble()
+
+                        val convert = quantity / 100.0
+
+                        mapOf(
+                            "calories" to caloriesPer100g * convert,
+                            "protein" to proteinPer100g * convert,
+                            "carbs" to carbsPer100g * convert,
+                            "fat" to fatPer100g * convert,
+                        )
+                    }
+            }
+        val totalCalories = dailyOverview.sumOf { it["calories"] as Double }
+        val totalProtein = dailyOverview.sumOf { it["protein"] as Double }
+        val totalCarbs = dailyOverview.sumOf { it["carbs"] as Double }
+        val totalFat = dailyOverview.sumOf { it["fat"] as Double }
+        val status = if (calorieGoal != null && totalCalories > calorieGoal) "Over target" else "On track"
 
         call.respond(
             PebbleContent(
@@ -72,12 +120,19 @@ fun Route.configurePublicRoutes() {
                     "userRoles" to userRoles,
                     "isProfessional" to userRoles.contains("professional"),
                     "userId" to (userId as Any? ?: ""),
-                    "dailyCalorieGoal" to (dailyCalorieGoal as Any? ?: ""),
+                    "dailyCalorieGoal" to (dailyCalorieGoal ?: ""),
                     "trends" to trends,
                     "currentYear" to currentYear,
                     "currentMonth" to currentMonth,
                     "daysInMonth" to daysInMonth,
                     "leadingEmptyDays" to leadingEmptyDays,
+                    "totalCalories" to totalCalories,
+                    "totalProtein" to totalProtein,
+                    "totalCarbs" to totalCarbs,
+                    "totalFat" to totalFat,
+                    "calorieGoal" to (calorieGoal as Any? ?: ""),
+                    "goal" to (goal as Any? ?: ""),
+                    "status" to status,
                 ),
             ),
         )

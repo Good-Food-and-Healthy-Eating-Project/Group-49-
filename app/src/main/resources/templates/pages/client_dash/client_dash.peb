@@ -20,11 +20,11 @@ Home
         </div>
     {% endif %}
 
-    <div class="calendar-widget">
-<div class="calendar-title">
-    <h3>Diet Trend</h3>
-    <h2>{{ currentYear }} / {{ currentMonth }}</h2>
-</div>
+<div class="calendar-widget">
+    <div class="calendar-title">
+        <h3>Diet Trend</h3>
+        <h2>{{ currentYear }} / {{ currentMonth }}</h2>
+    </div>
         <div class="calendar-weekdays">
             <div>Mon</div>
             <div>Tue</div>
@@ -63,6 +63,22 @@ Home
         {% if trends is empty %}
             <div class="no-data">No diet data</div>
         {% endif %}
+
+        <div class = "Daily Overview">
+            <h2> Today's Summary
+
+            <p> Calories: {{ totalCalories }} / {{ goal }} kcal </p>
+
+            <p>Protein: {{ protein }}g</p>
+            <p>Carbs: {{ carbs }}g</p>
+            <p>Fat: {{ fat }}g</p>
+
+            <h3><Guidance/h3>
+            <ul>
+                {%  for msg in messages %}
+                    <li>{{ msg}}</li>
+                {% endfor %}}
+        </div>
     </div>
 </div>
 
