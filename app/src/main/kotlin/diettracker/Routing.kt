@@ -1,5 +1,6 @@
 package diettracker
 
+import diettracker.routes.quizRoutes
 import diettracker.routing.foodDiaryRoutes
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate
@@ -7,6 +8,7 @@ import io.ktor.server.http.content.staticResources
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.pebble.respondTemplate
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondRedirect
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -45,11 +47,17 @@ fun Route.configurePublicRoutes() {
         val email = call.sessions.get<UserSession>()?.email
         val userId = email?.let { getUserIdByEmail(it) }
         val userRoles = userId?.let { getUserRoles(it) } ?: emptyList()
+        val dailyCalorieGoal = userId?.let { getClientCalorieGoal(it) }
 
         call.respond(
             PebbleContent(
                 "pages/client_dash/client_dash.peb",
-                mapOf("showNavbar" to true, "userRoles" to userRoles),
+                mapOf(
+                    "showNavbar" to true,
+                    "userRoles" to userRoles,
+                    "userId" to (userId as Any? ?: ""),
+                    "dailyCalorieGoal" to (dailyCalorieGoal as Any? ?: ""),
+                ),
             ),
         )
     }
@@ -60,6 +68,10 @@ fun Route.configurePublicRoutes() {
     authenticate("group49-client_auth") {
         get("/") { call.dashboardPage() }
         get("/logout") { call.logout() }
+    }
+
+    get("/diary") {
+        call.respond(PebbleContent("pages/client_dash/food_diary.peb", mapOf("showNavbar" to true)))
     }
 
     get("/recipes") {
@@ -137,6 +149,26 @@ fun Route.configureAuthRoutes() {
 
     get("/Login") { call.loginPage() }
     post("/Login") { call.loginUser() }
+
+    get("/quiz") {
+        val userId = call.request.queryParameters["userId"]
+
+        if (userId == null) {
+            call.respondRedirect("/Sign-Up")
+            return@get
+        }
+
+        call.respond(
+            PebbleContent(
+                "pages/auth/signup_quiz.peb",
+                mapOf(
+                    "userId" to userId as Any,
+                ),
+            ),
+        )
+    }
+
+    quizRoutes()
 }
 
 fun Route.configureProfessionalRoutes() {
@@ -157,6 +189,16 @@ fun Route.configureProfessionalRoutes() {
 
     get("/Professional-Sign-Up") { call.profSignUpPage() }
     post("/Professional-Sign-Up") { call.signUpProfessional() }
+
+    get("/professional-quiz") {
+        val userId = call.request.queryParameters["userId"]
+        if (userId == null) {
+            call.respondRedirect("/Professional-Sign-Up")
+            return@get
+        }
+        call.profQuizPage(userId)
+    }
+    post("/professional-quiz") { call.submitProfQuiz() }
 
     get("/Professional-Login") { call.profLoginPage() }
     post("/Professional-Login") { call.loginProfessional() }

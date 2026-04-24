@@ -1,5 +1,6 @@
 package diettracker
 
+import diettracker.db.tables.Clients
 import diettracker.db.tables.Professionals
 import diettracker.db.tables.Recipes
 import diettracker.db.tables.Roles
@@ -17,6 +18,14 @@ fun getUserIdByEmail(email: String): Int? =
         Users.selectAll()
             .where { Users.email eq email }
             .map { it[Users.user_id] }
+            .singleOrNull()
+    }
+
+fun getClientCalorieGoal(userId: Int): Int? =
+    transaction {
+        Clients.selectAll()
+            .where { Clients.client_id eq userId }
+            .map { it[Clients.daily_calorie_goal] }
             .singleOrNull()
     }
 

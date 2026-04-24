@@ -7,98 +7,150 @@
 	<style>
 		body {
 			margin: 0;
-			font-family: Arial, sans-serif;
-			background: #f5f5f5;
+			font-family: 'DM Sans', Arial, sans-serif;
+			background: #F7F3EC;
+			color: #2C1E10;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
 		}
 
-		.outer-frame {
-			max-width: 980px;
-			margin: 40px auto;
-			border: 2px solid #bdbdbd;
-			padding: 28px;
-			background: #ffffff;
-		}
-
-		.inner-frame {
-			border: 2px solid #bdbdbd;
-			padding: 28px;
-			min-height: 360px;
-			box-sizing: border-box;
+		.container {
+			width: 100%;
+			max-width: 420px;
+			background: #FDFAF5;
+			padding: 40px 32px;
+			border-radius: 16px;
+			box-shadow: 0 8px 30px rgba(0,0,0,0.08);
 		}
 
 		.title {
-			margin: 0 0 36px 0;
+			margin-bottom: 24px;
 			font-size: 28px;
-			font-weight: 500;
-			color: #333333;
+			font-weight: 600;
+			text-align: center;
 		}
 
 		.field-group {
-			margin-bottom: 28px;
-			max-width: 620px;
+			margin-bottom: 20px;
 		}
 
 		label {
 			display: block;
-			margin-bottom: 10px;
-			font-size: 26px;
-			color: #333333;
+			margin-bottom: 6px;
+			font-size: 14px;
+			color: #6B4E35;
 		}
 
-		input[type="text"],
-		input[type="email"],
-		input[type="password"] {
+		input {
 			width: 100%;
-			height: 54px;
-			box-sizing: border-box;
-			border: 2px solid #bdbdbd;
-			font-size: 22px;
-			padding: 0 12px;
-			background: #ffffff;
+			height: 44px;
+			border-radius: 8px;
+			border: 1px solid #EDE6D8;
+			font-size: 14px;
+			background: #fff;
+			transition: 0.2s;
+		}
+
+        input:focus {
+			outline: none;
+			border-color: #C4603A;
 		}
 
 		.actions {
-			margin-top: 12px;
+			margin-top: 20px;
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
 		}
 
 		button {
 			height: 44px;
-			min-width: 120px;
-			border: 2px solid #bdbdbd;
-			background: #ffffff;
-			font-size: 18px;
+			border-radius: 8px;
+			border: none;
+			background: #C4603A;
+			color: white;
+			font-size: 15px;
 			cursor: pointer;
+			transition: 0.2s;
+		}
+
+		button:hover {
+			background: #A94E2E;
+		}
+
+		.secondary-btn {
+			background: transparent;
+			border: 1px solid #C4603A;
+			color: #C4603A;
+		}
+
+		.secondary-btn:hover {
+			background: #F3E4DD;
+		}
+
+		.message {
+			text-align: center;
+			font-size: 14px;
+			margin-bottom: 12px;
+		}
+
+		.success { color: #4CAF50; }
+		.error { color: #D32F2F; }
+
+		.login-link {
+			text-align: center;
+			margin-top: 16px;
+			font-size: 14px;
+		}
+
+		.login-link a {
+			color: #C4603A;
+			text-decoration: none;
+			font-weight: 500;
 		}
 	</style>
 </head>
 <body>
-	<div class="outer-frame">
-		<div class="inner-frame">
-			<h1 class="title">Sign Up</h1>
-			{% if success %}
-				<p style="color: green;">Successfully signed up</p>
-				<p><a href="/Login">Go to login</a></p>
-			{% endif %}
+	<div class="container">
+		<h1 class="title">Create Account</h1>
 
-			{% if error %}
-				<p style="color: red;">{{ error }}</p>
-			{% endif %}
+		{% if success %}
+			<p class="message success">Successfully signed up 🎉</p>
+			<div class="login-link">
+				<a href="/Login">Go to login</a>
+			</div>
+		{% endif %}
 
-			<form action="/Sign-Up" method="post">
-				<div class="field-group">
-					<label for="email">email</label>
-					<input id="email" name="email" type="email" required>
-				</div>
+    {% if error %}
+			<p class="message error">{{ error }}</p>
+		{% endif %}
 
-				<div class="field-group">
-					<label for="password">Password</label>
-					<input id="password" name="password" type="password" required>
-				</div>
+		<form action="/Sign-Up" method="post">
+			<div class="field-group">
+				<label for="email">Email</label>
+				<input id="email" name="email" type="email" required>
+			</div>
 
-				<div class="actions">
-					<button type="submit">Sign Up</button>
-				</div>
-			</form>
+			<div class="field-group">
+				<label for="password">Password</label>
+				<input id="password" name="password" type="password" required>
+			</div>
+
+			<div class="actions">
+				<button type="submit">Sign Up</button>
+
+				<!-- NEW BUTTON -->
+				<button type="button" class="secondary-btn"
+					onclick="window.location='/Professional-Sign-Up'">
+					Sign up as Professional
+				</button>
+			</div>
+		</form>
+
+		<div class="login-link">
+			Already have an account? <a href="/Login">Log in</a>
 		</div>
 	</div>
 </body>
