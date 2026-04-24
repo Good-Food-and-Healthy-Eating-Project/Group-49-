@@ -1,0 +1,171 @@
+{% extends "layouts/base.peb" %}
+
+{% block title %}
+Food Diary
+{% endblock %}
+
+{% block content %}
+<!-- Expected Pebble context: selectedWeekLabel, weekStart, weekEnd, days, availableWeeks (optional), weekHasEntries (optional) -->
+<section class="food-diary-page" aria-labelledby="food-diary-heading">
+    <header class="food-diary-header">
+        <h1 id="food-diary-heading">Food Diary</h1>
+        <p class="food-diary-subtitle">Review your meals and nutrition trends one week at a time.</p>
+    </header>
+
+    <section class="week-selection" aria-labelledby="week-selection-heading">
+        <h2 id="week-selection-heading">Week Selection</h2>
+        <form method="get" class="week-selection-form">
+            <label for="week-select">Choose week</label>
+            <select id="week-select" name="week">
+                {% if availableWeeks is defined and availableWeeks is not empty %}
+                    {% for week in availableWeeks %}
+                        <option value="{{ week.value }}" {% if week.selected %}selected{% endif %}>
+                            {{ week.label }}
+                        </option>
+                    {% endfor %}
+                {% elseif selectedWeekLabel is defined and selectedWeekLabel is not empty %}
+                    <option value="current" selected>{{ selectedWeekLabel }}</option>
+                {% else %}
+                    <option value="current" selected>Current week</option>
+                {% endif %}
+            </select>
+            <button type="submit">View week</button>
+        </form>
+
+        <p class="week-range">
+            {% if selectedWeekLabel is defined and selectedWeekLabel is not empty %}
+                <strong>{{ selectedWeekLabel }}</strong>
+            {% else %}
+                <strong>Selected week</strong>
+            {% endif %}
+            {% if weekStart is defined and weekStart is not empty and weekEnd is defined and weekEnd is not empty %}
+                ({{ weekStart }} to {{ weekEnd }})
+            {% elseif weekStart is defined and weekStart is not empty %}
+                (starting {{ weekStart }})
+            {% elseif weekEnd is defined and weekEnd is not empty %}
+                (ending {{ weekEnd }})
+            {% else %}
+                (dates unavailable)
+            {% endif %}
+        </p>
+    </section>
+
+    <section class="week-diary" aria-labelledby="week-diary-heading">
+        <h2 id="week-diary-heading">This Week</h2>
+
+        {% if days is defined and days is not empty %}
+            {% if weekHasEntries is defined and not weekHasEntries %}
+                <p class="empty-state">No meals logged for this week yet.</p>
+            {% endif %}
+
+            <ul class="day-card-list" aria-label="Daily diary overview">
+                {% for day in days %}
+                    <li class="day-card-item">
+                        <article class="day-card" aria-labelledby="day-{{ loop.index }}-heading">
+                            <header class="day-card-header">
+                                <h3 id="day-{{ loop.index }}-heading">{{ day.name | default("Day") }}</h3>
+                                <p class="day-date">
+                                    {% if day.dateLabel is defined and day.dateLabel is not empty %}
+                                        {{ day.dateLabel }}
+                                    {% else %}
+                                        Date unavailable
+                                    {% endif %}
+                                </p>
+                            </header>
+
+                            <div class="day-summary">
+                                <p class="day-calories">
+                                    <strong>Calories:</strong>
+                                    {% if day.totalCalories is defined and day.totalCalories is not null %}
+                                        {{ day.totalCalories }} kcal
+                                    {% else %}
+                                        Not available
+                                    {% endif %}
+                                </p>
+
+                                <ul class="macro-list" aria-label="{{ day.name | default('Day') }} macros">
+                                    <li>
+                                        <strong>Protein:</strong>
+                                        {% if day.protein is defined and day.protein is not null %}
+                                            {{ day.protein }} g
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </li>
+                                    <li>
+                                        <strong>Carbs:</strong>
+                                        {% if day.carbs is defined and day.carbs is not null %}
+                                            {{ day.carbs }} g
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </li>
+                                    <li>
+                                        <strong>Fats:</strong>
+                                        {% if day.fats is defined and day.fats is not null %}
+                                            {{ day.fats }} g
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </li>
+                                </ul>
+
+                                <p class="meal-count">
+                                    <strong>Meals logged:</strong>
+                                    {% if day.mealCount is defined and day.mealCount is not null %}
+                                        {{ day.mealCount }}
+                                    {% else %}
+                                        0
+                                    {% endif %}
+                                </p>
+
+                                <p class="day-status">
+                                    <strong>Status:</strong>
+                                    {% if day.status is defined and day.status is not empty %}
+                                        {{ day.status }}
+                                    {% elseif day.hasEntries is defined and not day.hasEntries %}
+                                        No meals logged
+                                    {% else %}
+                                        Status unavailable
+                                    {% endif %}
+                                </p>
+                            </div>
+
+                            <footer class="day-card-footer">
+                                {% if day.viewUrl is defined and day.viewUrl is not empty %}
+                                    <a href="{{ day.viewUrl }}" class="day-view-link" aria-label="View detailed diary for {{ day.name | default('this day') }}">
+                                        View details
+                                    </a>
+                                {% else %}
+                                    <span class="day-view-placeholder">Detailed view available soon</span>
+                                {% endif %}
+                            </footer>
+                        </article>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="empty-state">No week data available yet. Select another week or check back after meals are logged.</p>
+
+            {% set fallbackDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] %}
+            <ul class="day-card-list" aria-label="Weekly diary placeholders">
+                {% for dayName in fallbackDays %}
+                    <li class="day-card-item">
+                        <article class="day-card day-card-empty" aria-labelledby="fallback-day-{{ loop.index }}-heading">
+                            <header class="day-card-header">
+                                <h3 id="fallback-day-{{ loop.index }}-heading">{{ dayName }}</h3>
+                                <p class="day-date">Date unavailable</p>
+                            </header>
+                            <p class="day-status"><strong>Status:</strong> No meals logged</p>
+                            <footer class="day-card-footer">
+                                <span class="day-view-placeholder">Detailed view available soon</span>
+                            </footer>
+                        </article>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </section>
+</section>
+{% endblock %}
+

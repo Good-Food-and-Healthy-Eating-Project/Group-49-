@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Sign Up</title>
+	<title>Professional Login</title>
 	<style>
 		body {
 			margin: 0;
@@ -48,12 +48,14 @@
 			height: 44px;
 			border-radius: 8px;
 			border: 1px solid #EDE6D8;
+			padding: 0 12px;
+			box-sizing: border-box;
 			font-size: 14px;
 			background: #fff;
 			transition: 0.2s;
 		}
 
-        input:focus {
+		input:focus {
 			outline: none;
 			border-color: #C4603A;
 		}
@@ -80,32 +82,20 @@
 			background: #A94E2E;
 		}
 
-		.secondary-btn {
-			background: transparent;
-			border: 1px solid #C4603A;
-			color: #C4603A;
-		}
-
-		.secondary-btn:hover {
-			background: #F3E4DD;
-		}
-
 		.message {
 			text-align: center;
 			font-size: 14px;
 			margin-bottom: 12px;
+			color: #D32F2F;
 		}
 
-		.success { color: #4CAF50; }
-		.error { color: #D32F2F; }
-
-		.login-link {
+		.signup-link {
 			text-align: center;
 			margin-top: 16px;
 			font-size: 14px;
 		}
 
-		.login-link a {
+		.signup-link a {
 			color: #C4603A;
 			text-decoration: none;
 			font-weight: 500;
@@ -114,20 +104,13 @@
 </head>
 <body>
 	<div class="container">
-		<h1 class="title">Create Account</h1>
+		<h1 class="title">Professional Login</h1>
 
-		{% if success %}
-			<p class="message success">Successfully signed up 🎉</p>
-			<div class="login-link">
-				<a href="/Login">Go to login</a>
-			</div>
+		{% if error %}
+			<p class="message">{{ error }}</p>
 		{% endif %}
 
-    {% if error %}
-			<p class="message error">{{ error }}</p>
-		{% endif %}
-
-		<form action="/Sign-Up" method="post">
+		<form action="/Professional-Login" method="post" autocomplete="off">
 			<div class="field-group">
 				<label for="email">Email</label>
 				<input id="email" name="email" type="email" required>
@@ -139,18 +122,12 @@
 			</div>
 
 			<div class="actions">
-				<button type="submit">Sign Up</button>
-
-				<!-- NEW BUTTON -->
-				<button type="button" class="secondary-btn"
-					onclick="window.location='/Professional-Sign-Up'">
-					Sign up as Professional
-				</button>
+				<button type="submit">Login</button>
 			</div>
 		</form>
 
-		<div class="login-link">
-			Already have an account? <a href="/Login">Log in</a>
+		<div class="signup-link">
+			Don't have an account? <a href="/Professional-Sign-Up">Sign up</a>
 		</div>
 	</div>
 </body>

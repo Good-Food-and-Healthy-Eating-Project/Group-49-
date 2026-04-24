@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Sign Up</title>
+	<title>Professional Sign Up</title>
 	<style>
 		body {
 			margin: 0;
@@ -48,12 +48,14 @@
 			height: 44px;
 			border-radius: 8px;
 			border: 1px solid #EDE6D8;
+			padding: 0 12px;
+			box-sizing: border-box;
 			font-size: 14px;
 			background: #fff;
 			transition: 0.2s;
 		}
 
-        input:focus {
+		input:focus {
 			outline: none;
 			border-color: #C4603A;
 		}
@@ -80,16 +82,6 @@
 			background: #A94E2E;
 		}
 
-		.secondary-btn {
-			background: transparent;
-			border: 1px solid #C4603A;
-			color: #C4603A;
-		}
-
-		.secondary-btn:hover {
-			background: #F3E4DD;
-		}
-
 		.message {
 			text-align: center;
 			font-size: 14px;
@@ -114,20 +106,20 @@
 </head>
 <body>
 	<div class="container">
-		<h1 class="title">Create Account</h1>
+		<h1 class="title">Create Professional Account</h1>
 
 		{% if success %}
-			<p class="message success">Successfully signed up 🎉</p>
+			<p class="message success">Successfully signed up!</p>
 			<div class="login-link">
-				<a href="/Login">Go to login</a>
+				<a href="/Professional-Login">Go to login</a>
 			</div>
 		{% endif %}
 
-    {% if error %}
+		{% if error %}
 			<p class="message error">{{ error }}</p>
 		{% endif %}
 
-		<form action="/Sign-Up" method="post">
+		<form action="/Professional-Sign-Up" method="post">
 			<div class="field-group">
 				<label for="email">Email</label>
 				<input id="email" name="email" type="email" required>
@@ -140,17 +132,11 @@
 
 			<div class="actions">
 				<button type="submit">Sign Up</button>
-
-				<!-- NEW BUTTON -->
-				<button type="button" class="secondary-btn"
-					onclick="window.location='/Professional-Sign-Up'">
-					Sign up as Professional
-				</button>
 			</div>
 		</form>
 
 		<div class="login-link">
-			Already have an account? <a href="/Login">Log in</a>
+			Already have an account? <a href="/Professional-Login">Log in</a>
 		</div>
 	</div>
 </body>

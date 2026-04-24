@@ -495,5 +495,246 @@ a:hover { color: var(--brown); }
 }
 
 /* =============================================
-   RESPONSIVE
+   FOOD DIARY PAGE
    ============================================= */
+.food-diary-page {
+    max-width: 980px;
+    margin: 0 auto;
+    display: grid;
+    gap: 1.5rem;
+}
+
+.food-diary-header h1 {
+    margin-bottom: 0.35rem;
+}
+
+.food-diary-subtitle {
+    max-width: 620px;
+}
+
+.week-selection,
+.week-diary {
+    background: var(--warm-white);
+    border: 1px solid rgba(59, 42, 26, 0.08);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 1.25rem;
+}
+
+.week-selection h2,
+.week-diary h2 {
+    font-size: clamp(1.25rem, 2.2vw, 1.55rem);
+    margin-bottom: 0.9rem;
+}
+
+.week-selection-form {
+    display: flex;
+    align-items: end;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.8rem;
+}
+
+.week-selection-form label {
+    display: block;
+    width: 100%;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.week-selection-form select {
+    min-width: 240px;
+    padding: 0.6rem 0.8rem;
+    border: 1.5px solid var(--cream-dark);
+    border-radius: var(--radius-md);
+    background: var(--warm-white);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+}
+
+.week-selection-form select:focus-visible {
+    outline: none;
+    border-color: var(--terracotta-light);
+    box-shadow: 0 0 0 3px rgba(196, 96, 58, 0.12);
+}
+
+.week-selection-form button {
+    border: none;
+    border-radius: 999px;
+    padding: 0.62rem 1.05rem;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--warm-white);
+    background: var(--terracotta);
+    cursor: pointer;
+    transition: background var(--transition), transform var(--transition);
+}
+
+.week-selection-form button:hover {
+    background: var(--brown);
+    transform: translateY(-1px);
+}
+
+.week-range {
+    font-size: 0.95rem;
+}
+
+.day-card-list {
+    list-style: none;
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 0.35rem;
+}
+
+.day-card {
+    border: 1px solid rgba(59, 42, 26, 0.09);
+    border-radius: var(--radius-md);
+    background: linear-gradient(180deg, rgba(253, 250, 245, 1) 0%, rgba(247, 243, 236, 0.75) 100%);
+    padding: 1rem 1.05rem;
+    transition: box-shadow var(--transition), transform var(--transition), border-color var(--transition);
+}
+
+.day-card:hover {
+    border-color: rgba(196, 96, 58, 0.3);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.day-card-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.55rem;
+}
+
+.day-card-header h3 {
+    font-size: 1.2rem;
+}
+
+.day-date {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.day-summary {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 0.8rem 1rem;
+    margin-bottom: 0.7rem;
+}
+
+.day-calories,
+.meal-count,
+.day-status {
+    font-size: 0.95rem;
+}
+
+.macro-list {
+    list-style: none;
+    display: grid;
+    gap: 0.2rem;
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+}
+
+.day-card-footer {
+    border-top: 1px solid rgba(59, 42, 26, 0.08);
+    padding-top: 0.55rem;
+}
+
+.day-view-link {
+    font-weight: 500;
+    color: var(--terracotta);
+}
+
+.day-view-link:hover {
+    color: var(--brown);
+}
+
+.day-view-placeholder {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.day-card-empty {
+    background: var(--warm-white);
+}
+
+.empty-state {
+    border-radius: var(--radius-md);
+    background: rgba(122, 140, 114, 0.1);
+    border: 1px solid rgba(122, 140, 114, 0.25);
+    padding: 0.75rem 0.9rem;
+    color: var(--brown-mid);
+    margin-bottom: 0.75rem;
+}
+
+@media (max-width: 860px) {
+    .day-summary {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .page-wrapper {
+        padding: 0 1rem;
+    }
+
+    .week-selection,
+    .week-diary {
+        padding: 1rem;
+    }
+
+    .week-selection-form {
+        align-items: stretch;
+    }
+
+    .week-selection-form select,
+    .week-selection-form button {
+        width: 100%;
+    }
+
+    .day-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.2rem;
+    }
+}
+
+.detail-macro-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(120px, 1fr));
+    gap: 0.6rem 1rem;
+}
+
+.food-diary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.75rem;
+    background: var(--warm-white);
+}
+
+.food-diary-table th,
+.food-diary-table td {
+    border-top: 1px solid rgba(59, 42, 26, 0.1);
+    padding: 0.55rem 0.45rem;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.food-diary-table th {
+    font-weight: 600;
+    color: var(--brown-mid);
+}
+
+@media (max-width: 860px) {
+    .detail-macro-grid {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+    }
+}
