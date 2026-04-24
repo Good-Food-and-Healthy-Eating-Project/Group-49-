@@ -1,12 +1,9 @@
 package diettracker
 
-import diettracker.db.tables.ClientProfessionalLink
 import diettracker.db.tables.Clients
-import diettracker.db.tables.Users
-import diettracker.models.ClientInfo
-import io.ktor.http.HttpStatusCode
 import diettracker.routes.quizRoutes
 import diettracker.routing.foodDiaryRoutes
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate
 import io.ktor.server.http.content.staticResources
@@ -23,7 +20,6 @@ import io.ktor.server.routing.routing
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.jdbc.insertIgnore
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
@@ -183,11 +179,18 @@ fun Route.configureAuthRoutes() {
 }
 
 fun Route.configureProfessionalRoutes() {
+    configureClientProfessionalRoutes()
+    configureProfessionalAccountRoutes()
+    configureViewClientDetailsRoutes()
+}
+
+private fun Route.configureClientProfessionalRoutes() {
     get("/professionals") {
         val email = call.sessions.get<UserSession>()?.email
         val userId = email?.let { getUserIdByEmail(it) }
         val userRoles = userId?.let { getUserRoles(it) } ?: emptyList()
         val professionals = getAllProfessionals()
+        val hasCompletedQuiz = userId?.let { getClientCalorieGoal(it) } != null
 
         call.respondTemplate(
             "pages/professionals/professionals.peb",
@@ -195,6 +198,8 @@ fun Route.configureProfessionalRoutes() {
                 "professionals" to professionals,
                 "isProfessional" to userRoles.contains("professional"),
                 "showNavbar" to true,
+                "hasCompletedQuiz" to hasCompletedQuiz,
+                "userId" to (userId ?: ""),
             ),
         )
     }
@@ -214,6 +219,10 @@ fun Route.configureProfessionalRoutes() {
                     status = HttpStatusCode.InternalServerError,
                 )
 
+        if (getClientCalorieGoal(clientId) == null) {
+            return@post call.respondRedirect("/quiz?userId=$clientId")
+        }
+
         val professionalId =
             call.receiveParameters()["professional_id"]?.toIntOrNull()
                 ?: return@post call.respondText(
@@ -225,6 +234,9 @@ fun Route.configureProfessionalRoutes() {
 
         call.respondRedirect("/client_dash")
     }
+}
+
+private fun Route.configureProfessionalAccountRoutes() {
     get("/professionals_dash") {
         val session = call.sessions.get<UserSession>()
         val email = session?.email ?: return@get call.respondRedirect("/Login")
@@ -263,37 +275,46 @@ fun Route.configureProfessionalRoutes() {
     post("/Professional-Login") { call.loginProfessional() }
 }
 
-fun linkClientToProfessional(
-    clientId: Int,
-    professionalId: Int,
-) {
-    transaction {
-        Clients.insertIgnore {
-            it[Clients.client_id] = clientId
-        }
-        ClientProfessionalLink.insertIgnore {
-            it[ClientProfessionalLink.client_id] = clientId
-            it[ClientProfessionalLink.professional_id] = professionalId
-        }
-    }
-}
+fun Route.configureViewClientDetailsRoutes() {
+    get("/professional/client/{clientId}") {
+        val session = call.sessions.get<UserSession>()
+        val email = session?.email ?: return@get call.respondRedirect("/Login")
+        val professionalId = getUserIdByEmail(email) ?: return@get call.respondText("User not found")
 
-fun getClientsForProfessional(professionalId: Int): List<ClientInfo> {
-    return transaction {
-        (ClientProfessionalLink innerJoin Clients innerJoin Users)
-            .selectAll()
-            .where { ClientProfessionalLink.professional_id eq professionalId }
-            .map {
-                ClientInfo(
-                    id = it[ClientProfessionalLink.client_id],
-                    firstName = it[Users.first_name],
-                    lastName = it[Users.second_name],
-                    email = it[Users.email],
-                    goal = it[Clients.goal],
-                    heightCm = it[Clients.height_cm],
-                    weightKg = it[Clients.weight_kg],
-                )
-            }
+        val userRoles = getUserRoles(professionalId)
+        val clients = getClientsForProfessional(professionalId)
+        val clientId = call.parameters["clientId"]?.toIntOrNull()
+
+        // Handling error case
+        if (clientId == null) {
+            call.respondText("Invalid client ID")
+            return@get
+        }
+
+        val clientData = transaction {
+            Clients
+                .selectAll()
+                .where { Clients.client_id eq clientId }
+                .map {
+                    mapOf(
+                        "clientId" to it[Clients.client_id],
+                        "goal" to it[Clients.goal],
+                        "calorieGoal" to it[Clients.daily_calorie_goal],
+                        "age" to it[Clients.age],
+                        "gender" to it[Clients.gender],
+                    )
+                }
+                .singleOrNull()
+        }
+        call.respondTemplate(
+            "pages/professionals/view_client_details.peb",
+            mapOf(
+                "showNavbar" to true,
+                "isProfessional" to userRoles.contains("professional"),
+                "clients" to clients,
+                "client" to (clientData ?: emptyMap<String, Any?>()),
+            ),
+        )
     }
 }
 

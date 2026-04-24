@@ -34,6 +34,7 @@
                                 <span class="badge badge-sage">{{ client.weightKg }} kg</span>
                             {% endif %}
                         </div>
+                        <a href="/professional/client/{{ client.id }}" class="btn-view-details">View Details</a>
                     </div>
                 </div>
             {% endfor %}
@@ -92,6 +93,23 @@
         display: flex;
         flex-wrap: wrap;
         gap: 0.4rem;
+    }
+
+    .btn-view-details {
+        display: inline-block;
+        margin-top: 0.65rem;
+        padding: 0.35rem 0.85rem;
+        background: var(--terracotta);
+        color: var(--warm-white);
+        border-radius: var(--radius-md);
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+
+    .btn-view-details:hover {
+        background: var(--terracotta-dark, #b85c38);
     }
 </style>
 {% endblock %}

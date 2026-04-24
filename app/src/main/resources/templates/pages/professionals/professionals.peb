@@ -9,6 +9,14 @@
         <p>Browse our registered diet professionals and select one to guide your journey.</p>
     </div>
 
+    {% if not isProfessional and not hasCompletedQuiz %}
+        <div class="quiz-prompt-banner">
+            <span>&#9888;</span>
+            You need to complete your health quiz before selecting a professional.
+            <a href="/quiz?userId={{ userId }}">Complete the quiz</a>
+        </div>
+    {% endif %}
+
     {% if professionals is empty %}
         <div class="empty-state" style="padding: 2.5rem; text-align: center; border-radius: var(--radius-lg);">
             <p style="font-size: 1.05rem;">No professionals are registered yet. Check back soon.</p>
@@ -53,6 +61,25 @@
 </div>
 
 <style>
+    .quiz-prompt-banner {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: #fff8e1;
+        border: 1px solid #f9c74f;
+        border-radius: var(--radius-lg);
+        padding: 0.85rem 1.25rem;
+        margin-bottom: 1.25rem;
+        font-size: 0.95rem;
+        color: #7a5c00;
+    }
+
+    .quiz-prompt-banner a {
+        font-weight: 600;
+        color: #5a4000;
+        text-decoration: underline;
+    }
+
     .pro-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
