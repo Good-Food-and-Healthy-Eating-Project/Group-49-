@@ -1,67 +1,54 @@
-    {% extends "layouts/base.peb" %}
+{% extends "layouts/base.peb" %}
 
-        {% block title %}
+{% block title %}
 Home
 {% endblock %}
 
-    {% block content %}
-
-<h1>Welcome to Good Food</h1>
-
-{% if dailyCalorieGoal is not empty %}
-    <div class="calorie-goal-card">
-        <p class="calorie-goal-label">Daily Calorie Goal</p>
-        <p class="calorie-goal-value">{{ dailyCalorieGoal }} kcal</p>
-    </div>
-{% else %}
-    <div class="calorie-goal-card calorie-goal-card--empty">
-        <p class="calorie-goal-label">No daily calorie goal set</p>
-        {% if userId is not empty %}
-            <a href="/quiz?userId={{ userId }}" class="calorie-goal-link">Complete the quiz to get your goal</a>
+{% block content %}
+<div class="client-dashboard-page">
+    <div class="calendar-widget">
+<div class="calendar-title">
+    <h3>Diet Trend</h3>
+    <h2>{{ currentYear }} / {{ currentMonth }}</h2>
+</div>
+        <div class="calendar-weekdays">
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+            <div>Sun</div>
+        </div>
+        <div class="calendar-grid">
+            {% for i in 1..leadingEmptyDays %}
+                <div class="day-cell empty-cell"></div>
+            {% endfor %}
+            {% for day in 1..daysInMonth %}
+                {% set found = false %}
+                <div class="day-cell">
+                    {% for trend in trends %}
+                        {% if trend.dayOfMonth == day %}
+                            {% set found = true %}
+                            <div class="day-box {{ trend.exceeds ? 'red' : 'green' }}">
+                                {{ day }}
+                                <div class="tooltip">
+                                    Kcal: {{ trend.totalCalorie }} / {{ trend.targetCalorie }}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    {% if not found %}
+                        <div class="day-box empty-day">
+                            {{ day }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        {% if trends is empty %}
+            <div class="no-data">No diet data</div>
         {% endif %}
     </div>
-{% endif %}
-
-<style>
-    .calorie-goal-card {
-        display: inline-block;
-        margin-top: 24px;
-        padding: 24px 32px;
-        background: #FDFAF5;
-        border: 1px solid #EDE6D8;
-        border-radius: 12px;
-        text-align: center;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-    }
-
-    .calorie-goal-card--empty {
-        border-color: #bdbdbd;
-    }
-
-    .calorie-goal-label {
-        margin: 0 0 8px;
-        font-size: 13px;
-        color: #7A6855;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .calorie-goal-value {
-        margin: 0;
-        font-size: 36px;
-        font-weight: 700;
-        color: #C4603A;
-    }
-
-    .calorie-goal-link {
-        font-size: 13px;
-        color: #C4603A;
-        text-decoration: none;
-    }
-
-    .calorie-goal-link:hover {
-        text-decoration: underline;
-    }
-</style>
-
+</div>
 {% endblock %}
