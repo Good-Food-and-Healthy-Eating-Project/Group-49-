@@ -11,23 +11,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      -name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      -name: Set up JDK
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-      -name: Grant permission for Gradle
-      run: chmod +x gradlew
+      - name: Grant permission for Gradle
+        run: chmod +x gradlew
 
-      -name: Run tests
-      run: ./gradlew test
+      - name: Run tests
+        run: ./gradlew test
 
-      -name: Run kltint
-      run: ./gradlew ktlintCheck
+      - name: Run ktlint
+        run: ./gradlew ktlintCheck
 
-      -name: Run detekt
-      run: ./gradlew detekt
+      - name: Run detekt
+        run: ./gradlew detekt
