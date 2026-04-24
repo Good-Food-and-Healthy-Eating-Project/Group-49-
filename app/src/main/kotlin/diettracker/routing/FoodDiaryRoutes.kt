@@ -47,5 +47,37 @@ fun Route.foodDiaryRoutes() {
                 ),
             )
         }
+
+        get("/food_diary/day") {
+            val sessionEmail =
+                call.sessions.get<UserSession>()?.email
+                    ?: return@get call.respondRedirect("/Login")
+
+            val userId =
+                getUserIdByEmail(sessionEmail)
+                    ?: return@get call.respondRedirect("/Login")
+
+            val selectedDate =
+                call.request.queryParameters["date"]?.let {
+                    runCatching { LocalDate.parse(it) }.getOrNull()
+                } ?: LocalDate.now()
+
+            val detailView = DiaryService.getDailyDiaryDetail(userId, selectedDate)
+
+            call.respond(
+                PebbleContent(
+                    "pages/client_dash/food_diary_day.peb",
+                    mapOf(
+                        "showNavbar" to true,
+                        "dateLabel" to detailView.dateLabel,
+                        "totalCalories" to detailView.totalCalories,
+                        "protein" to detailView.protein,
+                        "carbs" to detailView.carbs,
+                        "fats" to detailView.fats,
+                        "meals" to detailView.meals,
+                    ),
+                ),
+            )
+        }
     }
 }
