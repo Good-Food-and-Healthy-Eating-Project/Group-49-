@@ -291,21 +291,22 @@ fun Route.configureViewClientDetailsRoutes() {
             return@get
         }
 
-        val clientData = transaction {
-            Clients
-                .selectAll()
-                .where { Clients.client_id eq clientId }
-                .map {
-                    mapOf(
-                        "clientId" to it[Clients.client_id],
-                        "goal" to it[Clients.goal],
-                        "calorieGoal" to it[Clients.daily_calorie_goal],
-                        "age" to it[Clients.age],
-                        "gender" to it[Clients.gender],
-                    )
-                }
-                .singleOrNull()
-        }
+        val clientData =
+            transaction {
+                Clients
+                    .selectAll()
+                    .where { Clients.client_id eq clientId }
+                    .map {
+                        mapOf(
+                            "clientId" to it[Clients.client_id],
+                            "goal" to it[Clients.goal],
+                            "calorieGoal" to it[Clients.daily_calorie_goal],
+                            "age" to it[Clients.age],
+                            "gender" to it[Clients.gender],
+                        )
+                    }
+                    .singleOrNull()
+            }
         call.respondTemplate(
             "pages/professionals/view_client_details.peb",
             mapOf(
