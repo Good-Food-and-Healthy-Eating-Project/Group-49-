@@ -1,0 +1,150 @@
+{% extends "layouts/base.peb" %}
+
+{% block title %}{{ pageTitle | default("Find a Professional") }}{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Find a Professional</h1>
+        <p>Browse our registered diet professionals and select one to guide your journey.</p>
+    </div>
+
+    {% if not isProfessional and not hasCompletedQuiz %}
+        <div class="quiz-prompt-banner">
+            <span>&#9888;</span>
+            You need to complete your health quiz before selecting a professional.
+            <a href="/quiz?userId={{ userId }}">Complete the quiz</a>
+        </div>
+    {% endif %}
+
+    {% if professionals is empty %}
+        <div class="empty-state" style="padding: 2.5rem; text-align: center; border-radius: var(--radius-lg);">
+            <p style="font-size: 1.05rem;">No professionals are registered yet. Check back soon.</p>
+        </div>
+    {% else %}
+        <div class="pro-grid">
+            {% for pro in professionals %}
+                <div class="card pro-card">
+                    <div class="pro-card-top">
+                        <div class="pro-avatar">
+                            {% if pro.firstName is not empty %}{{ pro.firstName | slice(0, 1) }}{% endif %}{% if pro.lastName is not empty %}{{ pro.lastName | slice(0, 1) }}{% endif %}
+                        </div>
+                        <div class="pro-header-info">
+                            <h3 class="pro-name">{{ pro.firstName }} {{ pro.lastName }}</h3>
+                            {% if pro.jobTitle %}
+                                <p class="pro-title">{{ pro.jobTitle }}{% if pro.organization %} · {{ pro.organization }}{% endif %}</p>
+                            {% elseif pro.organization %}
+                                <p class="pro-title">{{ pro.organization }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if pro.bio %}
+                        <hr class="divider">
+                        <p class="pro-bio">{{ pro.bio }}</p>
+                    {% endif %}
+
+                    {% if not isProfessional %}
+                        <div class="pro-card-footer">
+                            <form method="post" action="/select-professional">
+                                <input type="hidden" name="professional_id" value="{{ pro.id }}">
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                    Select Professional
+                                </button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .quiz-prompt-banner {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: #fff8e1;
+        border: 1px solid #f9c74f;
+        border-radius: var(--radius-lg);
+        padding: 0.85rem 1.25rem;
+        margin-bottom: 1.25rem;
+        font-size: 0.95rem;
+        color: #7a5c00;
+    }
+
+    .quiz-prompt-banner a {
+        font-weight: 600;
+        color: #5a4000;
+        text-decoration: underline;
+    }
+
+    .pro-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .pro-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        padding: 1.5rem;
+    }
+
+    .pro-card-top {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .pro-avatar {
+        flex-shrink: 0;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--sage-light), var(--sage));
+        color: var(--warm-white);
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1.05rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        letter-spacing: 0.03em;
+    }
+
+    .pro-header-info {
+        min-width: 0;
+    }
+
+    .pro-name {
+        font-size: 1.1rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .pro-title {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pro-bio {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex: 1;
+    }
+
+    .pro-card-footer {
+        margin-top: 1.25rem;
+    }
+</style>
+{% endblock %}

@@ -115,7 +115,6 @@ suspend fun ApplicationCall.dietTrend() {
                 "daysInMonth" to daysInMonth,
                 "leadingEmptyDays" to leadingEmptyDays,
             ),
-
         ),
     )
 }

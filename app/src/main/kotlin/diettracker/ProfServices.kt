@@ -24,6 +24,7 @@ suspend fun ApplicationCall.signUpProfessional() {
 
     when {
         result.isFailure -> {
+            println("Sign-up error: ${result.exceptionOrNull()}")
             response.status(HttpStatusCode.BadRequest)
             respondTemplate(
                 "pages/professionals/profsignup.peb",
@@ -136,7 +137,7 @@ suspend fun ApplicationCall.loginProfessional() {
             val roles = getUserRoles(userId ?: -1)
             if (roles.contains("professional")) {
                 sessions.set(UserSession(email))
-                respondRedirect("/professionals")
+                respondRedirect("/professionals_dash")
             } else {
                 respondTemplate(
                     "pages/professionals/proflogin.peb",

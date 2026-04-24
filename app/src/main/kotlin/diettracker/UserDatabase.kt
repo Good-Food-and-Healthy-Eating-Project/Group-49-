@@ -1,13 +1,17 @@
 package diettracker
 
+import diettracker.db.tables.ClientProfessionalLink
 import diettracker.db.tables.Clients
 import diettracker.db.tables.Professionals
 import diettracker.db.tables.Recipes
 import diettracker.db.tables.Roles
 import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
+import diettracker.models.ClientInfo
+import diettracker.models.Professional
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.insertIgnore
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
@@ -48,16 +52,55 @@ fun getAllRecipes(): List<Map<String, Any?>> =
         }
     }
 
-fun getAllProfessionals(): List<Map<String, Any>> =
+fun getAllProfessionals(): List<Professional> =
     transaction {
-        Professionals.selectAll().map { row ->
-            mapOf(
-                "id" to row[Professionals.professional_id],
-                "job_title" to row[Professionals.job_title],
-                "organisation" to row[Professionals.organistation],
-                "bio" to row[Professionals.bio],
-            )
+        (Professionals innerJoin Users)
+            .selectAll()
+            .map { row ->
+                Professional(
+                    id = row[Professionals.professional_id],
+                    firstName = row[Users.first_name],
+                    lastName = row[Users.second_name],
+                    email = row[Users.email],
+                    passwordHash = row[Users.password_hash],
+                    jobTitle = row[Professionals.job_title],
+                    organization = row[Professionals.organistation],
+                    bio = row[Professionals.bio],
+                )
+            }
+    }
+
+fun linkClientToProfessional(
+    clientId: Int,
+    professionalId: Int,
+) {
+    transaction {
+        Clients.insertIgnore {
+            it[Clients.client_id] = clientId
         }
+        ClientProfessionalLink.insertIgnore {
+            it[ClientProfessionalLink.client_id] = clientId
+            it[ClientProfessionalLink.professional_id] = professionalId
+        }
+    }
+}
+
+fun getClientsForProfessional(professionalId: Int): List<ClientInfo> =
+    transaction {
+        (ClientProfessionalLink innerJoin Clients innerJoin Users)
+            .selectAll()
+            .where { ClientProfessionalLink.professional_id eq professionalId }
+            .map {
+                ClientInfo(
+                    id = it[ClientProfessionalLink.client_id],
+                    firstName = it[Users.first_name],
+                    lastName = it[Users.second_name],
+                    email = it[Users.email],
+                    goal = it[Clients.goal],
+                    heightCm = it[Clients.height_cm],
+                    weightKg = it[Clients.weight_kg],
+                )
+            }
     }
 
 object UserDatabase {
