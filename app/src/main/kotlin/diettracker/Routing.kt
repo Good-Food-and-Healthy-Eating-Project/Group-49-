@@ -16,6 +16,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
+import java.time.LocalDate
 
 private const val DEFAULT_GRAMS = 100
 
@@ -49,6 +50,14 @@ fun Route.configurePublicRoutes() {
         val userRoles = userId?.let { getUserRoles(it) } ?: emptyList()
         val dailyCalorieGoal = userId?.let { getClientCalorieGoal(it) }
 
+        val trends = userId?.let { ClientDietTrend.getDietTrend(it) } ?: emptyList<DailyDietTrend>()
+        val today = LocalDate.now()
+        val currentYear = today.year
+        val currentMonth = today.month
+        val daysInMonth = today.lengthOfMonth()
+        val firstDay = today.withDayOfMonth(1)
+        val leadingEmptyDays = firstDay.dayOfWeek.value - 1
+
         call.respond(
             PebbleContent(
                 "pages/client_dash/client_dash.peb",
@@ -57,6 +66,11 @@ fun Route.configurePublicRoutes() {
                     "userRoles" to userRoles,
                     "userId" to (userId as Any? ?: ""),
                     "dailyCalorieGoal" to (dailyCalorieGoal as Any? ?: ""),
+                    "trends" to trends,
+                    "currentYear" to currentYear,
+                    "currentMonth" to currentMonth,
+                    "daysInMonth" to daysInMonth,
+                    "leadingEmptyDays" to leadingEmptyDays,
                 ),
             ),
         )
