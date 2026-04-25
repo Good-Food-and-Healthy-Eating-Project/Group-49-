@@ -1,8 +1,13 @@
 package diettracker
 
 import diettracker.db.tables.Recipes
-import diettracker.models.RecipeSummary
 import diettracker.db.tables.UserFavouritedRecipes
+import diettracker.db.tables.Foods
+import diettracker.db.tables.RecipeIngredients
+import diettracker.models.RecipeSummary
+import diettracker.models.RecipeDetails
+import diettracker.models.RecipeIngredientDetails
+
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.core.*
@@ -69,5 +74,33 @@ object RecipeDatabaseQuery {
                     isFavourited = true
                 )
             }
+    }
+
+    fun getRecipeById(recipeId: Int): RecipeDetails? = transaction {
+        val recipe = Recipes
+            .selectAll()
+            .where { Recipes.recipes_id eq recipeId }
+            .firstOrNull() ?: return@transaction null
+        
+        val ingredients = (RecipeIngredients innerJoin Foods)
+            .selectAll()
+            .where { RecipeIngredients.recipe_id eq recipeId }
+            .map { row ->
+                RecipeIngredientDetails(
+                    foodName = row[Foods.food_name],
+                    quantityGrams = row[RecipeIngredients.quantity_g].toDouble(),
+                    humanReadableMeasure = row[RecipeIngredients.original_measure]
+                )
+            }
+        
+        RecipeDetails(
+            id = recipe[Recipes.recipes_id],
+            name = recipe[Recipes.recipe_name],
+            thumbnail = recipe[Recipes.thumbnail_url],
+            category = recipe[Recipes.category],
+            area = recipe[Recipes.area],
+            instructions = recipe[Recipes.instructions],
+            ingredients = ingredients
+        )
     }
 }

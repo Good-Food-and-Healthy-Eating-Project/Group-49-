@@ -81,6 +81,22 @@ fun Application.configureRouting() {
             ))
         }
 
+        get("/recipes/{id}") {
+            val recipeId = call.parameters["id"]?.toIntOrNull()
+            if (recipeId == null) {
+                call.respond(HttpStatusCode.BadRequest)
+                return@get
+            }
+            val recipe = RecipeDatabaseQuery.getRecipeById(recipeId)
+            if (recipe == null) {
+                call.respond(HttpStatusCode.NotFound)
+                return@get
+            }
+            call.respondTemplate("pages/recipes_page/recipe_detail.peb", mapOf(
+                "recipe" to recipe
+            ))
+        }
+
         post("/recipes/favourite/{recipeId}") {
             val recipeId = call.parameters["recipeId"]?.toIntOrNull()
             val email = call.sessions.get<UserSession>()?.email

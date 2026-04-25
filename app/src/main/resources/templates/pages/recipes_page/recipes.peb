@@ -196,7 +196,7 @@
 				</form>
 					<div class="cards-grid">
 						{% for recipe in recipes %}
-							<div class="recipe-card" data-recipe="{{ recipe.name }}" data-id="{{ recipe.id }}">
+							<div class="recipe-card" data-recipe="{{ recipe.name }}" data-id="{{ recipe.id }}" onclick="window.location.href='/recipes/' + this.getAttribute('data-id')">
 								<div class="heart {% if recipe.isFavourited %}active{% endif %}" aria-label="favourite"></div>
 								
 								{% if recipe.thumbnail %}
