@@ -195,21 +195,33 @@
 					<button type="submit" class="btn btn-primary" style="padding:0.4rem 1rem;">Search</button>
 				</form>
 					<div class="cards-grid">
-					{% for recipe in recipes %}
-						<div class="recipe-card" data-recipe="{{ recipe.name }}" data-id="{{ recipe.id }}">
-							<div class="heart {% if favourite.Ids contains recipe.id %}active{% endif %}" aria-label="favourite"></div>
-							{% if recipe.thumbnail %}
-								<img src="{{ recipe.thumbnail }}" alt="{{ recipe.name }}">
-							{% endif %}
-							<div class="recipe-card-label">{{ recipe.name }}</div>
-						</div>
-					{% endfor %}
-				</div>
+						{% for recipe in recipes %}
+							<div class="recipe-card" data-recipe="{{ recipe.name }}" data-id="{{ recipe.id }}">
+								<div class="heart {% if recipe.isFavourited %}active{% endif %}" aria-label="favourite"></div>
+								
+								{% if recipe.thumbnail %}
+									<img src="{{ recipe.thumbnail }}" alt="{{ recipe.name }}">
+								{% endif %}
+								
+								<div class="recipe-card-label">{{ recipe.name }}</div>
+							</div>
+
+							{# <p>{{ recipe.id }} - {{favouriteIds}}</p> #}
+
+						{% endfor %}
+					</div>
 			</div>
 		</div>
+
 		<aside class="favourites" id="favourites-panel">
     		<p class="favourites-title">Favourites</p>
+			{% for recipe in favouriteRecipes %}
+				<div class="favourite-entry" id="fav-{{ recipe.id }}">
+					{{ recipe.name }}
+				</div>
+			{% endfor %}
 		</aside>
+
 	</div>
 </section>
 
@@ -225,29 +237,29 @@
 
             if (isActive) {
                 heart.classList.remove("active");
-                var entry = document.getElementById("fav-" + recipeName.replace(/\s+/g, "-"));
-                if (entry) entry.remove();
-				fetch("/recipes/unfavourite/" + recipeId, { method: "POST" });
+                var entry = document.getElementById("fav-" + recipeId);
+
+				if (entry) entry.remove();
+					fetch("/recipes/unfavourite/" + recipeId, { method: "POST" })
+				    	.then(function(response) {console.log("[/] Unfavourite response:", response.status); })
+				    	.catch(function(error) { console.error("[!] Unfavourite error:", error); });
+
             } else {
+
                 heart.classList.add("active");
                 var entry = document.createElement("div");
+
                 entry.classList.add("favourite-entry");
-                entry.id = "fav-" + recipeName.replace(/\s+/g, "-");
+                entry.id = "fav-" + recipeId;
                 entry.textContent = recipeName;
+
                 document.getElementById("favourites-panel").appendChild(entry);
-				fetch("/recipes/favourite/" + recipeId, { method: "POST" });
+				fetch("/recipes/favourite/" + recipeId, { method: "POST" })
+				    .then(function(response) {console.log("[/] Favourite response:", response.status); })
+				    .catch(function(error) { console.error("[!] Favourite error:", error); });
             }
         });
     });
-	document.querySelectorAll(".heart.active").forEach(function(heart) {
-        var card = heart.closest(".recipe-card");
-        var recipeName = card.getAttribute("data-recipe");
-		var entry = document.createElement("div");
-		entry.classList.add("favourite-entry");
-		entry.id = "fav-" + recipeName.replace(/\s+/g, "-");
-		entry.textContent = recipeName;
-        document.getElementById("favourites-panel").appendChild(entry);
-	});
 </script>
 
 {% endblock %}

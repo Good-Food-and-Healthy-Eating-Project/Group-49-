@@ -60,7 +60,6 @@ fun Application.configureRouting() {
 
         get("/recipes") {
             val query = call.request.queryParameters["query"]?.trim() ?: ""
-            val recipes = RecipeDatabaseQuery.searchRecipes(query)
             val email = call.sessions.get<UserSession>()?.email
 
             val favouriteIds = if (email != null) {
@@ -68,10 +67,17 @@ fun Application.configureRouting() {
                 if (userId != null) RecipeDatabaseQuery.getFavourites(userId) else emptyList()
             } else emptyList()
 
+            val recipes = RecipeDatabaseQuery.searchRecipes(query, favouriteIds)
+
+            val favouriteRecipes = if (favouriteIds.isNotEmpty()) {
+                RecipeDatabaseQuery.getFavouriteRecipes(favouriteIds)
+            } else emptyList()
+
+            println("Recipes with favourited status: ${recipes.filter { it.isFavourited }.map { it.name }}")
             call.respondTemplate("pages/recipes_page/recipes.peb", mapOf(
                 "recipes"  to recipes,
                 "query" to query,
-                "favouriteIds" to favouriteIds
+                "favouriteRecipes" to favouriteRecipes
             ))
         }
 
@@ -79,10 +85,17 @@ fun Application.configureRouting() {
             val recipeId = call.parameters["recipeId"]?.toIntOrNull()
             val email = call.sessions.get<UserSession>()?.email
 
+            println("[/] Favourite requested recipeId: $recipeId, email: $email")
+
             if (recipeId != null && email != null) {
                 val userId = UserDatabase.getUserIdByEmail(email)
+
+                println("[/] Found userId: $userId")
+
                 if (userId != null) {
                     RecipeDatabaseQuery.addFavourite(userId, recipeId)
+
+                    println("[/] Favourite added successfully")
                 }
             }
 
