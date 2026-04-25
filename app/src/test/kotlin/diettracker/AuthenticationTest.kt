@@ -80,9 +80,10 @@ class AuthenticationTest {
     fun should_redirect_to_login_when_professional_dash_not_Authentication() =
         testApplication {
             application { module(testing = true) }
-            val client = createClient {
-                followRedirects = false
-            }
+            val client =
+                createClient {
+                    followRedirects = false
+                }
             val result = client.get("/professionals_dash")
             assertEquals(302, result.status.value)
             assertEquals("/Login", result.headers[HttpHeaders.Location])
