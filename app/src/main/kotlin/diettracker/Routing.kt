@@ -110,18 +110,21 @@ fun Route.configureFoodRoutes() {
         val recipeQuery = call.request.queryParameters["query"]
         val foodQuery = call.request.queryParameters["foodquery"]
         val calories = call.sessions.get<CaloriesSession>()?.calories ?: 0
+        val protein = call.sessions.get<CaloriesSession>()?.protein ?: 0
+        val fat = call.sessions.get<CaloriesSession>()?.fat ?: 0
+        val carbs = call.sessions.get<CaloriesSession>()?.carbs ?: 0
 
         if (recipeQuery != null && recipeQuery.isNotBlank()) {
             val recipes = searchRecipes(recipeQuery)
             call.respondTemplate(
                 "pages/client_dash/add_food.peb",
-                mapOf("recipes" to recipes, "calories" to calories),
+                mapOf("recipes" to recipes, "calories" to calories, "protein" to protein, "fat" to fat, "carbs" to carbs),
             )
         } else if (foodQuery != null && foodQuery.isNotBlank()) {
             val foods = searchFoods(foodQuery)
             call.respondTemplate(
                 "pages/client_dash/add_food.peb",
-                mapOf("foods" to foods, "calories" to calories),
+                mapOf("foods" to foods, "calories" to calories, "protein" to protein, "fat" to fat, "carbs" to carbs),
             )
         } else {
             call.foodLogPage()
@@ -144,7 +147,10 @@ fun Route.configureFoodRoutes() {
         val query = call.request.queryParameters["query"] ?: ""
         val recipes = searchRecipes(query)
         val calories = call.sessions.get<CaloriesSession>()?.calories ?: 0
-        call.respondTemplate("pages/client_dash/add_food.peb", mapOf("recipes" to recipes, "calories" to calories))
+        val protein = call.sessions.get<CaloriesSession>()?.protein ?: 0
+        val fat = call.sessions.get<CaloriesSession>()?.fat ?: 0
+        val carbs = call.sessions.get<CaloriesSession>()?.carbs ?: 0
+        call.respondTemplate("pages/client_dash/add_food.peb", mapOf("recipes" to recipes, "calories" to calories, "protein" to protein, "fat" to fat, "carbs" to carbs))
     }
 
     get("/food_search") {
@@ -152,12 +158,18 @@ fun Route.configureFoodRoutes() {
         val foods = searchFoods(query)
         val grams = call.request.queryParameters["grams"]?.toIntOrNull() ?: DEFAULT_GRAMS
         val calories = call.sessions.get<CaloriesSession>()?.calories ?: 0
+        val protein = call.sessions.get<CaloriesSession>()?.protein ?: 0
+        val fat = call.sessions.get<CaloriesSession>()?.fat ?: 0
+        val carbs = call.sessions.get<CaloriesSession>()?.carbs ?: 0
 
         call.respondTemplate(
             "pages/client_dash/add_food.peb",
             mapOf(
                 "foods" to foods,
                 "calories" to calories,
+                "protein" to protein,
+                "fat" to fat,
+                "carbs" to carbs,
                 "grams" to grams,
             ),
         )
