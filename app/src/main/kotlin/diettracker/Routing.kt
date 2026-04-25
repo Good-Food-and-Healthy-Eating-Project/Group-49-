@@ -150,7 +150,10 @@ fun Route.configureFoodRoutes() {
         val protein = call.sessions.get<CaloriesSession>()?.protein ?: 0
         val fat = call.sessions.get<CaloriesSession>()?.fat ?: 0
         val carbs = call.sessions.get<CaloriesSession>()?.carbs ?: 0
-        call.respondTemplate("pages/client_dash/add_food.peb", mapOf("recipes" to recipes, "calories" to calories, "protein" to protein, "fat" to fat, "carbs" to carbs))
+        call.respondTemplate(
+            "pages/client_dash/add_food.peb",
+            mapOf("recipes" to recipes, "calories" to calories, "protein" to protein, "fat" to fat, "carbs" to carbs),
+        )
     }
 
     get("/food_search") {

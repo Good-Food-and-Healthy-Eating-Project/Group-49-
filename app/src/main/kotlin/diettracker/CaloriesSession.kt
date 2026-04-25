@@ -26,7 +26,7 @@ data class CaloriesSession(
     val calories: Int,
     val protein: Int,
     val fat: Int,
-    val carbs: Int
+    val carbs: Int,
 )
 
 suspend fun ApplicationCall.foodLogPage() {
@@ -37,12 +37,13 @@ suspend fun ApplicationCall.foodLogPage() {
     val carbs = caloriesSession?.carbs ?: 0
     respondTemplate(
         "pages/client_dash/add_food.peb",
-        model = mapOf(
-            "calories" to calories,
-            "protein" to protein,
-            "fat" to fat,
-            "carbs" to carbs
-        )
+        model =
+            mapOf(
+                "calories" to calories,
+                "protein" to protein,
+                "fat" to fat,
+                "carbs" to carbs,
+            ),
     )
 }
 
@@ -136,7 +137,7 @@ suspend fun ApplicationCall.foodLogCustom() {
             "calories" to newTotalCals,
             "protein" to newTotalProtein,
             "fat" to newTotalFat,
-            "carbs" to newTotalCarbs
+            "carbs" to newTotalCarbs,
         ),
     )
 }
@@ -196,8 +197,6 @@ fun searchFoods(foodquery: String): List<Food> =
 
         return@transaction foods
     }
-
-
 
 fun calcCalcsById(
     foodid: Int,
