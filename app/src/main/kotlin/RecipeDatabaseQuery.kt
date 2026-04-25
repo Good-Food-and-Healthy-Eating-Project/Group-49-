@@ -4,15 +4,21 @@ import diettracker.db.tables.Recipes
 import diettracker.db.tables.UserFavouritedRecipes
 import diettracker.db.tables.Foods
 import diettracker.db.tables.RecipeIngredients
+import diettracker.db.tables.RecipeReviews
+import diettracker.db.tables.Users
+
 import diettracker.models.RecipeSummary
 import diettracker.models.RecipeDetails
 import diettracker.models.RecipeIngredientDetails
+import diettracker.models.RecipeReviewDetail
 
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.jdbc.insert
 
 
 object RecipeDatabaseQuery {
@@ -140,5 +146,44 @@ object RecipeDatabaseQuery {
                     isFavourited = false
                 )
             }
+    }
+
+    fun getReviewsForRecipe(recipeId: Int): List<RecipeReviewDetail> = transaction {
+        (RecipeReviews innerJoin Users)
+            .selectAll()
+            .where { RecipeReviews.recipe_id eq recipeId }
+            .orderBy(RecipeReviews.created_at to SortOrder.DESC)
+            .map { row ->
+                RecipeReviewDetail(
+                    rating = row[RecipeReviews.rating],
+                    comment = row[RecipeReviews.comment],
+                    userEmail = row[Users.email],
+                    createdAt = row[RecipeReviews.created_at].toString()
+                )
+            }
+    }
+
+    fun getAverageRating(recipeId: Int): Double? = transaction {
+        val reviews = RecipeReviews
+            .selectAll()
+            .where { RecipeReviews.recipe_id eq recipeId }
+            .map { row -> row[RecipeReviews.rating] }
+        if (reviews.isEmpty()) null else reviews.average()
+    }
+
+    fun addReview(userId: Int, recipeId: Int, rating: Int, comment: String) = transaction {
+        val exists = RecipeReviews
+            .selectAll()
+            .where { RecipeReviews.user_id eq userId and (RecipeReviews.recipe_id eq recipeId) }
+            .count() > 0
+        if (!exists) {
+            RecipeReviews.insert {
+                it[RecipeReviews.recipe_id] = recipeId
+                it[RecipeReviews.user_id] = userId
+                it[RecipeReviews.rating] = rating
+                it[RecipeReviews.comment] = comment
+                it[RecipeReviews.created_at] = java.time.Instant.now()
+            }
+        }
     }
 }

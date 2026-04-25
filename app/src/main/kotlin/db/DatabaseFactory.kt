@@ -3,6 +3,7 @@ package diettracker.db
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+
 import diettracker.db.tables.Users
 import diettracker.db.tables.Roles
 import diettracker.db.tables.UserRoles
@@ -15,6 +16,8 @@ import diettracker.db.tables.RecipeIngredients
 import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.FoodLogItems
 import diettracker.db.tables.UserFavouritedRecipes
+import diettracker.db.tables.RecipeReviews
+
 
 object DatabaseFactory {
     fun init() {
@@ -38,6 +41,7 @@ object DatabaseFactory {
                 FoodLogs,
                 FoodLogItems,
                 UserFavouritedRecipes,
+                RecipeReviews
             )
         }
     }

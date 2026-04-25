@@ -151,4 +151,53 @@
     </div>
 
 </div>
+
+<div class="recipe-section">
+    <h2>Reviews
+        {% if averageRating %}
+            <span style="font-size:1rem; font-weight:400; color:var(--terracotta); margin-left:0.75rem;">
+                ★ {{ averageRating | numberformat("0.1") }} / 5
+            </span>
+        {% endif %}
+    </h2>
+
+    {% if reviews is empty %}
+        <p>No reviews yet — be the first!</p>
+    {% else %}
+        {% for review in reviews %}
+            <div style="background:var(--warm-white); border:1px solid var(--cream-dark); border-radius:var(--radius-md); padding:1rem; margin-bottom:0.75rem;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                    <span style="font-weight:500; color:var(--brown);">{{ review.userEmail | split("@") | first }}</span>
+                    <span style="color:var(--terracotta);">
+                        {% for i in range(1, review.rating + 1) %}★{% endfor %}
+                        {% for i in range(review.rating + 1, 6) %}☆{% endfor %}
+                    </span>
+                </div>
+                <p style="margin:0;">{{ review.comment }}</p>
+                <small style="color:var(--text-muted);">{{ review.createdAt }}</small>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<div class="recipe-section">
+    <h2>Leave a Review</h2>
+    <form method="post" action="/recipes/{{ recipe.id }}/review">
+        <div class="form-group">
+            <label class="form-label">Rating</label>
+            <select name="rating" class="form-select">
+                <option value="5">★★★★★ (5)</option>
+                <option value="4">★★★★☆ (4)</option>
+                <option value="3">★★★☆☆ (3)</option>
+                <option value="2">★★☆☆☆ (2)</option>
+                <option value="1">★☆☆☆☆ (1)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Comment</label>
+            <textarea name="comment" class="form-input" rows="4" placeholder="Share your thoughts on this recipe..." style="resize:vertical; height:auto;"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Review</button>
+    </form>
+</div>
 {% endblock %}

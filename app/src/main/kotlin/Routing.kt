@@ -103,9 +103,35 @@ fun Application.configureRouting() {
                 call.respond(HttpStatusCode.NotFound)
                 return@get
             }
+            val reviews = RecipeDatabaseQuery.getReviewsForRecipe(recipeId)
+            val averageRating = RecipeDatabaseQuery.getAverageRating(recipeId)
+
             call.respondTemplate("pages/recipes_page/recipe_detail.peb", mapOf(
-                "recipe" to recipe
+                "recipe" to recipe,
+                "reviews" to reviews,
+                "averageRating" to (averageRating ?: 0.0)
             ))
+        }
+
+        post("/recipes/{id}/review") {
+            val recipeId = call.parameters["id"]?.toIntOrNull()
+            val email = call.sessions.get<UserSession>()?.email
+
+            if (recipeId != null && email != null) {
+                val userId = UserDatabase.getUserIdByEmail(email)
+
+                if (userId != null) {
+                    val parameters = call.receiveParameters()
+                    val rating = parameters["rating"]?.toIntOrNull()
+                    val comment = parameters["comment"]?.trim() ?: ""
+
+                    if (rating != null && rating in 1..5 && comment.isNotBlank()) {
+                        RecipeDatabaseQuery.addReview(userId, recipeId, rating, comment)
+                    }
+                }
+            }
+
+            call.respondRedirect("/recipes/$recipeId")
         }
 
         post("/recipes/favourite/{recipeId}") {
