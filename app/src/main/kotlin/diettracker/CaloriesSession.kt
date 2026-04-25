@@ -31,19 +31,15 @@ data class CaloriesSession(
 
 suspend fun ApplicationCall.foodLogPage() {
     val caloriesSession = sessions.get<CaloriesSession>()
-    val calories = caloriesSession?.calories ?: 0
-    val protein = caloriesSession?.protein ?: 0
-    val fat = caloriesSession?.fat ?: 0
-    val carbs = caloriesSession?.carbs ?: 0
+
     respondTemplate(
         "pages/client_dash/add_food.peb",
-        model =
-            mapOf(
-                "calories" to calories,
-                "protein" to protein,
-                "fat" to fat,
-                "carbs" to carbs,
-            ),
+        mapOf(
+            "calories" to (caloriesSession?.calories ?: 0),
+            "protein" to (caloriesSession?.protein ?: 0),
+            "fat" to (caloriesSession?.fat ?: 0),
+            "carbs" to (caloriesSession?.carbs ?: 0),
+        ),
     )
 }
 
@@ -55,10 +51,14 @@ suspend fun ApplicationCall.foodLogRecipe() {
     val params = receiveParameters()
     val recipeIdStr = params["recipeId"]
     val recipeid = recipeIdStr?.toIntOrNull()
+
     if (recipeid == null) {
         respondTemplate(
             "pages/client_dash/add_food.peb",
-            mapOf("calories" to 0, "error" to "Invalid or missing recipeId: $recipeIdStr"),
+            mapOf(
+                "calories" to 0,
+                "error" to "Invalid or missing recipeId: $recipeIdStr",
+            ),
         )
         return
     }
@@ -84,12 +84,12 @@ suspend fun ApplicationCall.foodLogRecipe() {
         }
     }
 
-    // Get or create session
     val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession(0, 0, 0, 0)
     val newTotalCals = caloriesSession.calories + addCalories
     val newTotalProtein = caloriesSession.protein + addProtein
     val newTotalFat = caloriesSession.fat + addFat
     val newTotalCarbs = caloriesSession.carbs + addCarbs
+
     sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
     respondRedirect("/food_log")
 }
@@ -109,7 +109,10 @@ suspend fun ApplicationCall.foodLogCustom() {
     if (foodId == null) {
         respondTemplate(
             "pages/client_dash/add_food.peb",
-            mapOf("calories" to 0, "error" to "Invalid or missing foodId: $foodIdStr"),
+            mapOf(
+                "calories" to 0,
+                "error" to "Invalid or missing foodId: $foodIdStr",
+            ),
         )
         return
     }
@@ -129,6 +132,7 @@ suspend fun ApplicationCall.foodLogCustom() {
     val newTotalProtein = caloriesSession.protein + addProtein
     val newTotalFat = caloriesSession.fat + addFat
     val newTotalCarbs = caloriesSession.carbs + addCarbs
+
     sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
 
     respondTemplate(
@@ -157,7 +161,7 @@ fun searchRecipes(query: String): List<Recipe> =
         val recipes =
             Recipes
                 .selectAll()
-                .where { (Recipes.recipe_name.lowerCase() like "%$searchTerm%") }
+                .where { Recipes.recipe_name.lowerCase() like "%$searchTerm%" }
                 .map { row ->
                     Recipe(
                         id = row[Recipes.recipes_id],
@@ -183,7 +187,7 @@ fun searchFoods(foodquery: String): List<Food> =
         val foods =
             Foods
                 .selectAll()
-                .where { (Foods.food_name.lowerCase() like "%$searchTerm%") }
+                .where { Foods.food_name.lowerCase() like "%$searchTerm%" }
                 .map { row ->
                     Food(
                         id = row[Foods.food_id],
@@ -262,6 +266,11 @@ suspend fun ApplicationCall.foodLogReset() {
     sessions.set(CaloriesSession(0, 0, 0, 0))
     respondTemplate(
         "pages/client_dash/add_food.peb",
-        mapOf("calories" to 0, "protein" to 0, "fat" to 0, "carbs" to 0),
+        mapOf(
+            "calories" to 0,
+            "protein" to 0,
+            "fat" to 0,
+            "carbs" to 0,
+        ),
     )
 }
