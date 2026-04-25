@@ -113,4 +113,32 @@ object RecipeDatabaseQuery {
             .distinct()
             .sorted()
     }
+
+    fun searchByIngredient(ingredient: String): List<RecipeSummary> = transaction {
+        val matchingFoodIds = Foods
+            .selectAll()
+            .where { Foods.food_name.lowerCase() like "%${ingredient.lowercase()}%" }
+            .map { row -> row[Foods.food_id] }
+
+        if (matchingFoodIds.isEmpty()) return@transaction emptyList()
+
+        val matchingRecipeIds = RecipeIngredients
+            .selectAll()
+            .where { RecipeIngredients.food_id inList matchingFoodIds }
+            .map { row -> row[RecipeIngredients.recipe_id] }
+            .distinct()
+        
+        if (matchingRecipeIds.isEmpty()) return@transaction emptyList()
+
+        Recipes.selectAll()
+            .where { Recipes.recipes_id inList matchingRecipeIds }
+            .map { row ->
+                RecipeSummary(
+                    id = row[Recipes.recipes_id],
+                    name = row[Recipes.recipe_name],
+                    thumbnail = row[Recipes.thumbnail_url],
+                    isFavourited = false
+                )
+            }
+    }
 }
