@@ -16,13 +16,16 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 
 object RecipeDatabaseQuery {
-    fun searchRecipes(query: String, favouriteIds: List<Int> = emptyList()): List<RecipeSummary> = transaction {
+    fun searchRecipes(query: String, favouriteIds: List<Int> = emptyList(), category: String = ""): List<RecipeSummary> = transaction {
         Recipes.selectAll()
         .where {
-            if (query.isBlank()) Op.TRUE
-            else Recipes.recipe_name.lowerCase() like "%${query.lowercase()}%"
+            val queryCondition = if (query.isBlank()) Op.TRUE
+                else Recipes.recipe_name.lowerCase() like "%${query.lowercase()}%"
+            val categoryCondition = if (category.isBlank()) Op.TRUE
+                else Recipes.category eq category
+            queryCondition and categoryCondition
         }
-        .apply { if (query.isBlank()) orderBy(Random()).limit(9) }
+        .apply { if (query.isBlank() && category.isBlank()) orderBy(Random()).limit(9) }
 
         .map { row ->
             RecipeSummary(
@@ -102,5 +105,12 @@ object RecipeDatabaseQuery {
             instructions = recipe[Recipes.instructions],
             ingredients = ingredients
         )
+    }
+
+    fun getCategories(): List<String> = transaction {
+        Recipes.selectAll()
+            .mapNotNull { row -> row[Recipes.category] }
+            .distinct()
+            .sorted()
     }
 }
