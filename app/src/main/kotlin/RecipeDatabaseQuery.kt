@@ -91,7 +91,6 @@ object RecipeDatabaseQuery {
                     .selectAll()
                     .where { UserFavouritedRecipes.user_id eq userId }
                     .map { row -> row[UserFavouritedRecipes.recipe_id] }
-            println("[/] getFavourites for userId $userId: $results")
             results
         }
 
