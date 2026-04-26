@@ -74,6 +74,15 @@
                     {% else %}
                         <p>No calories calculated yet.</p>
                     {% endif %}
+                    {% if protein is defined %}
+                        <p>Total Protein: {{ protein }} g</p>
+                    {% endif %}
+                    {% if carbs is defined %}
+                        <p>Total Carbs: {{ carbs }} g</p>
+                    {% endif %}
+                    {% if fat is defined %}
+                        <p>Total Fat: {{ fat }} g</p>
+                    {% endif %}
                 </div>
                 <form method="post" action="/food_log_reset">
                     <button type="submit">Reset</button>

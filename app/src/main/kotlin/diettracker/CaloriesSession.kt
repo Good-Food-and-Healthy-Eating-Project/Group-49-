@@ -29,7 +29,7 @@ import java.time.LocalDate
 const val GRAMS_PER_SERVING = 100
 
 @Serializable
-data class CaloriesSession(val calories: Int)
+data class CaloriesSession(val calories: Int, val protein: Int, val fat: Int, val carbs: Int)
 
 suspend fun ApplicationCall.foodLogPage() {
     val caloriesSession = sessions.get<CaloriesSession>()
@@ -39,6 +39,9 @@ suspend fun ApplicationCall.foodLogPage() {
 
 suspend fun ApplicationCall.foodLogRecipe() {
     var addCalories = 0
+    var addProtein = 0
+    var addFat = 0
+    var addCarbs = 0
     val params = receiveParameters()
     val recipeIdStr = params["recipeId"]
     val recipeid = recipeIdStr?.toIntOrNull()
@@ -75,8 +78,15 @@ suspend fun ApplicationCall.foodLogRecipe() {
         for (i in ingredients) {
             val foodId = i[RecipeIngredients.food_id]
             val quantity = i[RecipeIngredients.quantity_g]
-            val calories = calcCalcsById(foodId, quantity.toInt())
+            val grams = quantity.toInt()
+            val calories = calcCalcsById(foodId, grams)
+            val protein = calcProteinById(foodId, grams)
+            val fat = calcFatById(foodId, grams)
+            val carbs = calcCarbsById(foodId, grams)
             addCalories += calories
+            addProtein += protein
+            addFat += fat
+            addCarbs += carbs
 
             if (logId != null) {
                 FoodLogItems.insert {
@@ -88,26 +98,35 @@ suspend fun ApplicationCall.foodLogRecipe() {
         }
     }
 
-    // Get or create session
-    val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession(0)
-    val newTotal = caloriesSession.calories + addCalories
-    sessions.set(CaloriesSession(newTotal))
+    val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession(0, 0, 0, 0)
+    val newTotalCals = caloriesSession.calories + addCalories
+    val newTotalProtein = caloriesSession.protein + addProtein
+    val newTotalFat = caloriesSession.fat + addFat
+    val newTotalCarbs = caloriesSession.carbs + addCarbs
+
+    sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
     respondRedirect("/food_log")
 }
 
 suspend fun ApplicationCall.foodLogCustom() {
-    val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession(0)
+    val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession(0, 0, 0, 0)
     val params = receiveParameters()
     val foodIdStr = params["foodId"]
     val gramsStr = params["grams"]
     val foodId = foodIdStr?.toIntOrNull()
     val grams = gramsStr?.toIntOrNull() ?: GRAMS_PER_SERVING
     var addCalories = 0
+    var addProtein = 0
+    var addCarbs = 0
+    var addFat = 0
 
     if (foodId == null) {
         respondTemplate(
             "pages/client_dash/add_food.peb",
-            mapOf("calories" to 0, "error" to "Invalid or missing foodId: $foodIdStr"),
+            mapOf(
+                "calories" to 0,
+                "error" to "Invalid or missing foodId: $foodIdStr",
+            ),
         )
         return
     }
@@ -117,6 +136,9 @@ suspend fun ApplicationCall.foodLogCustom() {
 
     transaction {
         val calories = calcCalcsById(foodId, grams)
+        val protein = calcProteinById(foodId, grams)
+        val fat = calcFatById(foodId, grams)
+        val carbs = calcCarbsById(foodId, grams)
         addCalories += calories
 
         if (userId != null) {
@@ -134,14 +156,26 @@ suspend fun ApplicationCall.foodLogCustom() {
                 it[FoodLogItems.quantity_g] = grams.toBigDecimal()
             }
         }
+        addProtein += protein
+        addFat += fat
+        addCarbs += carbs
     }
 
-    val newTotal = caloriesSession.calories + addCalories
-    sessions.set(CaloriesSession(newTotal))
+    val newTotalCals = caloriesSession.calories + addCalories
+    val newTotalProtein = caloriesSession.protein + addProtein
+    val newTotalFat = caloriesSession.fat + addFat
+    val newTotalCarbs = caloriesSession.carbs + addCarbs
+
+    sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
 
     respondTemplate(
         "pages/client_dash/add_food.peb",
-        mapOf("calories" to newTotal),
+        mapOf(
+            "calories" to newTotalCals,
+            "protein" to newTotalProtein,
+            "fat" to newTotalFat,
+            "carbs" to newTotalCarbs,
+        ),
     )
 }
 
@@ -160,7 +194,7 @@ fun searchRecipes(query: String): List<Recipe> =
         val recipes =
             Recipes
                 .selectAll()
-                .where { (Recipes.recipe_name.lowerCase() like "%$searchTerm%") }
+                .where { Recipes.recipe_name.lowerCase() like "%$searchTerm%" }
                 .map { row ->
                     Recipe(
                         id = row[Recipes.recipes_id],
@@ -186,28 +220,20 @@ fun searchFoods(foodquery: String): List<Food> =
         val foods =
             Foods
                 .selectAll()
-                .where { (Foods.food_name.lowerCase() like "%$searchTerm%") }
+                .where { Foods.food_name.lowerCase() like "%$searchTerm%" }
                 .map { row ->
                     Food(
                         id = row[Foods.food_id],
                         name = row[Foods.food_name],
                         calories = row[Foods.calories_per_100g].toDouble().toInt(),
+                        protein = row[Foods.protein_per_100g].toDouble().toInt(),
+                        fat = row[Foods.fat_per_100g].toDouble().toInt(),
+                        carbs = row[Foods.carbs_per_100g].toDouble().toInt(),
                     )
                 }
 
         return@transaction foods
     }
-
-/*fun getRecipeById(id: Int): Recipe? { // add ? in case user press add without selecting a recipe
-    return Recipes
-        .selectAll()
-        .where { Recipes.recipes_id eq id }
-        .map { row -> Recipe(
-            id = row[Recipes.recipes_id],
-            name = row[Recipes.recipe_name],
-        ) }
-        .firstOrNull()
-} */
 
 fun calcCalcsById(
     foodid: Int,
@@ -224,11 +250,61 @@ fun calcCalcsById(
     return (caloriesPer100g * multiplier).toInt()
 }
 
+fun calcProteinById(
+    foodid: Int,
+    grams: Int,
+): Int {
+    val multiplier = grams / GRAMS_PER_SERVING.toDouble()
+    val proteinPer100g =
+        Foods
+            .selectAll()
+            .where { Foods.food_id eq foodid }
+            .map { row -> row[Foods.protein_per_100g].toDouble().toInt() }
+            .firstOrNull() ?: return 0
+
+    return (proteinPer100g * multiplier).toInt()
+}
+
+fun calcFatById(
+    foodid: Int,
+    grams: Int,
+): Int {
+    val multiplier = grams / GRAMS_PER_SERVING.toDouble()
+    val fatPer100g =
+        Foods
+            .selectAll()
+            .where { Foods.food_id eq foodid }
+            .map { row -> row[Foods.fat_per_100g].toDouble().toInt() }
+            .firstOrNull() ?: return 0
+
+    return (fatPer100g * multiplier).toInt()
+}
+
+fun calcCarbsById(
+    foodid: Int,
+    grams: Int,
+): Int {
+    val multiplier = grams / GRAMS_PER_SERVING.toDouble()
+    val carbsPer100g =
+        Foods
+            .selectAll()
+            .where { Foods.food_id eq foodid }
+            .map { row -> row[Foods.carbs_per_100g].toDouble().toInt() }
+            .firstOrNull() ?: return 0
+
+    return (carbsPer100g * multiplier).toInt()
+}
+
 suspend fun ApplicationCall.foodLogReset() {
-    sessions.set(CaloriesSession(0))
+    sessions.set(CaloriesSession(0, 0, 0, 0))
     respondTemplate(
         "pages/client_dash/add_food.peb",
-        mapOf("calories" to 0),
+        mapOf(
+            "calories" to 0,
+            "protein" to 0,
+            "fat" to 0,
+            "carbs" to 0,
+        ),
     )
 }
 
