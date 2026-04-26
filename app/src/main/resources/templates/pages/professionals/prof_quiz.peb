@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Complete Your Profile</title>
+
+	<style>
+		body {
+			margin: 0;
+			font-family: 'DM Sans', Arial, sans-serif;
+			background: #F7F3EC;
+			color: #2C1E10;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+		}
+
+		.container {
+			width: 100%;
+			max-width: 480px;
+			background: #FDFAF5;
+			padding: 40px 32px;
+			border-radius: 16px;
+			box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+			margin: 40px auto;
+		}
+
+		.title {
+			font-size: 24px;
+			font-weight: 600;
+			text-align: center;
+			margin-bottom: 8px;
+		}
+
+		.subtitle {
+			text-align: center;
+			font-size: 14px;
+			color: #7A6855;
+			margin-bottom: 28px;
+		}
+
+		.field-group {
+			margin-bottom: 18px;
+		}
+
+		label {
+			display: block;
+			margin-bottom: 6px;
+			font-size: 14px;
+			color: #6B4E35;
+		}
+
+		input, textarea {
+			width: 100%;
+			border-radius: 8px;
+			border: 1px solid #EDE6D8;
+			padding: 10px 12px;
+			font-size: 14px;
+			background: #fff;
+			box-sizing: border-box;
+			font-family: inherit;
+		}
+
+		input {
+			height: 44px;
+		}
+
+		textarea {
+			resize: vertical;
+			min-height: 100px;
+		}
+
+		input:invalid, textarea:invalid {
+			border-color: #C4603A;
+		}
+
+		.name-row {
+			display: flex;
+			gap: 12px;
+		}
+
+		.name-row .field-group {
+			flex: 1;
+		}
+
+		.actions {
+			margin-top: 28px;
+		}
+
+		button.submit-btn {
+			width: 100%;
+			height: 44px;
+			border-radius: 8px;
+			border: none;
+			background: #C4603A;
+			color: white;
+			font-size: 15px;
+			cursor: pointer;
+		}
+
+		button.submit-btn:hover {
+			background: #A94E2E;
+		}
+
+		.error {
+			background: #FDE8E2;
+			color: #8B2500;
+			border-radius: 8px;
+			padding: 10px 14px;
+			font-size: 13px;
+			margin-bottom: 18px;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<h1 class="title">Complete Your Profile</h1>
+		<p class="subtitle">All fields are required before you can continue</p>
+
+		{% if error %}
+		<div class="error">{{ error }}</div>
+		{% endif %}
+
+		<form action="/professional-quiz" method="post" novalidate>
+			<input type="hidden" name="userId" value="{{ userId }}">
+
+			<div class="name-row">
+				<div class="field-group">
+					<label for="firstName">First Name</label>
+					<input id="firstName" name="firstName" type="text" required value="{{ firstName }}">
+				</div>
+				<div class="field-group">
+					<label for="lastName">Last Name</label>
+					<input id="lastName" name="lastName" type="text" required value="{{ lastName }}">
+				</div>
+			</div>
+
+			<div class="field-group">
+				<label for="jobTitle">Job Title</label>
+				<input id="jobTitle" name="jobTitle" type="text" required value="{{ jobTitle }}">
+			</div>
+
+			<div class="field-group">
+				<label for="organisation">Organisation</label>
+				<input id="organisation" name="organisation" type="text" required value="{{ organisation }}">
+			</div>
+
+			<div class="field-group">
+				<label for="bio">Bio</label>
+				<textarea id="bio" name="bio" required>{{ bio }}</textarea>
+			</div>
+
+			<div class="actions">
+				<button type="submit" class="submit-btn">Continue</button>
+			</div>
+		</form>
+	</div>
+</body>
+</html>
