@@ -3,7 +3,7 @@ package diettracker.models
 data class RecipeIngredientDetails(
     val foodName: String,
     val quantityGrams: Double,
-    val humanReadableMeasure: String?
+    val humanReadableMeasure: String?,
 )
 
 data class RecipeDetails(
@@ -13,5 +13,5 @@ data class RecipeDetails(
     val category: String?,
     val area: String?,
     val instructions: String,
-    val ingredients: List<RecipeIngredientDetails>
+    val ingredients: List<RecipeIngredientDetails>,
 )

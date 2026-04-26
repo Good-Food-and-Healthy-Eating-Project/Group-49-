@@ -101,31 +101,41 @@ fun Route.configurePublicRoutes() {
         val ingredient = call.request.queryParameters["ingredient"]?.trim() ?: ""
         val email = call.sessions.get<UserSession>()?.email
 
-        val favouriteIds = if (email != null) {
-            val userId = getUserIdByEmail(email)
-            if (userId != null) RecipeDatabaseQuery.getFavourites(userId) else emptyList()
-        } else emptyList()
+        val favouriteIds =
+            if (email != null) {
+                val userId = getUserIdByEmail(email)
+                if (userId != null) RecipeDatabaseQuery.getFavourites(userId) else emptyList()
+            } else {
+                emptyList()
+            }
 
-        val recipes = if (ingredient.isNotBlank()) {
-            RecipeDatabaseQuery.searchByIngredient(ingredient)
-        } else {
-            RecipeDatabaseQuery.searchRecipes(query, favouriteIds, category)
-        }
+        val recipes =
+            if (ingredient.isNotBlank()) {
+                RecipeDatabaseQuery.searchByIngredient(ingredient)
+            } else {
+                RecipeDatabaseQuery.searchRecipes(query, favouriteIds, category)
+            }
 
-        val favouriteRecipes = if (favouriteIds.isNotEmpty()) {
-            RecipeDatabaseQuery.getFavouriteRecipes(favouriteIds)
-        } else emptyList()
+        val favouriteRecipes =
+            if (favouriteIds.isNotEmpty()) {
+                RecipeDatabaseQuery.getFavouriteRecipes(favouriteIds)
+            } else {
+                emptyList()
+            }
 
         val categories = RecipeDatabaseQuery.getCategories()
 
-        call.respondTemplate("pages/recipes_page/recipes.peb", mapOf(
-            "recipes" to recipes,
-            "query" to query,
-            "favouriteRecipes" to favouriteRecipes,
-            "category" to category,
-            "categories" to categories,
-            "ingredient" to ingredient,
-        ))
+        call.respondTemplate(
+            "pages/recipes_page/recipes.peb",
+            mapOf(
+                "recipes" to recipes,
+                "query" to query,
+                "favouriteRecipes" to favouriteRecipes,
+                "category" to category,
+                "categories" to categories,
+                "ingredient" to ingredient,
+            ),
+        )
     }
 
     get("/recipes/{id}") {
@@ -141,11 +151,14 @@ fun Route.configurePublicRoutes() {
         }
         val reviews = RecipeDatabaseQuery.getReviewsForRecipe(recipeId)
         val averageRating = RecipeDatabaseQuery.getAverageRating(recipeId)
-        call.respondTemplate("pages/recipes_page/recipe_detail.peb", mapOf(
-            "recipe" to recipe,
-            "reviews" to reviews,
-            "averageRating" to (averageRating ?: 0.0)
-        ))
+        call.respondTemplate(
+            "pages/recipes_page/recipe_detail.peb",
+            mapOf(
+                "recipe" to recipe,
+                "reviews" to reviews,
+                "averageRating" to (averageRating ?: 0.0),
+            ),
+        )
     }
 
     post("/recipes/{id}/review") {
@@ -248,21 +261,23 @@ private fun Route.configureClientProfessionalRoutes() {
         val session = call.sessions.get<UserSession>()
         val email = session?.email ?: return@post call.respondRedirect("/Login")
         val clientIdString = getUserIdByEmail(email)
-        val clientId = clientIdString?.toString()?.toIntOrNull()
-            ?: return@post call.respondText(
-                "Invalid client ID",
-                status = HttpStatusCode.InternalServerError,
-            )
+        val clientId =
+            clientIdString?.toString()?.toIntOrNull()
+                ?: return@post call.respondText(
+                    "Invalid client ID",
+                    status = HttpStatusCode.InternalServerError,
+                )
 
         if (getClientCalorieGoal(clientId) == null) {
             return@post call.respondRedirect("/quiz?userId=$clientId")
         }
 
-        val professionalId = call.receiveParameters()["professional_id"]?.toIntOrNull()
-            ?: return@post call.respondText(
-                "Invalid professional",
-                status = HttpStatusCode.BadRequest,
-            )
+        val professionalId =
+            call.receiveParameters()["professional_id"]?.toIntOrNull()
+                ?: return@post call.respondText(
+                    "Invalid professional",
+                    status = HttpStatusCode.BadRequest,
+                )
 
         linkClientToProfessional(clientId, professionalId)
         call.respondRedirect("/client_dash")
@@ -273,8 +288,9 @@ private fun Route.configureProfessionalAccountRoutes() {
     get("/professionals_dash") {
         val session = call.sessions.get<UserSession>()
         val email = session?.email ?: return@get call.respondRedirect("/Login")
-        val professionalId = getUserIdByEmail(email)
-            ?: return@get call.respondText("User not found")
+        val professionalId =
+            getUserIdByEmail(email)
+                ?: return@get call.respondText("User not found")
         val userRoles = getUserRoles(professionalId)
         val clients = getClientsForProfessional(professionalId)
         call.respondTemplate(
@@ -318,20 +334,21 @@ fun Route.configureViewClientDetailsRoutes() {
             return@get
         }
 
-        val clientData = transaction {
-            Clients.selectAll()
-                .where { Clients.client_id eq clientId }
-                .map {
-                    mapOf(
-                        "clientId" to it[Clients.client_id],
-                        "goal" to it[Clients.goal],
-                        "calorieGoal" to it[Clients.daily_calorie_goal],
-                        "age" to it[Clients.age],
-                        "gender" to it[Clients.gender],
-                    )
-                }
-                .singleOrNull()
-        }
+        val clientData =
+            transaction {
+                Clients
+                    .selectAll()
+                    .where { Clients.client_id eq clientId }
+                    .map {
+                        mapOf(
+                            "clientId" to it[Clients.client_id],
+                            "goal" to it[Clients.goal],
+                            "calorieGoal" to it[Clients.daily_calorie_goal],
+                            "age" to it[Clients.age],
+                            "gender" to it[Clients.gender],
+                        )
+                    }.singleOrNull()
+            }
 
         call.respondTemplate(
             "pages/professionals/view_client_details.peb",
