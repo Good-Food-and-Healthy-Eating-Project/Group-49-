@@ -6,8 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="26563dcb-6ccb-4d65-9621-0ea5f1364be7" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/Routing.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/Routing.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/client_dash/client_dash.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/client_dash/client_dash.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/CaloriesSession.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/CaloriesSession.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
