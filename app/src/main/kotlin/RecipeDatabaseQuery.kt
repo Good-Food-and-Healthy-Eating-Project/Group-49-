@@ -23,6 +23,9 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
+private const val DEFAULT_RECIPE_LIMIT = 9
+
+@Suppress("TooManyFunctions")
 object RecipeDatabaseQuery {
     fun searchRecipes(
         query: String,
@@ -46,7 +49,7 @@ object RecipeDatabaseQuery {
                             Recipes.category eq category
                         }
                     queryCondition and categoryCondition
-                }.apply { if (query.isBlank() && category.isBlank()) orderBy(Random()).limit(9) }
+                }.apply { if (query.isBlank() && category.isBlank()) orderBy(Random()).limit(DEFAULT_RECIPE_LIMIT) }
                 .map { row ->
                     RecipeSummary(
                         id = row[Recipes.recipes_id],
