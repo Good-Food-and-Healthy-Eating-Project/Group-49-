@@ -29,12 +29,19 @@ import java.time.LocalDate
 const val GRAMS_PER_SERVING = 100
 
 @Serializable
-data class CaloriesSession(val calories: Int, val protein: Int, val fat: Int, val carbs: Int)
+data class CaloriesSession(val calories: Int = 0, val protein: Int = 0, val fat: Int = 0, val carbs: Int = 0)
 
 suspend fun ApplicationCall.foodLogPage() {
-    val caloriesSession = sessions.get<CaloriesSession>()
-    val calories = caloriesSession?.calories ?: 0
-    respondTemplate("pages/client_dash/add_food.peb", model = mapOf("calories" to calories))
+    val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession()
+    respondTemplate(
+        "pages/client_dash/add_food.peb",
+        model = mapOf(
+            "calories" to caloriesSession.calories,
+            "protein" to caloriesSession.protein,
+            "fat" to caloriesSession.fat,
+            "carbs" to caloriesSession.carbs,
+        ),
+    )
 }
 
 suspend fun ApplicationCall.foodLogRecipe() {
