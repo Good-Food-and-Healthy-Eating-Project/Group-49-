@@ -72,7 +72,8 @@ class ProfessionalsTableTest {
             }
             Professionals.deleteWhere { Professionals.professional_id eq 1 }
             val professional =
-                Professionals.selectAll()
+                Professionals
+                    .selectAll()
                     .where { Professionals.professional_id eq 1 }
                     .singleOrNull()
             assertNull(professional)
