@@ -21,9 +21,16 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 
-@Suppress("unused", "SpellCheckingInspection")
-object TemporaryRecipeSeeder {
+private const val LIMIT_PER_CATEGORY = 3
+private const val PARTS_SIZE = 2
+private const val PARTS_ZERO = 0
+private const val PARTS_ONE = 1
+private const val SCALE = 4
+private const val RESPONSE_CODE_MIN = 200
+private const val RESPONSE_CODE_MAX = 299
 
+@Suppress("unused", "SpellCheckingInspection", "TooManyFunctions")
+object TemporaryRecipeSeeder {
     private val http = HttpClient.newHttpClient()
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -32,8 +39,8 @@ object TemporaryRecipeSeeder {
 
     fun seed(
         systemUserId: Int,
-        limitPerCategory: Int = 3,
-        usdaApiKey: String = System.getenv("USDA_API_KEY") ?: ""
+        limitPerCategory: Int = LIMIT_PER_CATEGORY,
+        usdaApiKey: String = System.getenv("USDA_API_KEY") ?: "",
     ) {
         val categories = fetchCategories()
 
@@ -48,11 +55,13 @@ object TemporaryRecipeSeeder {
                     upsertRecipeWithIngredients(
                         meal = meal,
                         systemUserId = systemUserId,
-                        usdaApiKey = usdaApiKey
+                        usdaApiKey = usdaApiKey,
                     )
                     println("Seeded: ${meal.strMeal}")
-                } catch (e: Exception) {
+                } catch (e: java.io.IOException) {
                     println("Failed to seed meal ${mealSummary.idMeal}: ${e.message}")
+                } catch (e: kotlinx.serialization.SerializationException) {
+                    println("Failed to parse meal ${mealSummary.idMeal}: ${e.message}")
                 }
             }
         }
@@ -61,39 +70,42 @@ object TemporaryRecipeSeeder {
     private fun upsertRecipeWithIngredients(
         meal: MealDbMeal,
         systemUserId: Int,
-        usdaApiKey: String
+        usdaApiKey: String,
     ) {
-        val recipeId = transaction {
-            val existing = Recipes
-                .selectAll()
-                .where { Recipes.external_mealdb_id.isNotDistinctFrom(meal.idMeal) }
-                .firstOrNull()
+        val recipeId =
+            transaction {
+                val existing =
+                    Recipes
+                        .selectAll()
+                        .where { Recipes.external_mealdb_id.isNotDistinctFrom(meal.idMeal) }
+                        .firstOrNull()
 
-            if (existing == null) {
-                val inserted = Recipes.insert {
-                    it[recipe_name] = meal.strMeal
-                    it[instructions] = meal.strInstructions ?: ""
-                    it[external_mealdb_id] = meal.idMeal
-                    it[category] = meal.strCategory
-                    it[area] = meal.strArea
-                    it[thumbnail_url] = meal.strMealThumb
-                    it[created_by_user_id] = systemUserId
-                    it[is_system_recipe] = true
+                if (existing == null) {
+                    val inserted =
+                        Recipes.insert {
+                            it[recipe_name] = meal.strMeal
+                            it[instructions] = meal.strInstructions ?: ""
+                            it[external_mealdb_id] = meal.idMeal
+                            it[category] = meal.strCategory
+                            it[area] = meal.strArea
+                            it[thumbnail_url] = meal.strMealThumb
+                            it[created_by_user_id] = systemUserId
+                            it[is_system_recipe] = true
+                        }
+                    inserted[Recipes.recipes_id]
+                } else {
+                    val id = existing[Recipes.recipes_id]
+                    Recipes.update({ Recipes.recipes_id.isNotDistinctFrom(id) }) {
+                        it[recipe_name] = meal.strMeal
+                        it[instructions] = meal.strInstructions ?: ""
+                        it[category] = meal.strCategory
+                        it[area] = meal.strArea
+                        it[thumbnail_url] = meal.strMealThumb
+                        it[is_system_recipe] = true
+                    }
+                    id
                 }
-                inserted[Recipes.recipes_id]
-            } else {
-                val id = existing[Recipes.recipes_id]
-                Recipes.update({ Recipes.recipes_id.isNotDistinctFrom(id) }) {
-                    it[recipe_name] = meal.strMeal
-                    it[instructions] = meal.strInstructions ?: ""
-                    it[category] = meal.strCategory
-                    it[area] = meal.strArea
-                    it[thumbnail_url] = meal.strMealThumb
-                    it[is_system_recipe] = true
-                }
-                id
             }
-        }
 
         transaction {
             RecipeIngredients.deleteWhere { RecipeIngredients.recipe_id.isNotDistinctFrom(recipeId) }
@@ -118,17 +130,18 @@ object TemporaryRecipeSeeder {
 
     private fun findOrCreateFood(
         ingredientName: String,
-        usdaApiKey: String
+        usdaApiKey: String,
     ): Int {
         val normalised = normaliseFoodName(ingredientName)
 
-        val existingId = transaction {
-            Foods
-                .selectAll()
-                .where { Foods.food_name.isNotDistinctFrom(normalised) }
-                .firstOrNull()
-                ?.get(Foods.food_id)
-        }
+        val existingId =
+            transaction {
+                Foods
+                    .selectAll()
+                    .where { Foods.food_name.isNotDistinctFrom(normalised) }
+                    .firstOrNull()
+                    ?.get(Foods.food_id)
+            }
 
         if (existingId != null) return existingId
 
@@ -156,57 +169,59 @@ object TemporaryRecipeSeeder {
         val vitaminB12 = nutrientValue(usdaFood, "Vitamin B-12")
 
         return transaction {
-            val inserted = Foods.insert {
-                it[food_name] = normalised
-                it[usda_fdc_id] = usdaFood?.fdcId
-                it[calories_per_100g] = calories ?: BigDecimal.ZERO
-                it[protein_per_100g] = protein ?: BigDecimal.ZERO
-                it[carbs_per_100g] = carbs ?: BigDecimal.ZERO
-                it[fat_per_100g] = fat ?: BigDecimal.ZERO
+            val inserted =
+                Foods.insert {
+                    it[food_name] = normalised
+                    it[usda_fdc_id] = usdaFood?.fdcId
+                    it[calories_per_100g] = calories ?: BigDecimal.ZERO
+                    it[protein_per_100g] = protein ?: BigDecimal.ZERO
+                    it[carbs_per_100g] = carbs ?: BigDecimal.ZERO
+                    it[fat_per_100g] = fat ?: BigDecimal.ZERO
 
-                it[fiber_per_100g] = fiber
-                it[sugar_per_100g] = sugar
+                    it[fiber_per_100g] = fiber
+                    it[sugar_per_100g] = sugar
 
-                it[sodium_mg_per_100g] = sodium
-                it[potassium_mg_per_100g] = potassium
-                it[calcium_mg_per_100g] = calcium
-                it[iron_mg_per_100g] = iron
-                it[magnesium_mg_per_100g] = magnesium
-                it[zinc_mg_per_100g] = zinc
+                    it[sodium_mg_per_100g] = sodium
+                    it[potassium_mg_per_100g] = potassium
+                    it[calcium_mg_per_100g] = calcium
+                    it[iron_mg_per_100g] = iron
+                    it[magnesium_mg_per_100g] = magnesium
+                    it[zinc_mg_per_100g] = zinc
 
-                it[vitamin_a_mcg_per_100g] = vitaminA
-                it[vitamin_c_mg_per_100g] = vitaminC
-                it[vitamin_d_mcg_per_100g] = vitaminD
-                it[vitamin_b6_mg_per_100g] = vitaminB6
-                it[vitamin_b12_mcg_per_100g] = vitaminB12
-            }
+                    it[vitamin_a_mcg_per_100g] = vitaminA
+                    it[vitamin_c_mg_per_100g] = vitaminC
+                    it[vitamin_d_mcg_per_100g] = vitaminD
+                    it[vitamin_b6_mg_per_100g] = vitaminB6
+                    it[vitamin_b12_mcg_per_100g] = vitaminB12
+                }
             inserted[Foods.food_id]
         }
     }
 
     private fun extractIngredients(meal: MealDbMeal): List<Pair<String, String?>> {
-        val raw = listOf(
-            meal.strIngredient1 to meal.strMeasure1,
-            meal.strIngredient2 to meal.strMeasure2,
-            meal.strIngredient3 to meal.strMeasure3,
-            meal.strIngredient4 to meal.strMeasure4,
-            meal.strIngredient5 to meal.strMeasure5,
-            meal.strIngredient6 to meal.strMeasure6,
-            meal.strIngredient7 to meal.strMeasure7,
-            meal.strIngredient8 to meal.strMeasure8,
-            meal.strIngredient9 to meal.strMeasure9,
-            meal.strIngredient10 to meal.strMeasure10,
-            meal.strIngredient11 to meal.strMeasure11,
-            meal.strIngredient12 to meal.strMeasure12,
-            meal.strIngredient13 to meal.strMeasure13,
-            meal.strIngredient14 to meal.strMeasure14,
-            meal.strIngredient15 to meal.strMeasure15,
-            meal.strIngredient16 to meal.strMeasure16,
-            meal.strIngredient17 to meal.strMeasure17,
-            meal.strIngredient18 to meal.strMeasure18,
-            meal.strIngredient19 to meal.strMeasure19,
-            meal.strIngredient20 to meal.strMeasure20
-        )
+        val raw =
+            listOf(
+                meal.strIngredient1 to meal.strMeasure1,
+                meal.strIngredient2 to meal.strMeasure2,
+                meal.strIngredient3 to meal.strMeasure3,
+                meal.strIngredient4 to meal.strMeasure4,
+                meal.strIngredient5 to meal.strMeasure5,
+                meal.strIngredient6 to meal.strMeasure6,
+                meal.strIngredient7 to meal.strMeasure7,
+                meal.strIngredient8 to meal.strMeasure8,
+                meal.strIngredient9 to meal.strMeasure9,
+                meal.strIngredient10 to meal.strMeasure10,
+                meal.strIngredient11 to meal.strMeasure11,
+                meal.strIngredient12 to meal.strMeasure12,
+                meal.strIngredient13 to meal.strMeasure13,
+                meal.strIngredient14 to meal.strMeasure14,
+                meal.strIngredient15 to meal.strMeasure15,
+                meal.strIngredient16 to meal.strMeasure16,
+                meal.strIngredient17 to meal.strMeasure17,
+                meal.strIngredient18 to meal.strMeasure18,
+                meal.strIngredient19 to meal.strMeasure19,
+                meal.strIngredient20 to meal.strMeasure20,
+            )
 
         return raw.mapNotNull { (ingredient, measure) ->
             val cleanIngredient = ingredient?.trim().orEmpty()
@@ -232,23 +247,34 @@ object TemporaryRecipeSeeder {
         return response.meals?.firstOrNull()
     }
 
-    private fun searchUsdaFood(query: String, apiKey: String): UsdaFood? {
+    private fun searchUsdaFood(
+        query: String,
+        apiKey: String,
+    ): UsdaFood? {
         return try {
-            val body = get(
-                "$USDA_BASE/foods/search?api_key=$apiKey&query=${urlEncode(query)}&pageSize=1"
-            )
+            val body =
+                get(
+                    "$USDA_BASE/foods/search?api_key=$apiKey&query=${urlEncode(query)}&pageSize=1",
+                )
             val response = json.decodeFromString<UsdaSearchResponse>(body)
             response.foods.firstOrNull()
-        } catch (e: Exception) {
+        } catch (e: java.io.IOException) {
             println("USDA lookup failed for '$query': ${e.message}")
+            null
+        } catch (e: kotlinx.serialization.SerializationException) {
+            println("Failed to parse USDA response for '$query': ${e.message}")
             null
         }
     }
 
-    private fun nutrientValue(food: UsdaFood?, nutrientName: String): BigDecimal? {
-        val raw = food?.foodNutrients
-            ?.firstOrNull { it.nutrientName.equals(nutrientName, ignoreCase = true) }
-            ?.value ?: return null
+    private fun nutrientValue(
+        food: UsdaFood?,
+        nutrientName: String,
+    ): BigDecimal? {
+        val raw =
+            food?.foodNutrients
+                ?.firstOrNull { it.nutrientName.equals(nutrientName, ignoreCase = true) }
+                ?.value ?: return null
 
         return try {
             BigDecimal.valueOf(raw).setScale(2, RoundingMode.HALF_UP)
@@ -257,76 +283,88 @@ object TemporaryRecipeSeeder {
         }
     }
 
-    private fun estimateQuantityInGrams(measureText: String?, ingredientName: String): BigDecimal {
-        if (measureText.isNullOrBlank()) return BigDecimal("100.00")
+    private fun estimateQuantityInGrams(
+        measureText: String?,
+        ingredientName: String,
+    ): BigDecimal {
+        val defaultValue = BigDecimal("100.00")
 
-        val text = measureText.lowercase().trim()
+        val text = measureText?.lowercase()?.trim()
 
-        parseMass(text)?.let { return it }
-        parseVolume(text)?.let { return it }
-        parseCount(text, ingredientName)?.let { return it }
+        val mass = text?.let { parseMass(it) }
+        val volume = text?.let { parseVolume(it) }
+        val count = text?.let { parseCount(it, ingredientName) }
 
-        return BigDecimal("100.00")
+        return mass ?: volume ?: count ?: defaultValue
     }
 
     private fun parseMass(text: String): BigDecimal? {
         val regex = Regex("""(\d+(?:\.\d+)?|\d+/\d+)\s*(kg|g)""")
-        val match = regex.find(text) ?: return null
-        val amount = parseNumber(match.groupValues[1]) ?: return null
-        val unit = match.groupValues[2]
+        val match = regex.find(text)
 
-        val grams = when (unit) {
-            "kg" -> amount.multiply(BigDecimal("1000"))
-            "g" -> amount
-            else -> return null
-        }
+        val amount = match?.let { parseNumber(it.groupValues[1]) }
+        val unit = match?.groupValues?.get(2)
 
-        return grams.setScale(2, RoundingMode.HALF_UP)
+        val grams =
+            when (unit) {
+                "kg" -> amount?.multiply(BigDecimal("1000"))
+                "g" -> amount
+                else -> null
+            }
+
+        return grams?.setScale(2, RoundingMode.HALF_UP)
     }
 
     private fun parseVolume(text: String): BigDecimal? {
         val regex = Regex("""(\d+(?:\.\d+)?|\d+/\d+)\s*(ml|l|tsp|tbsp|cup)""")
-        val match = regex.find(text) ?: return null
-        val amount = parseNumber(match.groupValues[1]) ?: return null
-        val unit = match.groupValues[2]
+        val match = regex.find(text)
 
-        val grams = when (unit) {
-            "ml" -> amount
-            "l" -> amount.multiply(BigDecimal("1000"))
-            "tsp" -> amount.multiply(BigDecimal("5"))
-            "tbsp" -> amount.multiply(BigDecimal("15"))
-            "cup" -> amount.multiply(BigDecimal("240"))
-            else -> return null
-        }
+        val amount = match?.let { parseNumber(it.groupValues[1]) }
+        val unit = match?.groupValues?.get(2)
 
-        return grams.setScale(2, RoundingMode.HALF_UP)
+        val grams =
+            when (unit) {
+                "ml" -> amount
+                "l" -> amount?.multiply(BigDecimal("1000"))
+                "tsp" -> amount?.multiply(BigDecimal("5"))
+                "tbsp" -> amount?.multiply(BigDecimal("15"))
+                "cup" -> amount?.multiply(BigDecimal("240"))
+                else -> null
+            }
+
+        return grams?.setScale(2, RoundingMode.HALF_UP)
     }
 
-    private fun parseCount(text: String, ingredientName: String): BigDecimal? {
+    private fun parseCount(
+        text: String,
+        ingredientName: String,
+    ): BigDecimal? {
         val regex = Regex("""(\d+(?:\.\d+)?|\d+/\d+)""")
-        val match = regex.find(text) ?: return null
-        val count = parseNumber(match.groupValues[1]) ?: return null
+        val match = regex.find(text)
 
-        val perUnit = when {
-            ingredientName.contains("egg", ignoreCase = true) -> BigDecimal("50")
-            ingredientName.contains("garlic", ignoreCase = true) -> BigDecimal("5")
-            ingredientName.contains("onion", ignoreCase = true) -> BigDecimal("110")
-            ingredientName.contains("tomato", ignoreCase = true) -> BigDecimal("120")
-            ingredientName.contains("carrot", ignoreCase = true) -> BigDecimal("60")
-            else -> BigDecimal("100")
-        }
+        val count = match?.let { parseNumber(it.groupValues[1]) }
 
-        return count.multiply(perUnit).setScale(2, RoundingMode.HALF_UP)
+        val perUnit =
+            when {
+                ingredientName.contains("egg", true) -> BigDecimal("50")
+                ingredientName.contains("garlic", true) -> BigDecimal("5")
+                ingredientName.contains("onion", true) -> BigDecimal("110")
+                ingredientName.contains("tomato", true) -> BigDecimal("120")
+                ingredientName.contains("carrot", true) -> BigDecimal("60")
+                else -> BigDecimal("100")
+            }
+
+        return count?.multiply(perUnit)?.setScale(2, RoundingMode.HALF_UP)
     }
 
     private fun parseNumber(value: String): BigDecimal? {
         return try {
             if (value.contains("/")) {
                 val parts = value.split("/")
-                if (parts.size != 2) return null
-                val numerator = BigDecimal(parts[0])
-                val denominator = BigDecimal(parts[1])
-                numerator.divide(denominator, 4, RoundingMode.HALF_UP)
+                if (parts.size != PARTS_SIZE) return null
+                val numerator = BigDecimal(parts[PARTS_ZERO])
+                val denominator = BigDecimal(parts[PARTS_ONE])
+                numerator.divide(denominator, SCALE, RoundingMode.HALF_UP)
             } else {
                 BigDecimal(value)
             }
@@ -340,49 +378,49 @@ object TemporaryRecipeSeeder {
     }
 
     private fun get(url: String): String {
-        val request = HttpRequest.newBuilder()
-            .uri(URI.create(url))
-            .GET()
-            .build()
+        val request =
+            HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build()
 
         val response = http.send(request, HttpResponse.BodyHandlers.ofString())
 
-        if (response.statusCode() !in 200..299) {
+        if (response.statusCode() !in RESPONSE_CODE_MIN..RESPONSE_CODE_MAX) {
             error("HTTP ${response.statusCode()} for $url")
         }
 
         return response.body()
     }
 
-    private fun urlEncode(value: String): String =
-        URLEncoder.encode(value, StandardCharsets.UTF_8)
+    private fun urlEncode(value: String): String = URLEncoder.encode(value, StandardCharsets.UTF_8)
 }
 
 @Serializable
 data class MealDbCategoriesResponse(
-    val categories: List<MealDbCategory>
+    val categories: List<MealDbCategory>,
 )
 
 @Serializable
 data class MealDbCategory(
-    @SerialName("strCategory") val strCategory: String
+    @SerialName("strCategory") val strCategory: String,
 )
 
 @Serializable
 data class MealDbMealsResponse(
-    val meals: List<MealDbMealSummary>? = null
+    val meals: List<MealDbMealSummary>? = null,
 )
 
 @Serializable
 data class MealDbMealSummary(
     @SerialName("idMeal") val idMeal: String,
     @SerialName("strMeal") val strMeal: String,
-    @SerialName("strMealThumb") val strMealThumb: String? = null
+    @SerialName("strMealThumb") val strMealThumb: String? = null,
 )
 
 @Serializable
 data class MealDbMealLookupResponse(
-    val meals: List<MealDbMeal>? = null
+    val meals: List<MealDbMeal>? = null,
 )
 
 @Serializable
@@ -393,7 +431,6 @@ data class MealDbMeal(
     @SerialName("strArea") val strArea: String? = null,
     @SerialName("strInstructions") val strInstructions: String? = null,
     @SerialName("strMealThumb") val strMealThumb: String? = null,
-
     @SerialName("strIngredient1") val strIngredient1: String? = null,
     @SerialName("strIngredient2") val strIngredient2: String? = null,
     @SerialName("strIngredient3") val strIngredient3: String? = null,
@@ -414,7 +451,6 @@ data class MealDbMeal(
     @SerialName("strIngredient18") val strIngredient18: String? = null,
     @SerialName("strIngredient19") val strIngredient19: String? = null,
     @SerialName("strIngredient20") val strIngredient20: String? = null,
-
     @SerialName("strMeasure1") val strMeasure1: String? = null,
     @SerialName("strMeasure2") val strMeasure2: String? = null,
     @SerialName("strMeasure3") val strMeasure3: String? = null,
@@ -434,24 +470,24 @@ data class MealDbMeal(
     @SerialName("strMeasure17") val strMeasure17: String? = null,
     @SerialName("strMeasure18") val strMeasure18: String? = null,
     @SerialName("strMeasure19") val strMeasure19: String? = null,
-    @SerialName("strMeasure20") val strMeasure20: String? = null
+    @SerialName("strMeasure20") val strMeasure20: String? = null,
 )
 
 @Serializable
 data class UsdaSearchResponse(
-    val foods: List<UsdaFood> = emptyList()
+    val foods: List<UsdaFood> = emptyList(),
 )
 
 @Serializable
 data class UsdaFood(
     val fdcId: Long,
     val description: String? = null,
-    val foodNutrients: List<UsdaFoodNutrient> = emptyList()
+    val foodNutrients: List<UsdaFoodNutrient> = emptyList(),
 )
 
 @Serializable
 data class UsdaFoodNutrient(
     val nutrientName: String? = null,
     val value: Double? = null,
-    val unitName: String? = null
+    val unitName: String? = null,
 )

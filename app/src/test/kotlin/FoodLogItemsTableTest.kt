@@ -50,22 +50,21 @@ class FoodLogItemsTableTest {
             it[weight_kg] = 80
         }
         return FoodLogs.insert {
-            it[client_id] = userId
+            it[user_id] = userId
             it[log_date] = time
             it[meal_type] = "Launch"
             it[notes] = "test_notes"
         } get FoodLogs.food_log_id
     }
 
-    private fun insertTestFoodData(): Int {
-        return Foods.insert {
+    private fun insertTestFoodData(): Int =
+        Foods.insert {
             it[food_name] = "banana"
             it[calories_per_100g] = BigDecimal("50.10")
             it[protein_per_100g] = BigDecimal("7.00")
             it[carbs_per_100g] = BigDecimal("15.20")
             it[fat_per_100g] = BigDecimal("2.00")
         } get Foods.food_id
-    }
 
     @Test
     fun should_insert_food_log_item_success() {
@@ -79,7 +78,8 @@ class FoodLogItemsTableTest {
                     it[quantity_g] = BigDecimal("100.00")
                 } get FoodLogItems.food_log_item_id
             val item =
-                FoodLogItems.selectAll()
+                FoodLogItems
+                    .selectAll()
                     .where { FoodLogItems.food_log_item_id eq newId }
                     .single()
             assertEquals(foodLogId, item[FoodLogItems.food_log_id])
@@ -121,7 +121,8 @@ class FoodLogItemsTableTest {
                 it[quantity_g] = BigDecimal("150.00")
             }
             val updateItem =
-                FoodLogItems.selectAll()
+                FoodLogItems
+                    .selectAll()
                     .where { FoodLogItems.food_log_item_id eq newId }
                     .single()
             assertEquals(BigDecimal("150.00"), updateItem[FoodLogItems.quantity_g])
@@ -140,7 +141,8 @@ class FoodLogItemsTableTest {
                     it[quantity_g] = BigDecimal("100.00")
                 } get FoodLogItems.food_log_item_id
             val item =
-                FoodLogItems.selectAll()
+                FoodLogItems
+                    .selectAll()
                     .where { FoodLogItems.food_log_item_id eq newId }
                     .singleOrNull()
             assertNotNull(item)

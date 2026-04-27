@@ -64,8 +64,8 @@ class MultiTableIntegrationTest {
         }
     }
 
-    private fun createFood(usdaFdcIdValue: Long): Int {
-        return Foods.insert {
+    private fun createFood(usdaFdcIdValue: Long): Int =
+        Foods.insert {
             it[food_name] = "Test"
             it[usda_fdc_id] = usdaFdcIdValue
             it[calories_per_100g] = BigDecimal("100.00")
@@ -86,13 +86,12 @@ class MultiTableIntegrationTest {
             it[vitamin_b6_mg_per_100g] = BigDecimal("0.1")
             it[vitamin_b12_mcg_per_100g] = BigDecimal("0.22")
         } get Foods.food_id
-    }
 
     private fun crateFoodLog(userId: Int): Int {
         val time = Instant.now()
         val foodLogId =
             FoodLogs.insert {
-                it[client_id] = userId
+                it[user_id] = userId
                 it[log_date] = time
                 it[meal_type] = "Launch"
                 it[notes] = "test_notes"
@@ -160,11 +159,11 @@ class MultiTableIntegrationTest {
                 it[UserRoles.role_id] = roleId
             }
             val userRole =
-                UserRoles.selectAll()
+                UserRoles
+                    .selectAll()
                     .where {
                         (UserRoles.user_id eq userId) and (UserRoles.role_id eq roleId)
-                    }
-                    .singleOrNull()
+                    }.singleOrNull()
             assertNotNull(userRole)
             assertEquals(userId, userRole[UserRoles.user_id])
             assertEquals(roleId, userRole[UserRoles.role_id])
@@ -182,12 +181,13 @@ class MultiTableIntegrationTest {
             val foodLog =
                 FoodLogs.selectAll().where { FoodLogs.food_log_id eq foodLogId }.singleOrNull()
             val item =
-                FoodLogItems.selectAll()
+                FoodLogItems
+                    .selectAll()
                     .where { FoodLogItems.food_log_id eq foodLogId }
                     .toList()
             assertNotNull(foodLog)
             assertEquals(1, item.size)
-            assertEquals(userId, foodLog[FoodLogs.client_id])
+            assertEquals(userId, foodLog[FoodLogs.user_id])
             assertEquals(foodId, item[0][FoodLogItems.food_id])
             assertEquals(BigDecimal("200.00"), item[0][FoodLogItems.quantity_g])
         }
@@ -202,12 +202,12 @@ class MultiTableIntegrationTest {
             createRecipeIngredient(recipeId, foodId)
             val recipe = Recipes.selectAll().where { Recipes.recipes_id eq recipeId }.singleOrNull()
             val ingredient =
-                RecipeIngredients.selectAll()
+                RecipeIngredients
+                    .selectAll()
                     .where {
                         (RecipeIngredients.food_id eq foodId) and
                             (RecipeIngredients.recipe_id eq recipeId)
-                    }
-                    .singleOrNull()
+                    }.singleOrNull()
             assertNotNull(recipe)
             assertNotNull(ingredient)
             assertEquals("Test", recipe[Recipes.recipe_name])
@@ -230,12 +230,12 @@ class MultiTableIntegrationTest {
                 it[ClientProfessionalLink.professional_id] = professionalId
             }
             val link =
-                ClientProfessionalLink.selectAll()
+                ClientProfessionalLink
+                    .selectAll()
                     .where {
                         (ClientProfessionalLink.client_id eq clientId) and
                             (ClientProfessionalLink.professional_id eq professionalId)
-                    }
-                    .singleOrNull()
+                    }.singleOrNull()
             assertNotNull(link)
             assertEquals(clientId, link[ClientProfessionalLink.client_id])
             assertEquals(professionalId, link[ClientProfessionalLink.professional_id])

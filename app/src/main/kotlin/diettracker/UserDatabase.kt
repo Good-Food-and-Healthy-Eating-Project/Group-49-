@@ -19,8 +19,7 @@ import java.time.Instant
 
 fun getUserIdByEmail(email: String): Int? =
     transaction {
-        Users
-            .selectAll()
+        Users.selectAll()
             .where { Users.email eq email }
             .map { it[Users.user_id] }
             .singleOrNull()
@@ -28,8 +27,7 @@ fun getUserIdByEmail(email: String): Int? =
 
 fun getClientCalorieGoal(userId: Int): Int? =
     transaction {
-        Clients
-            .selectAll()
+        Clients.selectAll()
             .where { Clients.client_id eq userId }
             .map { it[Clients.daily_calorie_goal] }
             .singleOrNull()
@@ -157,8 +155,7 @@ object UserDatabase {
                 } get Users.user_id
 
             val clientRoleId =
-                Roles
-                    .selectAll()
+                Roles.selectAll()
                     .where { Roles.role_name eq "client" }
                     .map { it[Roles.role_id] }
                     .singleOrNull()
