@@ -5,12 +5,7 @@ import diettracker.db.tables.FoodLogItems
 import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.Foods
 import diettracker.db.tables.Users
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.pebble.PebbleContent
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondRedirect
 import io.ktor.server.sessions.get
-import io.ktor.server.sessions.sessions
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -24,7 +19,7 @@ data class DailyDietTrend(
     val targetCalorie: Int,
     val date: LocalDate,
     val dayOfMonth: Int,
-    val exceeds: Boolean,
+    val colourClass: String,
 )
 
 object ClientDietTrend {
@@ -71,50 +66,20 @@ object ClientDietTrend {
                     val calorie = row[Foods.calories_per_100g].toDouble()
                     total += calorie * quantity / GARMS100
                 }
+                val colourClass =
+                    when {
+                        target <= 0 -> "empty-day"
+                        total <= 0.0 -> "empty-day"
+                        total >= target -> "red"
+                        else -> "green"
+                    }
                 DailyDietTrend(
                     date = date,
                     dayOfMonth = date.dayOfMonth,
                     totalCalorie = total,
                     targetCalorie = target,
-                    exceeds = total > target,
+                    colourClass = colourClass,
                 )
             }
         }
-}
-
-suspend fun ApplicationCall.dietTrend() {
-    val email = this.sessions.get<UserSession>()?.email
-
-    if (email == null) {
-        this.respondRedirect("/Login")
-        return
-    }
-
-    val userId = ClientDietTrend.getUserId(email)
-
-    if (userId == null) {
-        this.respondRedirect("/Login")
-        return
-    }
-
-    val trends = ClientDietTrend.getDietTrend(userId)
-    val today = LocalDate.now()
-    val currentYear = today.year
-    val currentMonth = today.month
-    val daysInMonth = today.lengthOfMonth()
-    val firstDay = today.withDayOfMonth(1)
-    val leadingEmptyDays = firstDay.dayOfWeek.value - 1
-
-    this.respond(
-        PebbleContent(
-            "pages/client_dash/client_dash.peb",
-            mapOf(
-                "trends" to trends,
-                "currentYear" to currentYear,
-                "currentMonth" to currentMonth,
-                "daysInMonth" to daysInMonth,
-                "leadingEmptyDays" to leadingEmptyDays,
-            ),
-        ),
-    )
 }

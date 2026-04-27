@@ -23,7 +23,20 @@ Home
     <div class="calendar-widget">
 <div class="calendar-title">
     <h3>Diet Trend</h3>
+    <div class="calendar-navigation">
+        <a
+            class="calendar-nav-button"
+            href="/client_dash?year={{ previousYear }}&month={{ previousMonth }}"
+        >
+            &lt; Previous
+        </a>
     <h2>{{ currentYear }} / {{ currentMonth }}</h2>
+    <a
+        class="calendar-nav-button"
+        href="/client_dash?year={{ nextYear }}&month={{ nextMonth }}"
+    >
+        Next &gt;
+    </a>
 </div>
         <div class="calendar-weekdays">
             <div>Mon</div>
@@ -44,7 +57,7 @@ Home
                     {% for trend in trends %}
                         {% if trend.dayOfMonth == day %}
                             {% set found = true %}
-                            <div class="day-box {{ trend.exceeds ? 'red' : 'green' }}">
+                            <div class="day-box {{ trend.colourClass }}">
                                 {{ day }}
                                 <div class="tooltip">
                                     Kcal: {{ trend.totalCalorie }} / {{ trend.targetCalorie }}
