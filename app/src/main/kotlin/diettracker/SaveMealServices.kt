@@ -14,6 +14,7 @@ import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
 import io.ktor.server.util.getOrFail
+import diettracker.services.getUserIdByEmail
 
 fun saveMeal(clientId: Int,mealName: String,foods: List<CurrentMealFood>,): Int {
     transaction {
@@ -60,11 +61,27 @@ fun getSavedMealFoods(mealId: Int,): List<CurrentMealFood> =
     }
 
 suspend fun ApplicationCall.saveCurrentMeal() {
-    // read mealName from form
-    // get current user session → userId
-    // get CurrentMealSession
-    // call saveMeal(...)
-    // redirect to /food_log
+    val params = receiveParameters()
+    val mealName = params["mealName"] ?: "Unnamed Meal"
+    val userId = sessions.get<UserSession>()?.userId ?: run {
+        respondRedirect("/login")
+        return
+    }
+    val email =sessions.get<UserSession>()?.email
+    val clientId = getUserIdByEmail(email)?: return respondRedirect("/Login")
+    val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
+
+    if (currentMeal.foods.isEmpty()) {
+        return respondRedirect("/food_log")
+    }
+    
+    saveMeal(
+        clientId = clientId, 
+        mealName = mealName, 
+        foods = currentMeal.foods
+    )
+    respondRedirect("/food_log")
+
 }
 
 suspend fun ApplicationCall.addSavedMealToLog() {
