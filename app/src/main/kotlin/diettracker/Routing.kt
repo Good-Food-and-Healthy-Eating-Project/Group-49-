@@ -96,14 +96,7 @@ fun Route.configurePublicRoutes() {
         call.respond(PebbleContent("pages/client_dash/food_diary.peb", mapOf("showNavbar" to true)))
     }
 
-<<<<<<< HEAD
     configureRecipeRoutes()
-=======
-    get("/recipes") {
-        val recipes = getAllRecipes()
-        call.respond(PebbleContent("pages/recipes/recipes.peb", mapOf("showNavbar" to true, "recipes" to recipes)))
-    }
->>>>>>> 5ad7b32cfd5650543e57ce16421fcf7fd8f0ac46
 
     get("/health") {
         call.respondText("OK")
@@ -119,28 +112,14 @@ fun Route.configureAuthRoutes() {
 
     get("/quiz") {
         val userId = call.request.queryParameters["userId"]
-<<<<<<< HEAD
-=======
-
->>>>>>> 5ad7b32cfd5650543e57ce16421fcf7fd8f0ac46
         if (userId == null) {
             call.respondRedirect("/Sign-Up")
             return@get
         }
-<<<<<<< HEAD
         call.respond(
             PebbleContent(
                 "pages/auth/signup_quiz.peb",
                 mapOf("userId" to userId as Any),
-=======
-
-        call.respond(
-            PebbleContent(
-                "pages/auth/signup_quiz.peb",
-                mapOf(
-                    "userId" to userId as Any,
-                ),
->>>>>>> 5ad7b32cfd5650543e57ce16421fcf7fd8f0ac46
             ),
         )
     }
@@ -177,15 +156,11 @@ private fun Route.configureClientProfessionalRoutes() {
     post("/select-professional") {
         val session = call.sessions.get<UserSession>()
         val email = session?.email ?: return@post call.respondRedirect("/Login")
-<<<<<<< HEAD
-        val clientIdString = getUserIdByEmail(email)
-=======
 
         val clientIdString = getUserIdByEmail(email)
 
         // Convert the client ID to an integer for database use.
         // If conversion fails, return an error to prevent invalid data being stored.
->>>>>>> 5ad7b32cfd5650543e57ce16421fcf7fd8f0ac46
         val clientId =
             clientIdString?.toString()?.toIntOrNull()
                 ?: return@post call.respondText(
@@ -205,10 +180,6 @@ private fun Route.configureClientProfessionalRoutes() {
                 )
 
         linkClientToProfessional(clientId, professionalId)
-<<<<<<< HEAD
-=======
-
->>>>>>> 5ad7b32cfd5650543e57ce16421fcf7fd8f0ac46
         call.respondRedirect("/client_dash")
     }
 }
@@ -217,22 +188,11 @@ private fun Route.configureProfessionalAccountRoutes() {
     get("/professionals_dash") {
         val session = call.sessions.get<UserSession>()
         val email = session?.email ?: return@get call.respondRedirect("/Login")
-<<<<<<< HEAD
         val professionalId =
             getUserIdByEmail(email)
                 ?: return@get call.respondText("User not found")
         val userRoles = getUserRoles(professionalId)
         val clients = getClientsForProfessional(professionalId)
-=======
-
-        val professionalId =
-            getUserIdByEmail(email)
-                ?: return@get call.respondText("User not found")
-
-        val userRoles = getUserRoles(professionalId)
-        val clients = getClientsForProfessional(professionalId)
-
->>>>>>> 5ad7b32cfd5650543e57ce16421fcf7fd8f0ac46
         call.respondTemplate(
             "pages/professionals/professionals_dash.peb",
             mapOf(
@@ -265,18 +225,10 @@ fun Route.configureViewClientDetailsRoutes() {
         val session = call.sessions.get<UserSession>()
         val email = session?.email ?: return@get call.respondRedirect("/Login")
         val professionalId = getUserIdByEmail(email) ?: return@get call.respondText("User not found")
-<<<<<<< HEAD
-=======
-
->>>>>>> 5ad7b32cfd5650543e57ce16421fcf7fd8f0ac46
         val userRoles = getUserRoles(professionalId)
         val clients = getClientsForProfessional(professionalId)
         val clientId = call.parameters["clientId"]?.toIntOrNull()
 
-<<<<<<< HEAD
-=======
-        // Handling error case
->>>>>>> 5ad7b32cfd5650543e57ce16421fcf7fd8f0ac46
         if (clientId == null) {
             call.respondText("Invalid client ID")
             return@get
@@ -295,15 +247,9 @@ fun Route.configureViewClientDetailsRoutes() {
                             "age" to it[Clients.age],
                             "gender" to it[Clients.gender],
                         )
-<<<<<<< HEAD
                     }.singleOrNull()
             }
 
-=======
-                    }
-                    .singleOrNull()
-            }
->>>>>>> 5ad7b32cfd5650543e57ce16421fcf7fd8f0ac46
         call.respondTemplate(
             "pages/professionals/view_client_details.peb",
             mapOf(
@@ -319,7 +265,6 @@ fun Route.configureViewClientDetailsRoutes() {
 fun Route.configureProtectedRoutes() {
     authenticate("group49-client_auth") {
         get("/") { call.dashboardPage() }
-<<<<<<< HEAD
         get("/logout") { call.logout() }
     }
 }
@@ -433,9 +378,3 @@ fun Route.configureRecipeRoutes() {
         call.respond(HttpStatusCode.OK)
     }
 }
-=======
-
-        get("/logout") { call.logout() }
-    }
-}
->>>>>>> 5ad7b32cfd5650543e57ce16421fcf7fd8f0ac46
