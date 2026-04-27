@@ -3,6 +3,8 @@ package diettracker
 import diettracker.db.tables.Foods
 import diettracker.db.tables.RecipeIngredients
 import diettracker.db.tables.Recipes
+import diettracker.models.CurrentMealFood
+import diettracker.models.CurrentMealSession
 import diettracker.models.Food
 import diettracker.models.Recipe
 import io.ktor.server.application.ApplicationCall
@@ -48,6 +50,7 @@ suspend fun ApplicationCall.foodLogRecipe() {
     var addProtein = 0
     var addFat = 0
     var addCarbs = 0
+    val currentMealFoods = mutableListOf<CurrentMealFood>()
     val params = receiveParameters()
     val recipeIdStr = params["recipeId"]
     val recipeid = recipeIdStr?.toIntOrNull()
@@ -73,6 +76,7 @@ suspend fun ApplicationCall.foodLogRecipe() {
         for (i in ingredients) {
             val foodId = i[RecipeIngredients.food_id]
             val grams = i[RecipeIngredients.quantity_g].toInt()
+            currentMealFoods += CurrentMealFood(foodId = foodId, grams = grams)
             val calories = calcCalcsById(foodId, grams)
             val protein = calcProteinById(foodId, grams)
             val fat = calcFatById(foodId, grams)
@@ -91,6 +95,8 @@ suspend fun ApplicationCall.foodLogRecipe() {
     val newTotalCarbs = caloriesSession.carbs + addCarbs
 
     sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
+    val currentMealSession = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
+    sessions.set(CurrentMealSession(currentMealSession.foods + currentMealFoods))
     respondRedirect("/food_log")
 }
 
@@ -134,16 +140,14 @@ suspend fun ApplicationCall.foodLogCustom() {
     val newTotalCarbs = caloriesSession.carbs + addCarbs
 
     sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
-
-    respondTemplate(
-        "pages/client_dash/add_food.peb",
-        mapOf(
-            "calories" to newTotalCals,
-            "protein" to newTotalProtein,
-            "fat" to newTotalFat,
-            "carbs" to newTotalCarbs,
+    val currentMealSession = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
+    sessions.set(
+        CurrentMealSession(
+            currentMealSession.foods + CurrentMealFood(foodId = foodId, grams = grams),
         ),
     )
+
+    respondRedirect("/food_log")
 }
 
 fun searchRecipes(query: String): List<Recipe> =
@@ -206,71 +210,72 @@ fun calcCalcsById(
     foodid: Int,
     grams: Int,
 ): Int {
-    val multiplier = grams / GRAMS_PER_SERVING.toDouble()
-    val caloriesPer100g =
-        Foods
-            .selectAll()
-            .where { Foods.food_id eq foodid }
-            .map { row -> row[Foods.calories_per_100g].toDouble().toInt() }
-            .firstOrNull() ?: return 0
+    return transaction {
+        val multiplier = grams / GRAMS_PER_SERVING.toDouble()
+        val caloriesPer100g =
+            Foods
+                .selectAll()
+                .where { Foods.food_id eq foodid }
+                .map { row -> row[Foods.calories_per_100g].toDouble().toInt() }
+                .firstOrNull() ?: return@transaction 0
 
-    return (caloriesPer100g * multiplier).toInt()
+        return@transaction (caloriesPer100g * multiplier).toInt()
+    }
 }
 
 fun calcProteinById(
     foodid: Int,
     grams: Int,
 ): Int {
-    val multiplier = grams / GRAMS_PER_SERVING.toDouble()
-    val proteinPer100g =
-        Foods
-            .selectAll()
-            .where { Foods.food_id eq foodid }
-            .map { row -> row[Foods.protein_per_100g].toDouble().toInt() }
-            .firstOrNull() ?: return 0
+    return transaction {
+        val multiplier = grams / GRAMS_PER_SERVING.toDouble()
+        val proteinPer100g =
+            Foods
+                .selectAll()
+                .where { Foods.food_id eq foodid }
+                .map { row -> row[Foods.protein_per_100g].toDouble().toInt() }
+                .firstOrNull() ?: return@transaction 0
 
-    return (proteinPer100g * multiplier).toInt()
+        return@transaction (proteinPer100g * multiplier).toInt()
+    }
 }
 
 fun calcFatById(
     foodid: Int,
     grams: Int,
 ): Int {
-    val multiplier = grams / GRAMS_PER_SERVING.toDouble()
-    val fatPer100g =
-        Foods
-            .selectAll()
-            .where { Foods.food_id eq foodid }
-            .map { row -> row[Foods.fat_per_100g].toDouble().toInt() }
-            .firstOrNull() ?: return 0
+    return transaction {
+        val multiplier = grams / GRAMS_PER_SERVING.toDouble()
+        val fatPer100g =
+            Foods
+                .selectAll()
+                .where { Foods.food_id eq foodid }
+                .map { row -> row[Foods.fat_per_100g].toDouble().toInt() }
+                .firstOrNull() ?: return@transaction 0
 
-    return (fatPer100g * multiplier).toInt()
+        return@transaction (fatPer100g * multiplier).toInt()
+    }
 }
 
 fun calcCarbsById(
     foodid: Int,
     grams: Int,
 ): Int {
-    val multiplier = grams / GRAMS_PER_SERVING.toDouble()
-    val carbsPer100g =
-        Foods
-            .selectAll()
-            .where { Foods.food_id eq foodid }
-            .map { row -> row[Foods.carbs_per_100g].toDouble().toInt() }
-            .firstOrNull() ?: return 0
+    return transaction {
+        val multiplier = grams / GRAMS_PER_SERVING.toDouble()
+        val carbsPer100g =
+            Foods
+                .selectAll()
+                .where { Foods.food_id eq foodid }
+                .map { row -> row[Foods.carbs_per_100g].toDouble().toInt() }
+                .firstOrNull() ?: return@transaction 0
 
-    return (carbsPer100g * multiplier).toInt()
+        return@transaction (carbsPer100g * multiplier).toInt()
+    }
 }
 
 suspend fun ApplicationCall.foodLogReset() {
     sessions.set(CaloriesSession(0, 0, 0, 0))
-    respondTemplate(
-        "pages/client_dash/add_food.peb",
-        mapOf(
-            "calories" to 0,
-            "protein" to 0,
-            "fat" to 0,
-            "carbs" to 0,
-        ),
-    )
+    sessions.set(CurrentMealSession(emptyList()))
+    respondRedirect("/food_log")
 }

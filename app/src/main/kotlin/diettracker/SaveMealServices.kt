@@ -2,22 +2,35 @@ package diettracker
 
 import diettracker.db.tables.SavedMealFoods
 import diettracker.db.tables.SavedMeals
+import diettracker.db.tables.Clients
 import diettracker.models.SavedMeal
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.insertIgnore
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import diettracker.models.CurrentMealFood
+import diettracker.models.CurrentMealSession
 import io.ktor.server.response.respondRedirect
 import io.ktor.server.sessions.clear
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
 import io.ktor.server.util.getOrFail
-import diettracker.services.getUserIdByEmail
+import diettracker.getUserIdByEmail
+import io.ktor.server.request.receiveParameters
+import io.ktor.server.application.ApplicationCall
+
+fun ensureClientExists(clientId: Int) {
+    transaction {
+        Clients.insertIgnore {
+            it[Clients.client_id] = clientId
+        }
+    }
+}
 
 fun saveMeal(clientId: Int,mealName: String,foods: List<CurrentMealFood>,): Int {
-    transaction {
+    return transaction {
         val mealId = SavedMeals.insert {
             it[SavedMeals.client_id] = clientId
             it[SavedMeals.meal_name] = mealName
@@ -30,7 +43,7 @@ fun saveMeal(clientId: Int,mealName: String,foods: List<CurrentMealFood>,): Int 
                 it[SavedMealFoods.grams] = food.grams
             }
         }
-        return mealId
+        mealId
     }
 }
 
@@ -63,13 +76,13 @@ fun getSavedMealFoods(mealId: Int,): List<CurrentMealFood> =
 suspend fun ApplicationCall.saveCurrentMeal() {
     val params = receiveParameters()
     val mealName = params["mealName"] ?: "Unnamed Meal"
-    val userId = sessions.get<UserSession>()?.userId ?: run {
+    val email = sessions.get<UserSession>()?.email ?: run {
         respondRedirect("/login")
         return
     }
-    val email =sessions.get<UserSession>()?.email
-    val clientId = getUserIdByEmail(email)?: return respondRedirect("/Login")
-    val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
+    val clientId = email?.let { getUserIdByEmail(it) } ?: return respondRedirect("/Login")
+    ensureClientExists(clientId)
+    val currentMeal = sessions.get<diettracker.models.CurrentMealSession>() ?: diettracker.models.CurrentMealSession(emptyList())
 
     if (currentMeal.foods.isEmpty()) {
         return respondRedirect("/food_log")
@@ -80,17 +93,11 @@ suspend fun ApplicationCall.saveCurrentMeal() {
         mealName = mealName, 
         foods = currentMeal.foods
     )
+    sessions.set(CurrentMealSession(emptyList()))
     respondRedirect("/food_log")
-
 }
 
 suspend fun ApplicationCall.addSavedMealToLog() {
-    // read mealId from form
-    // call getSavedMealFoods(...)
-    // loop foods → recalc calories/protein/fat/carbs
-    // update CaloriesSession
-    // update CurrentMealSession
-    // redirect to /food_log
     val params = receiveParameters()
     val mealId = params["mealId"]?.toIntOrNull()
     var addCalories = 0
@@ -102,17 +109,19 @@ suspend fun ApplicationCall.addSavedMealToLog() {
         return respondRedirect("/food_log")
     }
 
-    val savedfoods = getSavedMealFoods(mealId)
+    val savedMealFoods = getSavedMealFoods(mealId)
 
-    for (food in savedMealFoods) {
-        addCalories += calcCalcsById(food.foodId, food.grams)
-        addProtein += calcProteinById(food.foodId, food.grams)
-        addFat += calcFatById(food.foodId, food.grams)
-        addCarbs += calcCarbsById(food.foodId, food.grams)
+    transaction {
+        for (food in savedMealFoods) {
+            addCalories += calcCalcsById(food.foodId, food.grams)
+            addProtein += calcProteinById(food.foodId, food.grams)
+            addFat += calcFatById(food.foodId, food.grams)
+            addCarbs += calcCarbsById(food.foodId, food.grams)
+        }
     }
 
     val caloriesSession =
-    sessions.get<CaloriesSession>() ?: CaloriesSession(0, 0, 0, 0)
+        sessions.get<CaloriesSession>() ?: CaloriesSession(0, 0, 0, 0)
 
     sessions.set(
         CaloriesSession(
@@ -124,7 +133,7 @@ suspend fun ApplicationCall.addSavedMealToLog() {
     )
 
     val currentMealSession =
-    sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
+        sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
 
     sessions.set(
         CurrentMealSession(
