@@ -72,7 +72,8 @@ class RecipesTableTest {
             }
             Recipes.deleteWhere { Recipes.recipe_name eq "Double Cheeseburger" }
             val recipes =
-                Recipes.selectAll()
+                Recipes
+                    .selectAll()
                     .where { Recipes.recipe_name eq "Double Chessburger" }
                     .toList()
             assertFalse(recipes.isNotEmpty())
@@ -102,7 +103,8 @@ class RecipesTableTest {
                 it[is_system_recipe] = true
             }
             val recipes =
-                Recipes.selectAll()
+                Recipes
+                    .selectAll()
                     .where { Recipes.recipe_name eq "Double Cheeseburger" }
                     .single()
             assertEquals("new_test_instructions", recipes[Recipes.instructions])
@@ -129,7 +131,8 @@ class RecipesTableTest {
                 it[is_system_recipe] = true
             }
             val recipes =
-                Recipes.selectAll()
+                Recipes
+                    .selectAll()
                     .where { Recipes.recipe_name eq "Double Cheeseburger" }
                     .single()
             assertEquals("Double Cheeseburger", recipes[Recipes.recipe_name])
