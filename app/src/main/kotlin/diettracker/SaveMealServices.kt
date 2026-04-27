@@ -74,7 +74,7 @@ suspend fun ApplicationCall.saveCurrentMeal() {
     if (currentMeal.foods.isEmpty()) {
         return respondRedirect("/food_log")
     }
-    
+
     saveMeal(
         clientId = clientId, 
         mealName = mealName, 
@@ -91,4 +91,46 @@ suspend fun ApplicationCall.addSavedMealToLog() {
     // update CaloriesSession
     // update CurrentMealSession
     // redirect to /food_log
+    val params = receiveParameters()
+    val mealId = params["mealId"]?.toIntOrNull()
+    var addCalories = 0
+    var addProtein = 0
+    var addFat = 0
+    var addCarbs = 0
+
+    if (mealId == null) {
+        return respondRedirect("/food_log")
+    }
+
+    val savedfoods = getSavedMealFoods(mealId)
+
+    for (food in savedMealFoods) {
+        addCalories += calcCalcsById(food.foodId, food.grams)
+        addProtein += calcProteinById(food.foodId, food.grams)
+        addFat += calcFatById(food.foodId, food.grams)
+        addCarbs += calcCarbsById(food.foodId, food.grams)
+    }
+
+    val caloriesSession =
+    sessions.get<CaloriesSession>() ?: CaloriesSession(0, 0, 0, 0)
+
+    sessions.set(
+        CaloriesSession(
+            calories = caloriesSession.calories + addCalories,
+            protein = caloriesSession.protein + addProtein,
+            fat = caloriesSession.fat + addFat,
+            carbs = caloriesSession.carbs + addCarbs,
+        ),
+    )
+
+    val currentMealSession =
+    sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
+
+    sessions.set(
+        CurrentMealSession(
+            foods = currentMealSession.foods + savedMealFoods,
+        ),
+    )
+
+    respondRedirect("/food_log")
 }
