@@ -48,7 +48,7 @@ fun Route.foodDiaryRoutes() {
             )
         }
 
-        get("/food_diary/day") {
+        get("/food_diary_day") {
             val sessionEmail =
                 call.sessions.get<UserSession>()?.email
                     ?: return@get call.respondRedirect("/Login")

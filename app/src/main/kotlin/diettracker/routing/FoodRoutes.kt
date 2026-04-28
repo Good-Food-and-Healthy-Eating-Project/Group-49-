@@ -1,6 +1,7 @@
 package diettracker.routing
 
 import diettracker.CaloriesSession
+import diettracker.UserSession
 import diettracker.foodLogCustom
 import diettracker.foodLogPage
 import diettracker.foodLogRecipe
@@ -8,6 +9,7 @@ import diettracker.foodLogReset
 import diettracker.searchFoods
 import diettracker.searchRecipes
 import io.ktor.server.pebble.respondTemplate
+import io.ktor.server.response.respondRedirect
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -25,6 +27,10 @@ fun Route.configureFoodRoutes() {
 
 private fun Route.configureFoodLogRoute() {
     get("/food_log") {
+        if (call.sessions.get<UserSession>() == null) {
+            call.respondRedirect("/Login")
+            return@get
+        }
         val recipeQuery = call.request.queryParameters["query"]
         val foodQuery = call.request.queryParameters["foodquery"]
 

@@ -82,6 +82,30 @@ object ClientDietTrend {
         }
 }
 
+private const val MIN_PROTEIN_PERCENT = 0.1
+private const val MAX_FAT_PERCENT = 0.35
+private const val MIN_CARBS_PERCENT = 0.4
+
+fun buildGuidanceMessages(
+    calorieGoal: Int?,
+    totalCaloriesInt: Int,
+    proteinPercent: Double,
+    fatPercent: Double,
+    carbsPercent: Double,
+): List<String> {
+    val messages = mutableListOf<String>()
+    if (calorieGoal != null && totalCaloriesInt > calorieGoal) {
+        messages.add("You are over your daily calorie target")
+    } else {
+        messages.add("You are within your calorie target")
+    }
+    if (proteinPercent < MIN_PROTEIN_PERCENT) messages.add("Protein intake is low")
+    if (fatPercent > MAX_FAT_PERCENT) messages.add("Fat intake is high")
+    if (carbsPercent < MIN_CARBS_PERCENT) messages.add("Carbohydrate intake is low")
+    messages.add("Aim for a balanced diet with a mix of protein, carbs, and fats")
+    return messages
+}
+
 suspend fun ApplicationCall.dietTrend() {
     val email = this.sessions.get<UserSession>()?.email
 

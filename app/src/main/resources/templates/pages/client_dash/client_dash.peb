@@ -64,20 +64,20 @@ Home
             <div class="no-data">No diet data</div>
         {% endif %}
 
-        <div class = "Daily Overview">
-            <h2> Today's Summary
+        <div class="Daily Overview">
+            <h2>Today's Summary</h2>
 
-            <p> Calories: {{ totalCalories }} / {{ goal }} kcal </p>
-
+            <p>Calories: {{ totalCalories }} / {{ goal }} kcal</p>
             <p>Protein: {{ totalProtein }}g</p>
             <p>Carbs: {{ totalCarbs }}g</p>
             <p>Fat: {{ totalFat }}g</p>
 
-            <h3><Guidance/h3>
+            <h3>Guidance</h3>
             <ul>
-                {%  for msg in messages %}
-                    <li>{{ msg}}</li>
-                {% endfor %}}
+                {% for msg in messages %}
+                    <li>{{ msg }}</li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 </div>
