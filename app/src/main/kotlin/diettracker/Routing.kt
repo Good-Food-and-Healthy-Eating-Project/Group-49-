@@ -90,10 +90,6 @@ fun Route.configurePublicRoutes() {
         get("/logout") { call.logout() }
     }
 
-    get("/diary") {
-        call.respond(PebbleContent("pages/client_dash/food_diary.peb", mapOf("showNavbar" to true)))
-    }
-
     get("/recipes") {
         val recipes = getAllRecipes()
         call.respond(PebbleContent("pages/recipes/recipes.peb", mapOf("showNavbar" to true, "recipes" to recipes)))

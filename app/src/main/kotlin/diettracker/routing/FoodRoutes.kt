@@ -5,6 +5,7 @@ import diettracker.foodLogCustom
 import diettracker.foodLogPage
 import diettracker.foodLogRecipe
 import diettracker.foodLogReset
+import diettracker.saveCurrentFoodLog
 import diettracker.searchFoods
 import diettracker.searchRecipes
 import io.ktor.server.pebble.respondTemplate
@@ -72,6 +73,7 @@ private fun Route.configureFoodPostRoutes() {
     post("/food_log_recipe") { call.foodLogRecipe() }
     post("/food_log_custom") { call.foodLogCustom() }
     post("/food_log_reset") { call.foodLogReset() }
+    post("/save_food_log") { call.saveCurrentFoodLog() }
 }
 
 private fun Route.configureRecipeSearchRoute() {
