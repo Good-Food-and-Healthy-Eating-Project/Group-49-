@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>Filename:FoodLogItem.kt$diettracker.db.tables.FoodLogItem.kt</ID>
+    <ID>FinalNewline:Application.kt$diettracker.Application.kt</ID>
+    <ID>FinalNewline:AuthServices.kt$diettracker.AuthServices.kt</ID>
+    <ID>FinalNewline:ClientProfessionalLink.kt$diettracker.db.tables.ClientProfessionalLink.kt</ID>
+    <ID>FinalNewline:Clients.kt$diettracker.db.tables.Clients.kt</ID>
+    <ID>FinalNewline:DbConstants.kt$diettracker.db.DbConstants.kt</ID>
+    <ID>FinalNewline:FoodLogItem.kt$diettracker.db.tables.FoodLogItem.kt</ID>
+    <ID>FinalNewline:FoodLogs.kt$diettracker.db.tables.FoodLogs.kt</ID>
+    <ID>FinalNewline:Foods.kt$diettracker.db.tables.Foods.kt</ID>
+    <ID>FinalNewline:Professionals.kt$diettracker.db.tables.Professionals.kt</ID>
+    <ID>FinalNewline:RecipeIngredients.kt$diettracker.db.tables.RecipeIngredients.kt</ID>
+    <ID>FinalNewline:Recipes.kt$diettracker.db.tables.Recipes.kt</ID>
+    <ID>FinalNewline:Roles.kt$diettracker.db.tables.Roles.kt</ID>
+    <ID>FinalNewline:UserRoles.kt$diettracker.db.tables.UserRoles.kt</ID>
+    <ID>FinalNewline:UserSession.kt$diettracker.UserSession.kt</ID>
+    <ID>FinalNewline:Users.kt$diettracker.db.tables.Users.kt</ID>
+    <ID>InvalidPackageDeclaration:Application.kt$package diettracker</ID>
+    <ID>InvalidPackageDeclaration:AuthServices.kt$package diettracker</ID>
+    <ID>InvalidPackageDeclaration:CaloriesSession.kt$package diettracker</ID>
+    <ID>InvalidPackageDeclaration:ClientDietTrend.kt$package diettracker</ID>
+    <ID>InvalidPackageDeclaration:ClientInfo.kt$package diettracker.models</ID>
+    <ID>InvalidPackageDeclaration:ClientProfessionalLink.kt$package diettracker.db.tables</ID>
+    <ID>InvalidPackageDeclaration:Clients.kt$package diettracker.db.tables</ID>
+    <ID>InvalidPackageDeclaration:DatabaseFactory.kt$package diettracker.db</ID>
+    <ID>InvalidPackageDeclaration:DbConstants.kt$package diettracker.db</ID>
+    <ID>InvalidPackageDeclaration:DiaryRepository.kt$package diettracker.db.repositories</ID>
+    <ID>InvalidPackageDeclaration:DiaryService.kt$package diettracker.services</ID>
+    <ID>InvalidPackageDeclaration:Food.kt$package diettracker.models</ID>
+    <ID>InvalidPackageDeclaration:FoodDiaryRoutes.kt$package diettracker.routing</ID>
+    <ID>InvalidPackageDeclaration:FoodLogItem.kt$package diettracker.db.tables</ID>
+    <ID>InvalidPackageDeclaration:FoodLogs.kt$package diettracker.db.tables</ID>
+    <ID>InvalidPackageDeclaration:FoodRoutes.kt$package diettracker.routing</ID>
+    <ID>InvalidPackageDeclaration:Foods.kt$package diettracker.db.tables</ID>
+    <ID>InvalidPackageDeclaration:ProfDatabase.kt$package diettracker</ID>
+    <ID>InvalidPackageDeclaration:ProfServices.kt$package diettracker</ID>
+    <ID>InvalidPackageDeclaration:Professional.kt$package diettracker.models</ID>
+    <ID>InvalidPackageDeclaration:Professionals.kt$package diettracker.db.tables</ID>
+    <ID>InvalidPackageDeclaration:Recipe.kt$package diettracker.models</ID>
+    <ID>InvalidPackageDeclaration:RecipeDatabaseQuery.kt$package diettracker</ID>
+    <ID>InvalidPackageDeclaration:RecipeDetails.kt$package diettracker.models</ID>
+    <ID>InvalidPackageDeclaration:RecipeIngredients.kt$package diettracker.db.tables</ID>
+    <ID>InvalidPackageDeclaration:RecipeReviewDetail.kt$package diettracker.models</ID>
+    <ID>InvalidPackageDeclaration:RecipeReviews.kt$package diettracker.db.tables</ID>
+    <ID>InvalidPackageDeclaration:RecipeSummary.kt$package diettracker.models</ID>
+    <ID>InvalidPackageDeclaration:Recipes.kt$package diettracker.db.tables</ID>
+    <ID>InvalidPackageDeclaration:Roles.kt$package diettracker.db.tables</ID>
+    <ID>InvalidPackageDeclaration:Routing.kt$package diettracker</ID>
+    <ID>InvalidPackageDeclaration:Templating.kt$package diettracker</ID>
+    <ID>InvalidPackageDeclaration:TemporaryRecipeSeeder.kt$package diettracker</ID>
+    <ID>InvalidPackageDeclaration:User.kt$package diettracker.models</ID>
+    <ID>InvalidPackageDeclaration:UserDatabase.kt$package diettracker</ID>
+    <ID>InvalidPackageDeclaration:UserFavouritedRecipes.kt$package diettracker.db.tables</ID>
+    <ID>InvalidPackageDeclaration:UserPreferencesRoutes.kt$package diettracker.routes</ID>
+    <ID>InvalidPackageDeclaration:UserPreferencesService.kt$package diettracker.services</ID>
+    <ID>InvalidPackageDeclaration:UserRoles.kt$package diettracker.db.tables</ID>
+    <ID>InvalidPackageDeclaration:UserSession.kt$package diettracker</ID>
+    <ID>InvalidPackageDeclaration:Users.kt$package diettracker.db.tables</ID>
+    <ID>MagicNumber:TemporaryRecipeSeeder.kt$TemporaryRecipeSeeder$200</ID>
+    <ID>MagicNumber:TemporaryRecipeSeeder.kt$TemporaryRecipeSeeder$299</ID>
+    <ID>MagicNumber:TemporaryRecipeSeeder.kt$TemporaryRecipeSeeder$4</ID>
+    <ID>NewLineAtEndOfFile:Application.kt$diettracker.Application.kt</ID>
+    <ID>NewLineAtEndOfFile:AuthServices.kt$diettracker.AuthServices.kt</ID>
+    <ID>NewLineAtEndOfFile:ClientProfessionalLink.kt$diettracker.db.tables.ClientProfessionalLink.kt</ID>
+    <ID>NewLineAtEndOfFile:Clients.kt$diettracker.db.tables.Clients.kt</ID>
+    <ID>NewLineAtEndOfFile:DbConstants.kt$diettracker.db.DbConstants.kt</ID>
+    <ID>NewLineAtEndOfFile:FoodLogItem.kt$diettracker.db.tables.FoodLogItem.kt</ID>
+    <ID>NewLineAtEndOfFile:FoodLogs.kt$diettracker.db.tables.FoodLogs.kt</ID>
+    <ID>NewLineAtEndOfFile:Foods.kt$diettracker.db.tables.Foods.kt</ID>
+    <ID>NewLineAtEndOfFile:Professionals.kt$diettracker.db.tables.Professionals.kt</ID>
+    <ID>NewLineAtEndOfFile:RecipeIngredients.kt$diettracker.db.tables.RecipeIngredients.kt</ID>
+    <ID>NewLineAtEndOfFile:Recipes.kt$diettracker.db.tables.Recipes.kt</ID>
+    <ID>NewLineAtEndOfFile:Roles.kt$diettracker.db.tables.Roles.kt</ID>
+    <ID>NewLineAtEndOfFile:UserRoles.kt$diettracker.db.tables.UserRoles.kt</ID>
+    <ID>NewLineAtEndOfFile:UserSession.kt$diettracker.UserSession.kt</ID>
+    <ID>NewLineAtEndOfFile:Users.kt$diettracker.db.tables.Users.kt</ID>
+    <ID>NoConsecutiveBlankLines:Templating.kt$ </ID>
+    <ID>ReturnCount:TemporaryRecipeSeeder.kt$TemporaryRecipeSeeder$private fun estimateQuantityInGrams(measureText: String?, ingredientName: String): BigDecimal</ID>
+    <ID>ReturnCount:TemporaryRecipeSeeder.kt$TemporaryRecipeSeeder$private fun parseCount(text: String, ingredientName: String): BigDecimal?</ID>
+    <ID>ReturnCount:TemporaryRecipeSeeder.kt$TemporaryRecipeSeeder$private fun parseMass(text: String): BigDecimal?</ID>
+    <ID>ReturnCount:TemporaryRecipeSeeder.kt$TemporaryRecipeSeeder$private fun parseVolume(text: String): BigDecimal?</ID>
+    <ID>TooGenericExceptionCaught:TemporaryRecipeSeeder.kt$TemporaryRecipeSeeder$e: Exception</ID>
+    <ID>TooManyFunctions:TemporaryRecipeSeeder.kt$TemporaryRecipeSeeder</ID>
+    <ID>Wrapping:Templating.kt$(</ID>
+  </CurrentIssues>
+</SmellBaseline>
