@@ -9,6 +9,7 @@ import diettracker.foodLogReset
 import diettracker.getSavedMeals
 import diettracker.getUserIdByEmail
 import diettracker.saveCurrentMeal
+import diettracker.saveCurrentFoodLog
 import diettracker.searchFoods
 import diettracker.searchRecipes
 import io.ktor.server.pebble.respondTemplate
@@ -94,6 +95,7 @@ private fun Route.configureFoodPostRoutes() {
     post("/food_log_reset") { call.foodLogReset() }
     post("/save_meal") { call.saveCurrentMeal() }
     post("/add_saved_meal_to_log") { call.addSavedMealToLog() }
+    post("/save_food_log") { call.saveCurrentFoodLog() }
 }
 
 private fun Route.configureRecipeSearchRoute() {

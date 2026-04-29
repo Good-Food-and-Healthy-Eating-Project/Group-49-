@@ -92,10 +92,6 @@ fun Route.configurePublicRoutes() {
         get("/logout") { call.logout() }
     }
 
-    get("/diary") {
-        call.respond(PebbleContent("pages/client_dash/food_diary.peb", mapOf("showNavbar" to true)))
-    }
-
     configureRecipeRoutes()
 
     get("/health") {

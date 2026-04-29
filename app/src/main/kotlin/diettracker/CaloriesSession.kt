@@ -7,6 +7,8 @@ import diettracker.models.CurrentMealFood
 import diettracker.models.CurrentMealSession
 import diettracker.models.Food
 import diettracker.models.Recipe
+import diettracker.services.DiaryService.getMealTypeByTime
+import diettracker.services.DiaryService.saveFoodLog
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.pebble.respondTemplate
 import io.ktor.server.request.receiveParameters
@@ -50,7 +52,6 @@ suspend fun ApplicationCall.foodLogRecipe() {
     var addProtein = 0
     var addFat = 0
     var addCarbs = 0
-    val currentMealFoods = mutableListOf<CurrentMealFood>()
     val params = receiveParameters()
     val recipeIdStr = params["recipeId"]
     val recipeid = recipeIdStr?.toIntOrNull()
@@ -65,7 +66,7 @@ suspend fun ApplicationCall.foodLogRecipe() {
         )
         return
     }
-
+    val foodsToAdd = mutableListOf<CurrentMealFood>()
     transaction {
         val ingredients =
             RecipeIngredients
@@ -85,6 +86,8 @@ suspend fun ApplicationCall.foodLogRecipe() {
             addProtein += protein
             addFat += fat
             addCarbs += carbs
+
+            foodsToAdd.add(CurrentMealFood(foodId, grams))
         }
     }
 
@@ -95,8 +98,12 @@ suspend fun ApplicationCall.foodLogRecipe() {
     val newTotalCarbs = caloriesSession.carbs + addCarbs
 
     sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
-    val currentMealSession = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
-    sessions.set(CurrentMealSession(currentMealSession.foods + currentMealFoods))
+    val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
+    sessions.set(
+        CurrentMealSession(
+            currentMeal.foods + foodsToAdd,
+        ),
+    )
     respondRedirect("/food_log")
 }
 
@@ -140,10 +147,10 @@ suspend fun ApplicationCall.foodLogCustom() {
     val newTotalCarbs = caloriesSession.carbs + addCarbs
 
     sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
-    val currentMealSession = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
+    val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
     sessions.set(
         CurrentMealSession(
-            currentMealSession.foods + CurrentMealFood(foodId = foodId, grams = grams),
+            currentMeal.foods + CurrentMealFood(foodId = foodId, grams = grams),
         ),
     )
 
@@ -154,11 +161,7 @@ fun searchRecipes(query: String): List<Recipe> =
     transaction {
         val searchTerm = query.lowercase()
 
-        if (searchTerm.isBlank()) {
-            return@transaction emptyList<Recipe>()
-        }
-
-        if (searchTerm.any { it.isDigit() }) {
+        if (searchTerm.isBlank() || searchTerm.any { it.isDigit() }) {
             return@transaction emptyList<Recipe>()
         }
 
@@ -180,11 +183,7 @@ fun searchFoods(foodquery: String): List<Food> =
     transaction {
         val searchTerm = foodquery.lowercase()
 
-        if (searchTerm.isBlank()) {
-            return@transaction emptyList<Food>()
-        }
-
-        if (searchTerm.any { it.isDigit() }) {
+        if (searchTerm.isBlank() || searchTerm.any { it.isDigit() }) {
             return@transaction emptyList<Food>()
         }
 
@@ -273,9 +272,34 @@ fun calcCarbsById(
         return@transaction (carbsPer100g * multiplier).toInt()
     }
 }
-
 suspend fun ApplicationCall.foodLogReset() {
     sessions.set(CaloriesSession(0, 0, 0, 0))
     sessions.set(CurrentMealSession(emptyList()))
     respondRedirect("/food_log")
+}
+
+suspend fun ApplicationCall.saveCurrentFoodLog() {
+    val mealType = getMealTypeByTime()
+    val notes = ""
+    val userSession = sessions.get<UserSession>()
+    val userId = userSession?.let { getUserIdByEmail(it.email) }
+    val currentMealSession = sessions.get<CurrentMealSession>()
+
+    when {
+        userId == null -> respondRedirect("/login")
+        currentMealSession == null || currentMealSession.foods.isEmpty() -> respondRedirect("/food_log")
+        else -> {
+            saveFoodLog(
+                userId = userId,
+                mealType = mealType,
+                notes = notes,
+                foods = currentMealSession.foods,
+            )
+
+            sessions.set(CaloriesSession(0, 0, 0, 0))
+            sessions.set(CurrentMealSession(emptyList()))
+
+            respondRedirect("/food_log")
+        }
+    }
 }
