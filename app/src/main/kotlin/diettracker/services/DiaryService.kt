@@ -1,14 +1,23 @@
 package diettracker.services
 
 import diettracker.db.repositories.DiaryRepository
-import diettracker.db.repositories.FoodLogRecord
-import diettracker.db.repositories.NutritionTotals
-import java.time.DayOfWeek
+import diettracker.db.tables.FoodLogItems
+import diettracker.db.tables.FoodLogs
+import diettracker.models.CurrentMealFood
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.math.BigDecimal
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalAdjusters
 import kotlin.math.roundToInt
+
+private const val BREAKFAST_START_HOUR = 5
+private const val BREAKFAST_END_HOUR = 11
+private const val LUNCH_START_HOUR = 12
+private const val LUNCH_END_HOUR = 16
+private const val DINNER_START_HOUR = 17
+private const val DINNER_END_HOUR = 22
 
 data class DayDiarySummary(
     val name: String,
@@ -67,15 +76,8 @@ data class DailyDiaryDetailViewModel(
     val meals: List<MealDiaryDetailViewModel>,
 )
 
-private const val ZERO_NUTRITION = 0.0
-private const val WEEK_OFFSET_END_DAYS = 6L
-private const val WEEK_OFFSET_START_DAYS = 0L
-
-@Suppress("TooManyFunctions")
 object DiaryService {
     private val appZone: ZoneId = ZoneId.systemDefault()
-    private val dayFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE d MMM")
-    private val weekFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM yyyy")
 
     fun getWeeklyDiaryView(
         userId: Int,
@@ -95,7 +97,6 @@ object DiaryService {
         val days =
             getWeekDates(weekStartDate).map { date ->
                 buildDayDiarySummary(
-                    userId = userId,
                     date = date,
                     logs = groupedLogs[date].orEmpty(),
                     nutritionByLogId = nutritionByLogId,
@@ -107,8 +108,8 @@ object DiaryService {
 
         return WeeklyDiaryViewModel(
             selectedWeekLabel = formatWeekLabel(weekStartDate, weekEndDate),
-            weekStart = weekStartDate.format(weekFormatter),
-            weekEnd = weekEndDate.format(weekFormatter),
+            weekStart = formatWeekDate(weekStartDate),
+            weekEnd = formatWeekDate(weekEndDate),
             availableWeeks = weekOptions,
             days = days,
             weekHasEntries = days.any { it.hasEntries },
@@ -165,116 +166,40 @@ object DiaryService {
         )
     }
 
-    private fun getWeekStart(date: LocalDate): LocalDate {
-        return date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-    }
-
-    @Suppress("MagicNumber")
-    private fun getWeekEnd(weekStart: LocalDate): LocalDate {
-        return weekStart.plusDays(WEEK_OFFSET_END_DAYS)
-    }
-
-    @Suppress("MagicNumber")
-    private fun getWeekDates(weekStart: LocalDate): List<LocalDate> {
-        return (WEEK_OFFSET_START_DAYS..WEEK_OFFSET_END_DAYS).map { weekStart.plusDays(it) }
-    }
-
-    private fun groupLogsByDate(logs: List<FoodLogRecord>): Map<LocalDate, List<FoodLogRecord>> {
-        return logs.groupBy { it.logDate.atZone(appZone).toLocalDate() }
-    }
-
-    private fun buildDayDiarySummary(
+    fun saveFoodLog(
         userId: Int,
-        date: LocalDate,
-        logs: List<FoodLogRecord>,
-        nutritionByLogId: Map<Int, NutritionTotals>,
-    ): DayDiarySummary {
-        val hasEntries = logs.isNotEmpty()
-        val mealCount = logs.size
-        val totals = getNutritionTotalsForDay(logs, nutritionByLogId)
-
-        return DayDiarySummary(
-            name = date.dayOfWeek.name.lowercase().replaceFirstChar { it.uppercase() },
-            dateLabel = formatDateLabel(date),
-            totalCalories = if (hasEntries) totals.calories.roundToInt() else null,
-            protein = if (hasEntries) totals.protein.roundToInt() else null,
-            carbs = if (hasEntries) totals.carbs.roundToInt() else null,
-            fats = if (hasEntries) totals.fats.roundToInt() else null,
-            mealCount = mealCount,
-            status = getDayStatus(hasEntries),
-            hasEntries = hasEntries,
-            viewUrl = buildDayViewUrl(userId, date, hasEntries),
-        )
-    }
-
-    private fun getNutritionTotalsForDay(
-        logs: List<FoodLogRecord>,
-        nutritionByLogId: Map<Int, NutritionTotals>,
-    ): NutritionTotals {
-        return logs
-            .mapNotNull { log -> nutritionByLogId[log.foodLogId] }
-            .fold(emptyNutritionTotals()) { acc, current ->
-                NutritionTotals(
-                    calories = acc.calories + current.calories,
-                    protein = acc.protein + current.protein,
-                    carbs = acc.carbs + current.carbs,
-                    fats = acc.fats + current.fats,
-                )
+        mealType: String,
+        notes: String,
+        foods: List<CurrentMealFood>,
+    ): Int =
+        transaction {
+            val foodLogId =
+                FoodLogs.insert {
+                    it[FoodLogs.user_id] = userId
+                    it[FoodLogs.log_date] = Instant.now()
+                    it[FoodLogs.meal_type] = mealType
+                    it[FoodLogs.notes] = notes
+                }[FoodLogs.food_log_id]
+            for (food in foods) {
+                FoodLogItems.insert {
+                    it[FoodLogItems.food_log_id] = foodLogId
+                    it[FoodLogItems.food_id] = food.foodId
+                    it[FoodLogItems.quantity_g] = BigDecimal(food.grams)
+                }
             }
-    }
+            foodLogId
+        }
 
-    private fun getDayStatus(hasEntries: Boolean): String {
-        return if (hasEntries) "Meals logged" else "No meals logged"
-    }
-
-    private fun buildAvailableWeekOptions(
-        availableWeeks: List<LocalDate>,
-        selectedWeekStart: LocalDate,
-    ): List<WeekOption> {
-        val uniqueWeeks =
-            (availableWeeks + selectedWeekStart)
-                .distinct()
-                .sortedDescending()
-
-        return uniqueWeeks.map { weekStart ->
-            val weekEnd = getWeekEnd(weekStart)
-            WeekOption(
-                value = weekStart.toString(),
-                label = formatWeekLabel(weekStart, weekEnd),
-                selected = weekStart == selectedWeekStart,
-            )
+    fun getMealTypeByTime(): String {
+        val hour =
+            Instant.now()
+                .atZone(ZoneId.systemDefault())
+                .hour
+        return when (hour) {
+            in BREAKFAST_START_HOUR..BREAKFAST_END_HOUR -> "Breakfast"
+            in LUNCH_START_HOUR..LUNCH_END_HOUR -> "Lunch"
+            in DINNER_START_HOUR..DINNER_END_HOUR -> "Dinner"
+            else -> "Snack"
         }
     }
-
-    private fun formatWeekLabel(
-        weekStart: LocalDate,
-        weekEnd: LocalDate,
-    ): String {
-        return "${weekStart.format(weekFormatter)} - ${weekEnd.format(weekFormatter)}"
-    }
-
-    private fun formatDateLabel(date: LocalDate): String {
-        return date.format(dayFormatter)
-    }
-
-    private fun buildDayViewUrl(
-        @Suppress("UNUSED_PARAMETER")
-        userId: Int,
-        date: LocalDate,
-        hasEntries: Boolean,
-    ): String? {
-        return if (hasEntries) {
-            "/food_diary/day?date=$date"
-        } else {
-            null
-        }
-    }
-
-    private fun emptyNutritionTotals(): NutritionTotals =
-        NutritionTotals(
-            calories = ZERO_NUTRITION,
-            protein = ZERO_NUTRITION,
-            carbs = ZERO_NUTRITION,
-            fats = ZERO_NUTRITION,
-        )
 }
