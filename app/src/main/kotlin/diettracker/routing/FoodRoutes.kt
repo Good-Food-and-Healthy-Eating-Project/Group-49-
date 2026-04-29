@@ -8,8 +8,8 @@ import diettracker.foodLogRecipe
 import diettracker.foodLogReset
 import diettracker.getSavedMeals
 import diettracker.getUserIdByEmail
-import diettracker.saveCurrentMeal
 import diettracker.saveCurrentFoodLog
+import diettracker.saveCurrentMeal
 import diettracker.searchFoods
 import diettracker.searchRecipes
 import io.ktor.server.pebble.respondTemplate

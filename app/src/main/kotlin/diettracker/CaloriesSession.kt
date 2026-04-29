@@ -77,7 +77,7 @@ suspend fun ApplicationCall.foodLogRecipe() {
         for (i in ingredients) {
             val foodId = i[RecipeIngredients.food_id]
             val grams = i[RecipeIngredients.quantity_g].toInt()
-            currentMealFoods += CurrentMealFood(foodId = foodId, grams = grams)
+            foodsToAdd += CurrentMealFood(foodId = foodId, grams = grams)
             val calories = calcCalcsById(foodId, grams)
             val protein = calcProteinById(foodId, grams)
             val fat = calcFatById(foodId, grams)
@@ -205,73 +205,6 @@ fun searchFoods(foodquery: String): List<Food> =
         return@transaction foods
     }
 
-fun calcCalcsById(
-    foodid: Int,
-    grams: Int,
-): Int {
-    return transaction {
-        val multiplier = grams / GRAMS_PER_SERVING.toDouble()
-        val caloriesPer100g =
-            Foods
-                .selectAll()
-                .where { Foods.food_id eq foodid }
-                .map { row -> row[Foods.calories_per_100g].toDouble().toInt() }
-                .firstOrNull() ?: return@transaction 0
-
-        return@transaction (caloriesPer100g * multiplier).toInt()
-    }
-}
-
-fun calcProteinById(
-    foodid: Int,
-    grams: Int,
-): Int {
-    return transaction {
-        val multiplier = grams / GRAMS_PER_SERVING.toDouble()
-        val proteinPer100g =
-            Foods
-                .selectAll()
-                .where { Foods.food_id eq foodid }
-                .map { row -> row[Foods.protein_per_100g].toDouble().toInt() }
-                .firstOrNull() ?: return@transaction 0
-
-        return@transaction (proteinPer100g * multiplier).toInt()
-    }
-}
-
-fun calcFatById(
-    foodid: Int,
-    grams: Int,
-): Int {
-    return transaction {
-        val multiplier = grams / GRAMS_PER_SERVING.toDouble()
-        val fatPer100g =
-            Foods
-                .selectAll()
-                .where { Foods.food_id eq foodid }
-                .map { row -> row[Foods.fat_per_100g].toDouble().toInt() }
-                .firstOrNull() ?: return@transaction 0
-
-        return@transaction (fatPer100g * multiplier).toInt()
-    }
-}
-
-fun calcCarbsById(
-    foodid: Int,
-    grams: Int,
-): Int {
-    return transaction {
-        val multiplier = grams / GRAMS_PER_SERVING.toDouble()
-        val carbsPer100g =
-            Foods
-                .selectAll()
-                .where { Foods.food_id eq foodid }
-                .map { row -> row[Foods.carbs_per_100g].toDouble().toInt() }
-                .firstOrNull() ?: return@transaction 0
-
-        return@transaction (carbsPer100g * multiplier).toInt()
-    }
-}
 suspend fun ApplicationCall.foodLogReset() {
     sessions.set(CaloriesSession(0, 0, 0, 0))
     sessions.set(CurrentMealSession(emptyList()))
