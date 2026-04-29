@@ -27,10 +27,8 @@ fun Route.configureFoodRoutes() {
 
 private fun Route.configureFoodLogRoute() {
     get("/food_log") {
-        if (call.sessions.get<UserSession>() == null) {
-            call.respondRedirect("/Login")
-            return@get
-        }
+        call.sessions.get<UserSession>() ?: return@get call.respondRedirect("/Login")
+
         val recipeQuery = call.request.queryParameters["query"]
         val foodQuery = call.request.queryParameters["foodquery"]
 
