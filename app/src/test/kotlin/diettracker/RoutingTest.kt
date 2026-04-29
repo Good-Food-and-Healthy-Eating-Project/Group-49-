@@ -2,10 +2,14 @@ package diettracker
 
 import TestDatabaseFactory
 import diettracker.db.tables.Users
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.formUrlEncode
 import io.ktor.server.testing.testApplication
@@ -19,6 +23,30 @@ import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+
+private suspend fun HttpClient.loginTestUser() {
+    post("/Login") {
+        contentType(ContentType.Application.FormUrlEncoded)
+        setBody(
+            listOf(
+                "email" to "test@test.com",
+                "password" to "test@test.com",
+            ).formUrlEncode(),
+        )
+    }
+}
+
+private suspend fun HttpClient.loginProTestUser() {
+    post("/Professional-Login") {
+        contentType(ContentType.Application.FormUrlEncoded)
+        setBody(
+            listOf(
+                "email" to "testpro@test.com",
+                "password" to "testpro@test.com",
+            ).formUrlEncode(),
+        )
+    }
+}
 
 class RoutingTest {
     @BeforeEach
@@ -42,6 +70,15 @@ class RoutingTest {
     fun should_return_ok_for_heath_check() =
         testApplication {
             application { module(testing = true) }
+
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+
+            client.loginTestUser()
+
             val result = client.get("/health")
             assertEquals(200, result.status.value)
         }
@@ -50,6 +87,14 @@ class RoutingTest {
     fun should_load_landing_page() =
         testApplication {
             application { module(testing = true) }
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+
+            client.loginTestUser()
+
             val result = client.get("/")
             assertEquals(200, result.status.value)
         }
@@ -67,6 +112,54 @@ class RoutingTest {
         testApplication {
             application { module(testing = true) }
             val result = client.get("/Sign-Up")
+            assertEquals(200, result.status.value)
+        }
+
+    @Test
+    fun should_load_professional_signup_page() =
+        testApplication {
+            application { module(testing = true) }
+            val result = client.get("/Professional-Sign-Up")
+            assertEquals(200, result.status.value)
+        }
+
+    @Test
+    fun should_load_professional_login_page() =
+        testApplication {
+            application { module(testing = true) }
+            val result = client.get("/Professional-Login")
+            assertEquals(200, result.status.value)
+        }
+
+    @Test
+    fun should_load_food_diary_day_page() =
+        testApplication {
+            application { module(testing = true) }
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+
+            client.loginTestUser()
+
+            val result = client.get("/food_diary/day")
+            assertEquals(200, result.status.value)
+        }
+
+    @Test
+    fun should_load_professional_page() =
+        testApplication {
+            application { module(testing = true) }
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+
+            client.loginProTestUser()
+
+            val result = client.get("/professionals")
             assertEquals(200, result.status.value)
         }
 
@@ -113,7 +206,6 @@ class RoutingTest {
             assertEquals(400, result.status.value)
         }
 
-    // now return 200 but it should be 400
     @Test
     fun should_signup_fail_when_have_same_eamil() =
         testApplication {
@@ -158,11 +250,12 @@ class RoutingTest {
                         listOf(
                             "email" to "test@test.com",
                             "password" to "wrongpassword@test.com",
-                        )
-                            .formUrlEncode(),
+                        ).formUrlEncode(),
                     )
                 }
+            val body = result.bodyAsText()
             assertEquals(200, result.status.value)
+            assertTrue(body.contains("Invalid email or password"))
         }
 
     @Test
@@ -199,5 +292,23 @@ class RoutingTest {
                     setBody(listOf("" to "").formUrlEncode())
                 }
             assertEquals(400, result.status.value)
+        }
+
+    @Test
+    fun should_redirect_to_client_dash_when_login_success() =
+        testApplication {
+            application { module(testing = true) }
+            val result =
+                client.post("/Login") {
+                    contentType(ContentType.Application.FormUrlEncoded)
+                    setBody(
+                        listOf(
+                            "email" to "test@test.com",
+                            "password" to "test@test.com",
+                        ).formUrlEncode(),
+                    )
+                }
+            assertEquals(302, result.status.value)
+            assertEquals("/client_dash", result.headers[HttpHeaders.Location])
         }
 }

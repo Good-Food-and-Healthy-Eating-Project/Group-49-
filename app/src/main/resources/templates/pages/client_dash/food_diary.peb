@@ -168,4 +168,3 @@ Food Diary
     </section>
 </section>
 {% endblock %}
-
