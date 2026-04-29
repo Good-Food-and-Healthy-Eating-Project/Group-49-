@@ -470,6 +470,7 @@ a:hover { color: var(--brown); }
     color: #6b6a6a;
     cursor: default;
 }
+/* Use ChatGPT to help understand how to use tooltips. */
 .tooltip {
     position: absolute;
     bottom: 120%;
