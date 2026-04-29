@@ -87,6 +87,9 @@
                 <form method="post" action="/food_log_reset">
                     <button type="submit">Reset</button>
                 </form>
+                <form method="post" action="/save_food_log">
+                    <button type="submit">Add to diary</button>
+                </form>
             </div>
 
             <!-- RIGHT: Recipes + Custom -->
