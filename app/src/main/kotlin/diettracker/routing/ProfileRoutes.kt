@@ -42,12 +42,13 @@ fun Route.profileRoutes() {
                                 "gender" to row[Clients.gender],
                                 "daily_calorie_goal" to row[Clients.daily_calorie_goal],
                             )
-                        }.firstOrNull()
+                        }.single()
                 }
                 call.respondTemplate(
                     "pages/client_dash/profile.peb",
                     mapOf("userinfo" to userinfo,
-                    "showNavbar" to true),
+                    "showNavbar" to true,
+                    "email" to email),
                 )
             }
         }

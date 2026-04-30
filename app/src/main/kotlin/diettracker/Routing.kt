@@ -24,6 +24,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDate
+import diettracker.routing.profileRoutes
 
 private const val MAX_REVIEW_RATING = 5
 private const val MIN_YEAR = 1900
@@ -58,6 +59,7 @@ fun Route.configurePublicRoutes() {
     configureClientDashboardRoute()
     configureFoodRoutes()
     foodDiaryRoutes()
+    profileRoutes()
 
     authenticate("group49-client_auth") {
         get("/") { call.dashboardPage() }
