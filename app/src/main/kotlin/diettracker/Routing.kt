@@ -3,6 +3,7 @@ package diettracker
 import diettracker.db.tables.Clients
 import diettracker.routes.quizRoutes
 import diettracker.routing.configureFoodRoutes
+import diettracker.routing.configureMessageRoutes
 import diettracker.routing.foodDiaryRoutes
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -85,6 +86,7 @@ fun Route.configurePublicRoutes() {
     }
 
     configureFoodRoutes()
+    configureMessageRoutes()
     foodDiaryRoutes()
 
     authenticate("group49-client_auth") {

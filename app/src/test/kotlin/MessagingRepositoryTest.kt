@@ -37,10 +37,10 @@ class MessagingRepositoryTest {
         val clientId = createClientUser("client@test.com")
         val professionalId = createProfessionalUser("professional@test.com")
 
-        val first = MessagingRepository.findOrCreateConversation(clientId, professionalId)
-        val second = MessagingRepository.findOrCreateConversation(clientId, professionalId)
+        val first = MessagingRepository.findOrCreateChat(clientId, professionalId)
+        val second = MessagingRepository.findOrCreateChat(clientId, professionalId)
 
-        assertEquals(first.conversationId, second.conversationId)
+        assertEquals(first.chatId, second.chatId)
         transaction {
             assertEquals(1, Chats.selectAll().count())
         }
@@ -50,13 +50,13 @@ class MessagingRepositoryTest {
     fun should_create_and_list_messages_in_created_order() {
         val clientId = createClientUser("client2@test.com")
         val professionalId = createProfessionalUser("professional2@test.com")
-        val conversation = MessagingRepository.findOrCreateConversation(clientId, professionalId)
+        val conversation = MessagingRepository.findOrCreateChat(clientId, professionalId)
 
-        val firstMessage = MessagingRepository.createMessage(conversation.conversationId, clientId, "Hello")
+        val firstMessage = MessagingRepository.createMessage(conversation.chatId, clientId, "Hello")
         val secondMessage =
-            MessagingRepository.createMessage(conversation.conversationId, professionalId, "Hi there")
+            MessagingRepository.createMessage(conversation.chatId, professionalId, "Hi there")
 
-        val messages = MessagingRepository.listMessagesForConversation(conversation.conversationId)
+        val messages = MessagingRepository.listMessagesForChat(conversation.chatId)
 
         assertEquals(2, messages.size)
         assertEquals(firstMessage.messageId, messages[0].messageId)
@@ -75,11 +75,11 @@ class MessagingRepositoryTest {
                 firstName = "Priya",
                 lastName = "Pro",
             )
-        val conversation = MessagingRepository.findOrCreateConversation(clientId, professionalId)
-        MessagingRepository.createMessage(conversation.conversationId, clientId, "Initial message")
-        MessagingRepository.createMessage(conversation.conversationId, professionalId, "Latest reply")
+        val conversation = MessagingRepository.findOrCreateChat(clientId, professionalId)
+        MessagingRepository.createMessage(conversation.chatId, clientId, "Initial message")
+        MessagingRepository.createMessage(conversation.chatId, professionalId, "Latest reply")
 
-        val summaries = MessagingRepository.listConversationsForUser(clientId)
+        val summaries = MessagingRepository.listChatsForUser(clientId)
 
         assertEquals(1, summaries.size)
         assertEquals(professionalId, summaries[0].otherUserId)
@@ -93,13 +93,13 @@ class MessagingRepositoryTest {
     fun should_mark_only_other_users_unread_messages_as_read() {
         val clientId = createClientUser("client4@test.com")
         val professionalId = createProfessionalUser("professional4@test.com")
-        val conversation = MessagingRepository.findOrCreateConversation(clientId, professionalId)
-        MessagingRepository.createMessage(conversation.conversationId, clientId, "Client message")
-        MessagingRepository.createMessage(conversation.conversationId, professionalId, "Professional message")
+        val conversation = MessagingRepository.findOrCreateChat(clientId, professionalId)
+        MessagingRepository.createMessage(conversation.chatId, clientId, "Client message")
+        MessagingRepository.createMessage(conversation.chatId, professionalId, "Professional message")
 
         val updatedRows =
             MessagingRepository.markUnreadMessagesAsRead(
-                conversationId = conversation.conversationId,
+                chatId = conversation.chatId,
                 viewerUserId = clientId,
             )
 
@@ -127,11 +127,11 @@ class MessagingRepositoryTest {
         val clientId = createClientUser("client5@test.com")
         val professionalId = createProfessionalUser("professional5@test.com")
         val thirdUserId = createClientUser("client6@test.com")
-        val conversation = MessagingRepository.findOrCreateConversation(clientId, professionalId)
+        val conversation = MessagingRepository.findOrCreateChat(clientId, professionalId)
 
-        assertTrue(MessagingRepository.isConversationParticipant(conversation.conversationId, clientId))
-        assertTrue(MessagingRepository.isConversationParticipant(conversation.conversationId, professionalId))
-        assertFalse(MessagingRepository.isConversationParticipant(conversation.conversationId, thirdUserId))
+        assertTrue(MessagingRepository.isChatParticipant(conversation.chatId, clientId))
+        assertTrue(MessagingRepository.isChatParticipant(conversation.chatId, professionalId))
+        assertFalse(MessagingRepository.isChatParticipant(conversation.chatId, thirdUserId))
     }
 
     private fun createClientUser(

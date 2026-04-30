@@ -1,0 +1,68 @@
+{% extends "layouts/base.peb" %}
+
+{% block content %}
+    <section class="messages-page">
+        <header class="page-header">
+            <h1>Messages</h1>
+            <p>Review your conversations and open a thread to read the full message history.</p>
+        </header>
+
+        <div class="messages-layout">
+            <aside class="messages-sidebar">
+                <div class="messages-panel">
+                    <h2>Conversations</h2>
+
+                    {% if chats is empty %}
+                        <p class="messages-empty">No conversations yet.</p>
+                    {% else %}
+                        <div class="conversation-list">
+                            {% for chat in chats %}
+                                <a
+                                    href="/messages/{{ chat.chatId }}"
+                                    class="conversation-link {% if hasSelectedChat and selectedChat.chatId == chat.chatId %}conversation-link--active{% endif %}"
+                                >
+                                    <div class="conversation-link-header">
+                                        <strong>{{ chat.otherUserFirstName }} {{ chat.otherUserLastName }}</strong>
+                                        {% if chat.lastMessageAt %}
+                                            <span>{{ chat.lastMessageAt }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <p>{{ chat.lastMessageBody ?: "No messages yet." }}</p>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </aside>
+
+            <section class="messages-thread">
+                <div class="messages-panel messages-thread-panel">
+                    {% if hasSelectedChat %}
+                        <div class="thread-header">
+                            <h2>{{ selectedChat.otherUserFirstName }} {{ selectedChat.otherUserLastName }}</h2>
+                            <p>Conversation #{{ selectedChat.chatId }}</p>
+                        </div>
+
+                        {% if messages is empty %}
+                            <p class="messages-empty">No messages in this conversation yet.</p>
+                        {% else %}
+                            <div class="thread-messages">
+                                {% for message in messages %}
+                                    <article class="message-bubble {% if message.senderUserId == currentUserId %}message-bubble--sent{% else %}message-bubble--received{% endif %}">
+                                        <p>{{ message.body }}</p>
+                                        <span>{{ message.createdAt }}</span>
+                                    </article>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="thread-empty-state">
+                            <h2>Select a conversation</h2>
+                            <p>Choose a conversation from the list to open the thread view.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+        </div>
+    </section>
+{% endblock %}
