@@ -72,7 +72,7 @@ fun Route.quizRoutes() {
     }
 }
 
-private fun calculateDailyCalorieGoal(
+fun calculateDailyCalorieGoal(
     weightKg: Int?,
     heightCm: Int?,
     age: Int?,
