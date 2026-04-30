@@ -116,13 +116,14 @@
                     <form method="post" action="/food_log_recipe">
                         <div class="mode-content">
                             {% if recipes is not empty %}
+                                {% for r in recipes %}
                                     <label>
                                         <input type="radio" name="recipeId" value="{{ r.id }}">
                                         {{ r.name }}
                                     </label><br>
-                    </form>
-                    <form method="post" action="/save_food_log">
+                                {% endfor %}
                             {% else %}
+                                <p>No recipes found</p>
                             {% endif %}
                         </div>
 

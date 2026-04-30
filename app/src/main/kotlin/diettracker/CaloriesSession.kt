@@ -296,4 +296,3 @@ suspend fun ApplicationCall.saveCurrentFoodLog() {
         }
     }
 }
-
