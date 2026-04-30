@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .profile-header {
+            border: 2px solid #bdbdbd;
+            padding: 20px;
+            background: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        .profile-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .profile-info {
+            font-size: 18px;
+            color: #333;
+            margin: 6px 0;
+        }
+
+        .profile-form {
+            border: 2px solid #bdbdbd;
+            padding: 20px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .profile-label {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .profile-form input,
+        .profile-form select {
+            padding: 10px;
+            border: 1px solid #bdbdbd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .update-button {
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    {% include "components/navbar.peb" %}
+
+    <main class="main-content">
+        <div class="profile-container">
+
+            <div class="profile-header">
+                <h1 class="profile-title">Profile</h1>
+
+                {% if userinfo is not null %}
+                    <p class="profile-info">Client ID: {{ userinfo.client_id }}</p>
+                    {% if email is defined %}
+                        <p class="profile-info">Email: {{ email }}</p>
+                    {% endif %}
+                    <p class="profile-info">Daily Calorie Goal: {{ userinfo.daily_calorie_goal }}</p>
+                {% else %}
+                    <p class="profile-info">No profile information found.</p>
+                {% endif %}
+            </div>
+
+            <form method="post" action="/profileupdate" class="profile-form">
+
+                <div class="profile-section">
+                    <label class="profile-label">Height</label>
+                    <input type="number" name="height" placeholder="Current: {{ userinfo.height }}">
+                </div>
+
+                <div class="profile-section">
+                    <label class="profile-label">Weight</label>
+                    <input type="number" name="weight" placeholder="Current: {{ userinfo.weight }}">
+                </div>
+
+                <div class="profile-section">
+                    <label class="profile-label">Age</label>
+                    <input type="number" name="age" placeholder="Current: {{ userinfo.age }}">
+                </div>
+
+                <div class="profile-section">
+                    <label class="profile-label">Gender</label>
+                    <select name="gender">
+                        <option value="">Current: {{ userinfo.gender }}</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+
+                <div class="profile-section">
+                    <label class="profile-label">Goal</label>
+                    <select name="goal">
+                        <option value="">Current: {{ userinfo.goal }}</option>
+                        <option value="lose">Lose weight</option>
+                        <option value="maintain">Maintain weight</option>
+                        <option value="gain">Gain weight</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="update-button">Update</button>
+
+            </form>
+        </div>
+    </main>
+</body>
+</html>
