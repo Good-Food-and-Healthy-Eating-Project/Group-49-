@@ -5,7 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3e8b2f3c-ea88-445f-8f8a-aedd969d0c66" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/services/DashboardServices.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/CaloriesSession.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/CaloriesSession.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/Routing.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/Routing.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodLogRoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodLogRoutingTest.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,7 +44,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.MCP Project settings loaded": "true",
-    "git-widget-placeholder": "bug/Test__errors"
+    "git-widget-placeholder": "feature/client__dash__improvement"
   }
 }]]></component>
   <component name="RunManager">
@@ -115,7 +119,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/kotlin/diettracker/Routing.kt</url>
-          <line>68</line>
+          <line>71</line>
           <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>

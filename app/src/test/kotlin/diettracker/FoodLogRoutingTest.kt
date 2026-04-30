@@ -154,6 +154,17 @@ class FoodLogRoutingTest {
         testApplication {
             application { module(testing = true) }
 
+            val client =
+                createClient {
+                    install(io.ktor.client.plugins.cookies.HttpCookies)
+                    followRedirects = false
+                }
+
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(listOf("email" to "foodlog@test.com", "password" to "foodlog@test.com").formUrlEncode())
+            }
+
             val foodId =
                 transaction {
                     Foods
@@ -169,8 +180,10 @@ class FoodLogRoutingTest {
                             .formUrlEncode(),
                     )
                 }
-            val body = result.bodyAsText()
-            assertEquals(200, result.status.value)
+            val page = client.get("/food_log")
+            val body = page.bodyAsText()
+            assertEquals(302, result.status.value)
+            assertEquals(200, page.status.value)
             assertTrue(body.contains("Total Calories: 220")) // grams / 100 * 110
         }
 

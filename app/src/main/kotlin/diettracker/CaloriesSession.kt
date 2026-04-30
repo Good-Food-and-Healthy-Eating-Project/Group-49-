@@ -178,15 +178,7 @@ suspend fun ApplicationCall.foodLogCustom() {
     val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
     sessions.set(CurrentMealSession(currentMeal.foods + CurrentMealFood(foodId = foodId, grams = grams)))
 
-    respondTemplate(
-        "pages/client_dash/add_food.peb",
-        mapOf(
-            "calories" to newTotalCals,
-            "protein" to newTotalProtein,
-            "fat" to newTotalFat,
-            "carbs" to newTotalCarbs,
-        ),
-    )
+    respondRedirect("/food_log")
 }
 
 fun searchRecipes(query: String): List<Recipe> =
