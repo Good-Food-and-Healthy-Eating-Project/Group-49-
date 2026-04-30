@@ -87,6 +87,11 @@
                 <form method="post" action="/food_log_reset">
                     <button type="submit">Reset</button>
                 </form>
+
+                <form method="post" action="/save_meal">
+                    <input type="text" name="mealName" placeholder="Meal name" required>
+                    <button type="submit">Save meal</button>
+                </form>
                 <form method="post" action="/save_food_log">
                     <button type="submit">Add to diary</button>
                 </form>
@@ -111,14 +116,13 @@
                     <form method="post" action="/food_log_recipe">
                         <div class="mode-content">
                             {% if recipes is not empty %}
-                                {% for r in recipes %}
                                     <label>
                                         <input type="radio" name="recipeId" value="{{ r.id }}">
                                         {{ r.name }}
                                     </label><br>
-                                {% endfor %}
+                    </form>
+                    <form method="post" action="/save_food_log">
                             {% else %}
-                                <p>No recipes found</p>
                             {% endif %}
                         </div>
 
@@ -141,11 +145,11 @@
                             {% if foods is not empty %}
                                 {% for f in foods %}
                                     <label>
-                                        <input type="radio" name="foodId" value="{{ f.id }}">
+                                        <input type="radio" name="foodId" value="{{ f.id }}" required>
                                             {{ f.name }}
                                     </label><br>
                                 {% endfor %}
-                                <input type="number" name="grams" placeholder="Grams">
+                                <input type="number" name="grams" placeholder="Grams" min="1" required>
                             {% else %}
                                 <p>No foods found</p>
                             {% endif %}
@@ -153,7 +157,27 @@
                         <button type="submit">Add</button>
                     </form>
                 </div>
+                <!-- SAVED MEALS SECTION -->
+                <div class="mode-section">
+                    <h3 class="section-title">Saved Meals</h3>
 
+                    <form method="post" action="/add_saved_meal_to_log">
+                        <div class="mode-content">
+                            {% if savedMeals is not empty %}
+                                {% for meal in savedMeals %}
+                                    <label>
+                                        <input type="radio" name="mealId" value="{{ meal.id }}" required>
+                                        {{ meal.name }}
+                                    </label><br>
+                                {% endfor %}
+                            {% else %}
+                                <p>No saved meals found</p>
+                            {% endif %}
+                        </div>
+
+                        <button type="submit">Add saved meal</button>
+                    </form>
+                </div>
             </div>
         </div>
     </main>

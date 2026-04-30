@@ -1,11 +1,15 @@
 package diettracker.routing
 
 import diettracker.CaloriesSession
+import diettracker.UserSession
+import diettracker.addSavedMealToLog
 import diettracker.foodLogCustom
-import diettracker.foodLogPage
 import diettracker.foodLogRecipe
 import diettracker.foodLogReset
+import diettracker.getSavedMeals
+import diettracker.getUserIdByEmail
 import diettracker.saveCurrentFoodLog
+import diettracker.saveCurrentMeal
 import diettracker.searchFoods
 import diettracker.searchRecipes
 import io.ktor.server.pebble.respondTemplate
@@ -28,6 +32,9 @@ private fun Route.configureFoodLogRoute() {
     get("/food_log") {
         val recipeQuery = call.request.queryParameters["query"]
         val foodQuery = call.request.queryParameters["foodquery"]
+        val email = call.sessions.get<UserSession>()?.email
+        val clientId = email?.let { getUserIdByEmail(it) }
+        val savedMeals = clientId?.let { getSavedMeals(it) } ?: emptyList()
 
         val session = call.sessions.get<CaloriesSession>()
         val calories = session?.calories ?: 0
@@ -46,6 +53,7 @@ private fun Route.configureFoodLogRoute() {
                         "protein" to protein,
                         "fat" to fat,
                         "carbs" to carbs,
+                        "savedMeals" to savedMeals,
                     ),
                 )
             }
@@ -60,11 +68,23 @@ private fun Route.configureFoodLogRoute() {
                         "protein" to protein,
                         "fat" to fat,
                         "carbs" to carbs,
+                        "savedMeals" to savedMeals,
                     ),
                 )
             }
 
-            else -> call.foodLogPage()
+            else -> {
+                call.respondTemplate(
+                    "pages/client_dash/add_food.peb",
+                    mapOf(
+                        "calories" to calories,
+                        "protein" to protein,
+                        "fat" to fat,
+                        "carbs" to carbs,
+                        "savedMeals" to savedMeals,
+                    ),
+                )
+            }
         }
     }
 }
@@ -73,6 +93,8 @@ private fun Route.configureFoodPostRoutes() {
     post("/food_log_recipe") { call.foodLogRecipe() }
     post("/food_log_custom") { call.foodLogCustom() }
     post("/food_log_reset") { call.foodLogReset() }
+    post("/save_meal") { call.saveCurrentMeal() }
+    post("/add_saved_meal_to_log") { call.addSavedMealToLog() }
     post("/save_food_log") { call.saveCurrentFoodLog() }
 }
 
@@ -80,6 +102,9 @@ private fun Route.configureRecipeSearchRoute() {
     get("/recipe_search") {
         val query = call.request.queryParameters["query"] ?: ""
         val recipes = searchRecipes(query)
+        val email = call.sessions.get<UserSession>()?.email
+        val clientId = email?.let { getUserIdByEmail(it) }
+        val savedMeals = clientId?.let { getSavedMeals(it) } ?: emptyList()
 
         val session = call.sessions.get<CaloriesSession>()
         val calories = session?.calories ?: 0
@@ -95,6 +120,7 @@ private fun Route.configureRecipeSearchRoute() {
                 "protein" to protein,
                 "fat" to fat,
                 "carbs" to carbs,
+                "savedMeals" to savedMeals,
             ),
         )
     }
@@ -105,6 +131,9 @@ private fun Route.configureFoodSearchRoute() {
         val query = call.request.queryParameters["foodquery"] ?: ""
         val foods = searchFoods(query)
         val grams = call.request.queryParameters["grams"]?.toIntOrNull() ?: DEFAULT_GRAMS
+        val email = call.sessions.get<UserSession>()?.email
+        val clientId = email?.let { getUserIdByEmail(it) }
+        val savedMeals = clientId?.let { getSavedMeals(it) } ?: emptyList()
 
         val session = call.sessions.get<CaloriesSession>()
         val calories = session?.calories ?: 0
@@ -121,6 +150,7 @@ private fun Route.configureFoodSearchRoute() {
                 "fat" to fat,
                 "carbs" to carbs,
                 "grams" to grams,
+                "savedMeals" to savedMeals,
             ),
         )
     }

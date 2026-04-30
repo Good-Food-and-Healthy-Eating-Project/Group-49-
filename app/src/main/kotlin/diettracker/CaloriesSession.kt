@@ -77,6 +77,7 @@ suspend fun ApplicationCall.foodLogRecipe() {
         for (i in ingredients) {
             val foodId = i[RecipeIngredients.food_id]
             val grams = i[RecipeIngredients.quantity_g].toInt()
+            foodsToAdd += CurrentMealFood(foodId = foodId, grams = grams)
             val calories = calcCalcsById(foodId, grams)
             val protein = calcProteinById(foodId, grams)
             val fat = calcFatById(foodId, grams)
@@ -146,30 +147,14 @@ suspend fun ApplicationCall.foodLogCustom() {
     val newTotalCarbs = caloriesSession.carbs + addCarbs
 
     sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
-
     val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
-
-    val updatedMeal =
-        currentMeal.copy(
-            foods =
-                currentMeal.foods +
-                    CurrentMealFood(
-                        foodId = foodId,
-                        grams = grams,
-                    ),
-        )
-
-    sessions.set(CurrentMealSession(updatedMeal.foods))
-
-    respondTemplate(
-        "pages/client_dash/add_food.peb",
-        mapOf(
-            "calories" to newTotalCals,
-            "protein" to newTotalProtein,
-            "fat" to newTotalFat,
-            "carbs" to newTotalCarbs,
+    sessions.set(
+        CurrentMealSession(
+            currentMeal.foods + CurrentMealFood(foodId = foodId, grams = grams),
         ),
     )
+
+    respondRedirect("/food_log")
 }
 
 fun searchRecipes(query: String): List<Recipe> =
@@ -222,15 +207,8 @@ fun searchFoods(foodquery: String): List<Food> =
 
 suspend fun ApplicationCall.foodLogReset() {
     sessions.set(CaloriesSession(0, 0, 0, 0))
-    respondTemplate(
-        "pages/client_dash/add_food.peb",
-        mapOf(
-            "calories" to 0,
-            "protein" to 0,
-            "fat" to 0,
-            "carbs" to 0,
-        ),
-    )
+    sessions.set(CurrentMealSession(emptyList()))
+    respondRedirect("/food_log")
 }
 
 suspend fun ApplicationCall.saveCurrentFoodLog() {
