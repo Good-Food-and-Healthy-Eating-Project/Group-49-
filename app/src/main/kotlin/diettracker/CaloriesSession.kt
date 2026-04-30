@@ -19,16 +19,13 @@ import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.core.lowerCase
-import org.jetbrains.exposed.v1.javatime.date
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
-import java.time.LocalDate
 
 const val GRAMS_PER_SERVING = 100
 
@@ -130,49 +127,47 @@ suspend fun ApplicationCall.foodLogRecipe() {
     respondRedirect("/food_log")
 }
 
+private fun calcAndLogCustomFood(
+    userId: Int?,
+    foodId: Int,
+    grams: Int,
+): NutrientValues =
+    transaction {
+        val n = calcNutrients(foodId, grams)
+        if (userId != null) {
+            val logId =
+                FoodLogs.insert {
+                    it[FoodLogs.user_id] = userId
+                    it[FoodLogs.log_date] = Instant.now()
+                    it[FoodLogs.meal_type] = "custom"
+                    it[FoodLogs.notes] = ""
+                } get FoodLogs.food_log_id
+            FoodLogItems.insert {
+                it[FoodLogItems.food_log_id] = logId
+                it[FoodLogItems.food_id] = foodId
+                it[FoodLogItems.quantity_g] = grams.toBigDecimal()
+            }
+        }
+        n
+    }
+
 suspend fun ApplicationCall.foodLogCustom() {
     val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession(0, 0, 0, 0)
     val params = receiveParameters()
     val foodIdStr = params["foodId"]
     val foodId = foodIdStr?.toIntOrNull()
     val grams = params["grams"]?.toIntOrNull() ?: GRAMS_PER_SERVING
-    var addCalories = 0
-    var addProtein = 0
-    var addCarbs = 0
-    var addFat = 0
     if (foodId == null) {
         respondTemplate(
             "pages/client_dash/add_food.peb",
-            mapOf(
-                "calories" to 0,
-                "error" to "Invalid or missing foodId: $foodIdStr",
-            ),
+            mapOf("calories" to 0, "error" to "Invalid or missing foodId: $foodIdStr"),
         )
         return
     }
 
     val email = sessions.get<UserSession>()?.email
     val userId = email?.let { getUserIdByEmail(it) }
-
-    val nutrients =
-        transaction {
-            val n = calcNutrients(foodId, grams)
-            if (userId != null) {
-                val logId =
-                    FoodLogs.insert {
-                        it[FoodLogs.user_id] = userId
-                        it[FoodLogs.log_date] = Instant.now()
-                        it[FoodLogs.meal_type] = "custom"
-                        it[FoodLogs.notes] = ""
-                    } get FoodLogs.food_log_id
-                FoodLogItems.insert {
-                    it[FoodLogItems.food_log_id] = logId
-                    it[FoodLogItems.food_id] = foodId
-                    it[FoodLogItems.quantity_g] = grams.toBigDecimal()
-                }
-            }
-            n
-        }
+    val nutrients = calcAndLogCustomFood(userId, foodId, grams)
 
     val newTotalCals = caloriesSession.calories + nutrients.calories
     val newTotalProtein = caloriesSession.protein + nutrients.protein
@@ -181,11 +176,7 @@ suspend fun ApplicationCall.foodLogCustom() {
 
     sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
     val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
-    sessions.set(
-        CurrentMealSession(
-            currentMeal.foods + CurrentMealFood(foodId = foodId, grams = grams),
-        ),
-    )
+    sessions.set(CurrentMealSession(currentMeal.foods + CurrentMealFood(foodId = foodId, grams = grams)))
 
     respondTemplate(
         "pages/client_dash/add_food.peb",
@@ -306,43 +297,3 @@ suspend fun ApplicationCall.saveCurrentFoodLog() {
     }
 }
 
-data class DailyNutritionSummary(
-    val totalCalories: Double,
-    val totalProtein: Double,
-    val totalCarbs: Double,
-    val totalFat: Double,
-)
-
-fun getDailyNutritionSummary(
-    userId: Int,
-    today: LocalDate,
-): DailyNutritionSummary {
-    val dailyOverview =
-        transaction {
-            (FoodLogs innerJoin FoodLogItems innerJoin Foods)
-                .selectAll()
-                .where {
-                    (FoodLogs.user_id eq userId) and (FoodLogs.log_date.date() eq today)
-                }
-                .map {
-                    val quantity = it[FoodLogItems.quantity_g].toDouble()
-                    val caloriesPer100g = it[Foods.calories_per_100g].toDouble()
-                    val proteinPer100g = it[Foods.protein_per_100g].toDouble()
-                    val carbsPer100g = it[Foods.carbs_per_100g].toDouble()
-                    val fatPer100g = it[Foods.fat_per_100g].toDouble()
-                    val convert = quantity / GRAMS_PER_SERVING.toDouble()
-                    mapOf(
-                        "calories" to caloriesPer100g * convert,
-                        "protein" to proteinPer100g * convert,
-                        "carbs" to carbsPer100g * convert,
-                        "fat" to fatPer100g * convert,
-                    )
-                }
-        }
-    return DailyNutritionSummary(
-        totalCalories = dailyOverview.sumOf { it["calories"] as Double },
-        totalProtein = dailyOverview.sumOf { it["protein"] as Double },
-        totalCarbs = dailyOverview.sumOf { it["carbs"] as Double },
-        totalFat = dailyOverview.sumOf { it["fat"] as Double },
-    )
-}
