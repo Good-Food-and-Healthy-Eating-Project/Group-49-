@@ -26,6 +26,10 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDate
 
 private const val MAX_REVIEW_RATING = 5
+private const val MIN_YEAR = 1900
+private const val MAX_YEAR = 2100
+private const val MIN_MONTH = 1
+private const val MAX_MONTH = 12
 
 fun Application.configureRouting() {
     routing {
@@ -51,18 +55,57 @@ fun Route.configurePublicRoutes() {
         )
     }
 
+    configureClientDashboardRoute()
+    configureFoodRoutes()
+    foodDiaryRoutes()
+
+    authenticate("group49-client_auth") {
+        get("/") { call.dashboardPage() }
+        get("/logout") { call.logout() }
+    }
+
+    configureRecipeRoutes()
+
+    get("/health") {
+        call.respondText("OK")
+    }
+}
+
+fun Route.configureClientDashboardRoute() {
     get("/client_dash") {
         val email = call.sessions.get<UserSession>()?.email
         val userId = email?.let { getUserIdByEmail(it) }
         val userRoles = userId?.let { getUserRoles(it) } ?: emptyList()
         val dailyCalorieGoal = userId?.let { getClientCalorieGoal(it) }
 
-        val trends = userId?.let { ClientDietTrend.getDietTrend(it) } ?: emptyList<DailyDietTrend>()
         val today = LocalDate.now()
-        val currentYear = today.year
-        val currentMonth = today.month
-        val daysInMonth = today.lengthOfMonth()
-        val firstDay = today.withDayOfMonth(1)
+        val selectedYear =
+            call.request.queryParameters["year"]?.toIntOrNull() ?: today.year
+        val selectedMonth =
+            call.request.queryParameters["month"]?.toIntOrNull() ?: today.monthValue
+
+        val selectedDate =
+            if (selectedMonth in MIN_MONTH..MAX_MONTH && selectedYear in MIN_YEAR..MAX_YEAR) {
+                LocalDate.of(selectedYear, selectedMonth, 1)
+            } else {
+                today.withDayOfMonth(1)
+            }
+
+        val currentYear = selectedDate.year
+        val currentMonth = selectedDate.month
+        val currentMonthValue = selectedDate.monthValue
+        val previousMonthDate = selectedDate.minusMonths(1)
+        val nextMonthDate = selectedDate.plusMonths(1)
+
+        val trends =
+            userId
+                ?.let { ClientDietTrend.getDietTrend(it) }
+                ?.filter {
+                    it.date.year == currentYear && it.date.month == currentMonth
+                } ?: emptyList<DailyDietTrend>()
+
+        val daysInMonth = selectedDate.lengthOfMonth()
+        val firstDay = selectedDate.withDayOfMonth(1)
         val leadingEmptyDays = firstDay.dayOfWeek.value - 1
 
         call.respond(
@@ -77,25 +120,16 @@ fun Route.configurePublicRoutes() {
                     "trends" to trends,
                     "currentYear" to currentYear,
                     "currentMonth" to currentMonth,
+                    "currentMonthValue" to currentMonthValue,
                     "daysInMonth" to daysInMonth,
                     "leadingEmptyDays" to leadingEmptyDays,
+                    "previousYear" to previousMonthDate.year,
+                    "previousMonth" to previousMonthDate.monthValue,
+                    "nextYear" to nextMonthDate.year,
+                    "nextMonth" to nextMonthDate.monthValue,
                 ),
             ),
         )
-    }
-
-    configureFoodRoutes()
-    foodDiaryRoutes()
-
-    authenticate("group49-client_auth") {
-        get("/") { call.dashboardPage() }
-        get("/logout") { call.logout() }
-    }
-
-    configureRecipeRoutes()
-
-    get("/health") {
-        call.respondText("OK")
     }
 }
 
@@ -155,8 +189,6 @@ private fun Route.configureClientProfessionalRoutes() {
 
         val clientIdString = getUserIdByEmail(email)
 
-        // Convert the client ID to an integer for database use.
-        // If conversion fails, return an error to prevent invalid data being stored.
         val clientId =
             clientIdString?.toString()?.toIntOrNull()
                 ?: return@post call.respondText(
@@ -189,6 +221,7 @@ private fun Route.configureProfessionalAccountRoutes() {
                 ?: return@get call.respondText("User not found")
         val userRoles = getUserRoles(professionalId)
         val clients = getClientsForProfessional(professionalId)
+
         call.respondTemplate(
             "pages/professionals/professionals_dash.peb",
             mapOf(
@@ -316,13 +349,16 @@ fun Route.configureRecipeRoutes() {
             call.respond(HttpStatusCode.BadRequest)
             return@get
         }
+
         val recipe = RecipeDatabaseQuery.getRecipeById(recipeId)
         if (recipe == null) {
             call.respond(HttpStatusCode.NotFound)
             return@get
         }
+
         val reviews = RecipeDatabaseQuery.getReviewsForRecipe(recipeId)
         val averageRating = RecipeDatabaseQuery.getAverageRating(recipeId)
+
         call.respondTemplate(
             "pages/recipes_page/recipe_detail.peb",
             mapOf(
@@ -336,41 +372,48 @@ fun Route.configureRecipeRoutes() {
     post("/recipes/{id}/review") {
         val recipeId = call.parameters["id"]?.toIntOrNull()
         val email = call.sessions.get<UserSession>()?.email
+
         if (recipeId != null && email != null) {
             val userId = getUserIdByEmail(email)
             if (userId != null) {
                 val parameters = call.receiveParameters()
                 val rating = parameters["rating"]?.toIntOrNull()
                 val comment = parameters["comment"]?.trim() ?: ""
+
                 if (rating != null && rating in 1..MAX_REVIEW_RATING && comment.isNotBlank()) {
                     RecipeDatabaseQuery.addReview(userId, recipeId, rating, comment)
                 }
             }
         }
+
         call.respondRedirect("/recipes/$recipeId")
     }
 
     post("/recipes/favourite/{recipeId}") {
         val recipeId = call.parameters["recipeId"]?.toIntOrNull()
         val email = call.sessions.get<UserSession>()?.email
+
         if (recipeId != null && email != null) {
             val userId = getUserIdByEmail(email)
             if (userId != null) {
                 RecipeDatabaseQuery.addFavourite(userId, recipeId)
             }
         }
+
         call.respond(HttpStatusCode.OK)
     }
 
     post("/recipes/unfavourite/{recipeId}") {
         val recipeId = call.parameters["recipeId"]?.toIntOrNull()
         val email = call.sessions.get<UserSession>()?.email
+
         if (recipeId != null && email != null) {
             val userId = getUserIdByEmail(email)
             if (userId != null) {
                 RecipeDatabaseQuery.removeFavourite(userId, recipeId)
             }
         }
+
         call.respond(HttpStatusCode.OK)
     }
 }

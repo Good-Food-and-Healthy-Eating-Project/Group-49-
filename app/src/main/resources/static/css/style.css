@@ -470,6 +470,7 @@ a:hover { color: var(--brown); }
     color: #6b6a6a;
     cursor: default;
 }
+/* Use ChatGPT to help understand how to use tooltips. */
 .tooltip {
     position: absolute;
     bottom: 120%;
@@ -492,6 +493,32 @@ a:hover { color: var(--brown); }
     color: #646363;
     margin-top: 12px;
     text-align: center;
+}
+.calendar-title {
+    text-align: center;
+    margin-bottom: 16px;
+}
+.calendar-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.calendar-navigation h2 {
+    margin: 0;
+    font-size: 18px;
+}
+.calendar-nav-button {
+    padding: 6px 10px;
+    border: 1px solid #EDE6D8;
+    border-radius: 8px;
+    color: #C4603A;
+    text-decoration: none;
+    font-size: 13px;
+    background: #FDFAF5;
+}
+.calendar-nav-button:hover {
+    background: #F3E7D8;
 }
 
 /* =============================================
