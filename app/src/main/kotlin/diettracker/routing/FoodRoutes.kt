@@ -2,7 +2,6 @@ package diettracker.routing
 
 import diettracker.CaloriesSession
 import diettracker.UserSession
-import diettracker.UserSession
 import diettracker.addSavedMealToLog
 import diettracker.foodLogCustom
 import diettracker.foodLogRecipe

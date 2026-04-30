@@ -48,25 +48,16 @@ suspend fun ApplicationCall.foodLogPage() {
     )
 }
 
-suspend fun ApplicationCall.foodLogRecipe() {
+private data class RecipeLogResult(val foods: List<CurrentMealFood>, val nutrients: NutrientValues)
+
+private fun logRecipeIngredients(
+    recipeid: Int,
+    userId: Int?,
+): RecipeLogResult {
     var addCalories = 0
     var addProtein = 0
     var addFat = 0
     var addCarbs = 0
-    val params = receiveParameters()
-    val recipeIdStr = params["recipeId"]
-    val recipeid = recipeIdStr?.toIntOrNull()
-    if (recipeid == null) {
-        respondTemplate(
-            "pages/client_dash/add_food.peb",
-            mapOf("calories" to 0, "error" to "Invalid or missing recipeId: $recipeIdStr"),
-        )
-        return
-    }
-
-    val email = sessions.get<UserSession>()?.email
-    val userId = email?.let { getUserIdByEmail(it) }
-
     val foodsToAdd = mutableListOf<CurrentMealFood>()
     transaction {
         val ingredients =
@@ -106,20 +97,36 @@ suspend fun ApplicationCall.foodLogRecipe() {
             }
         }
     }
+    return RecipeLogResult(foodsToAdd, NutrientValues(addCalories, addProtein, addFat, addCarbs))
+}
+
+suspend fun ApplicationCall.foodLogRecipe() {
+    val params = receiveParameters()
+    val recipeIdStr = params["recipeId"]
+    val recipeid = recipeIdStr?.toIntOrNull()
+    if (recipeid == null) {
+        respondTemplate(
+            "pages/client_dash/add_food.peb",
+            mapOf("calories" to 0, "error" to "Invalid or missing recipeId: $recipeIdStr"),
+        )
+        return
+    }
+
+    val email = sessions.get<UserSession>()?.email
+    val userId = email?.let { getUserIdByEmail(it) }
+    val result = logRecipeIngredients(recipeid, userId)
 
     val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession(0, 0, 0, 0)
-    val newTotalCals = caloriesSession.calories + addCalories
-    val newTotalProtein = caloriesSession.protein + addProtein
-    val newTotalFat = caloriesSession.fat + addFat
-    val newTotalCarbs = caloriesSession.carbs + addCarbs
-
-    sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
-    val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
     sessions.set(
-        CurrentMealSession(
-            currentMeal.foods + foodsToAdd,
+        CaloriesSession(
+            caloriesSession.calories + result.nutrients.calories,
+            caloriesSession.protein + result.nutrients.protein,
+            caloriesSession.fat + result.nutrients.fat,
+            caloriesSession.carbs + result.nutrients.carbs,
         ),
     )
+    val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
+    sessions.set(CurrentMealSession(currentMeal.foods + result.foods))
     respondRedirect("/food_log")
 }
 
@@ -180,7 +187,15 @@ suspend fun ApplicationCall.foodLogCustom() {
         ),
     )
 
-    respondRedirect("/food_log")
+    respondTemplate(
+        "pages/client_dash/add_food.peb",
+        mapOf(
+            "calories" to newTotalCals,
+            "protein" to newTotalProtein,
+            "fat" to newTotalFat,
+            "carbs" to newTotalCarbs,
+        ),
+    )
 }
 
 fun searchRecipes(query: String): List<Recipe> =
@@ -254,7 +269,15 @@ fun calcNutrients(
 suspend fun ApplicationCall.foodLogReset() {
     sessions.set(CaloriesSession(0, 0, 0, 0))
     sessions.set(CurrentMealSession(emptyList()))
-    respondRedirect("/food_log")
+    respondTemplate(
+        "pages/client_dash/add_food.peb",
+        mapOf(
+            "calories" to 0,
+            "protein" to 0,
+            "fat" to 0,
+            "carbs" to 0,
+        ),
+    )
 }
 
 suspend fun ApplicationCall.saveCurrentFoodLog() {
