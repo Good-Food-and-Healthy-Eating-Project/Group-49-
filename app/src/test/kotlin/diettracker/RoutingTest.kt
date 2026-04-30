@@ -36,18 +36,6 @@ private suspend fun HttpClient.loginTestUser() {
     }
 }
 
-private suspend fun HttpClient.loginProTestUser() {
-    post("/Professional-Login") {
-        contentType(ContentType.Application.FormUrlEncoded)
-        setBody(
-            listOf(
-                "email" to "testpro@test.com",
-                "password" to "testpro@test.com",
-            ).formUrlEncode(),
-        )
-    }
-}
-
 class RoutingTest {
     @BeforeEach
     fun setUP() {
@@ -143,7 +131,7 @@ class RoutingTest {
 
             client.loginTestUser()
 
-            val result = client.get("/food_diary/day")
+            val result = client.get("/food_diary_day")
             assertEquals(200, result.status.value)
         }
 
@@ -157,7 +145,7 @@ class RoutingTest {
                     followRedirects = false
                 }
 
-            client.loginProTestUser()
+            client.loginTestUser()
 
             val result = client.get("/professionals")
             assertEquals(200, result.status.value)

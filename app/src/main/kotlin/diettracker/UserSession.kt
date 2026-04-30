@@ -21,7 +21,7 @@ fun Application.configureAuthentication() {
                     null
                 }
             }
-            challenge { call.respondRedirect("/login") }
+            challenge { call.respondRedirect("/Login") }
         }
     }
 }

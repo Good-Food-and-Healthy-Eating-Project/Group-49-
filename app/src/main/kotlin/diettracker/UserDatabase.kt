@@ -9,9 +9,9 @@ import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
 import diettracker.models.ClientInfo
 import diettracker.models.Professional
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.insertIgnore
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
@@ -75,12 +75,19 @@ fun linkClientToProfessional(
     professionalId: Int,
 ) {
     transaction {
-        Clients.insertIgnore {
-            it[Clients.client_id] = clientId
-        }
-        ClientProfessionalLink.insertIgnore {
-            it[ClientProfessionalLink.client_id] = clientId
-            it[ClientProfessionalLink.professional_id] = professionalId
+        val alreadyLinked =
+            ClientProfessionalLink
+                .selectAll()
+                .where {
+                    (ClientProfessionalLink.client_id eq clientId) and
+                        (ClientProfessionalLink.professional_id eq professionalId)
+                }
+                .count() > 0
+        if (!alreadyLinked) {
+            ClientProfessionalLink.insert {
+                it[ClientProfessionalLink.client_id] = clientId
+                it[ClientProfessionalLink.professional_id] = professionalId
+            }
         }
     }
 }
