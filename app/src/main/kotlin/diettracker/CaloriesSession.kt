@@ -5,8 +5,12 @@ import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.Foods
 import diettracker.db.tables.RecipeIngredients
 import diettracker.db.tables.Recipes
+import diettracker.models.CurrentMealFood
+import diettracker.models.CurrentMealSession
 import diettracker.models.Food
 import diettracker.models.Recipe
+import diettracker.services.DiaryService.getMealTypeByTime
+import diettracker.services.DiaryService.saveFoodLog
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.pebble.respondTemplate
 import io.ktor.server.request.receiveParameters
@@ -63,6 +67,7 @@ suspend fun ApplicationCall.foodLogRecipe() {
     val email = sessions.get<UserSession>()?.email
     val userId = email?.let { getUserIdByEmail(it) }
 
+    val foodsToAdd = mutableListOf<CurrentMealFood>()
     transaction {
         val ingredients =
             RecipeIngredients
@@ -85,6 +90,8 @@ suspend fun ApplicationCall.foodLogRecipe() {
         for (i in ingredients) {
             val foodId = i[RecipeIngredients.food_id]
             val quantity = i[RecipeIngredients.quantity_g]
+            val grams = i[RecipeIngredients.quantity_g].toInt()
+            foodsToAdd += CurrentMealFood(foodId = foodId, grams = grams)
             val n = calcNutrients(foodId, quantity.toInt())
             addCalories += n.calories
             addProtein += n.protein
@@ -107,6 +114,12 @@ suspend fun ApplicationCall.foodLogRecipe() {
     val newTotalCarbs = caloriesSession.carbs + addCarbs
 
     sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
+    val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
+    sessions.set(
+        CurrentMealSession(
+            currentMeal.foods + foodsToAdd,
+        ),
+    )
     respondRedirect("/food_log")
 }
 
@@ -116,7 +129,10 @@ suspend fun ApplicationCall.foodLogCustom() {
     val foodIdStr = params["foodId"]
     val foodId = foodIdStr?.toIntOrNull()
     val grams = params["grams"]?.toIntOrNull() ?: GRAMS_PER_SERVING
-
+    var addCalories = 0
+    var addProtein = 0
+    var addCarbs = 0
+    var addFat = 0
     if (foodId == null) {
         respondTemplate(
             "pages/client_dash/add_food.peb",
@@ -157,27 +173,21 @@ suspend fun ApplicationCall.foodLogCustom() {
     val newTotalCarbs = caloriesSession.carbs + nutrients.carbs
 
     sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
-
-    respondTemplate(
-        "pages/client_dash/add_food.peb",
-        mapOf(
-            "calories" to newTotalCals,
-            "protein" to newTotalProtein,
-            "fat" to newTotalFat,
-            "carbs" to newTotalCarbs,
+    val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
+    sessions.set(
+        CurrentMealSession(
+            currentMeal.foods + CurrentMealFood(foodId = foodId, grams = grams),
         ),
     )
+
+    respondRedirect("/food_log")
 }
 
 fun searchRecipes(query: String): List<Recipe> =
     transaction {
         val searchTerm = query.lowercase()
 
-        if (searchTerm.isBlank()) {
-            return@transaction emptyList<Recipe>()
-        }
-
-        if (searchTerm.any { it.isDigit() }) {
+        if (searchTerm.isBlank() || searchTerm.any { it.isDigit() }) {
             return@transaction emptyList<Recipe>()
         }
 
@@ -199,11 +209,7 @@ fun searchFoods(foodquery: String): List<Food> =
     transaction {
         val searchTerm = foodquery.lowercase()
 
-        if (searchTerm.isBlank()) {
-            return@transaction emptyList<Food>()
-        }
-
-        if (searchTerm.any { it.isDigit() }) {
+        if (searchTerm.isBlank() || searchTerm.any { it.isDigit() }) {
             return@transaction emptyList<Food>()
         }
 
@@ -247,15 +253,34 @@ fun calcNutrients(
 
 suspend fun ApplicationCall.foodLogReset() {
     sessions.set(CaloriesSession(0, 0, 0, 0))
-    respondTemplate(
-        "pages/client_dash/add_food.peb",
-        mapOf(
-            "calories" to 0,
-            "protein" to 0,
-            "fat" to 0,
-            "carbs" to 0,
-        ),
-    )
+    sessions.set(CurrentMealSession(emptyList()))
+    respondRedirect("/food_log")
+}
+
+suspend fun ApplicationCall.saveCurrentFoodLog() {
+    val mealType = getMealTypeByTime()
+    val notes = ""
+    val userSession = sessions.get<UserSession>()
+    val userId = userSession?.let { getUserIdByEmail(it.email) }
+    val currentMealSession = sessions.get<CurrentMealSession>()
+
+    when {
+        userId == null -> respondRedirect("/login")
+        currentMealSession == null || currentMealSession.foods.isEmpty() -> respondRedirect("/food_log")
+        else -> {
+            saveFoodLog(
+                userId = userId,
+                mealType = mealType,
+                notes = notes,
+                foods = currentMealSession.foods,
+            )
+
+            sessions.set(CaloriesSession(0, 0, 0, 0))
+            sessions.set(CurrentMealSession(emptyList()))
+
+            respondRedirect("/food_log")
+        }
+    }
 }
 
 data class DailyNutritionSummary(

@@ -24,7 +24,7 @@ data class DailyDietTrend(
     val targetCalorie: Int,
     val date: LocalDate,
     val dayOfMonth: Int,
-    val exceeds: Boolean,
+    val colourClass: String,
 )
 
 object ClientDietTrend {
@@ -71,12 +71,19 @@ object ClientDietTrend {
                     val calorie = row[Foods.calories_per_100g].toDouble()
                     total += calorie * quantity / GARMS100
                 }
+                val colourClass =
+                    when {
+                        target <= 0 -> "empty-day"
+                        total <= 0.0 -> "empty-day"
+                        total >= target -> "red"
+                        else -> "green"
+                    }
                 DailyDietTrend(
                     date = date,
                     dayOfMonth = date.dayOfMonth,
                     totalCalorie = total,
                     targetCalorie = target,
-                    exceeds = total > target,
+                    colourClass = colourClass,
                 )
             }
         }

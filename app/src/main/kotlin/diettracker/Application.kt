@@ -1,6 +1,7 @@
 package diettracker
 
 import diettracker.db.DatabaseFactory
+import diettracker.models.CurrentMealSession
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.netty.EngineMain
@@ -18,6 +19,7 @@ fun Application.module(testing: Boolean = false) {
     install(Sessions) {
         cookie<UserSession>("Session")
         cookie<CaloriesSession>("CaloriesSession")
+        cookie<CurrentMealSession>("CurrentMealSession")
     }
     configureAuthentication()
     configureRouting()
