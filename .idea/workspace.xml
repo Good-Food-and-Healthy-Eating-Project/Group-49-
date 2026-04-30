@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="26563dcb-6ccb-4d65-9621-0ea5f1364be7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/db/repositories/MessagingRepository.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/test/kotlin/MessagingRepositoryTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/UserDatabase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/UserDatabase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/db/DatabaseFactory.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/db/DatabaseFactory.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/db/tables/ClientProfessionalLink.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/db/tables/ClientProfessionalLink.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/TestDatabaseFactory.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/TestDatabaseFactory.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,7 +16,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="10954" />
+    <option name="cachedIndexableFilesCount" value="10956" />
   </component>
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
