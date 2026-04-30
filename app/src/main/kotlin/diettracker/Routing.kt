@@ -35,7 +35,7 @@ private const val MAX_MONTH = 12
 
 fun Application.configureRouting() {
     routing {
-        staticResources("/static", "static")
+        configureStatic()
         configurePublicRoutes()
         configureProfessionalRoutes()
         configureAuthRoutes()
