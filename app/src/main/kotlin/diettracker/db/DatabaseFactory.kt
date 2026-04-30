@@ -1,10 +1,12 @@
 package diettracker.db
 
+import diettracker.db.tables.Chats
 import diettracker.db.tables.ClientProfessionalLink
 import diettracker.db.tables.Clients
 import diettracker.db.tables.FoodLogItems
 import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.Foods
+import diettracker.db.tables.Messages
 import diettracker.db.tables.Professionals
 import diettracker.db.tables.RecipeIngredients
 import diettracker.db.tables.RecipeReviews
@@ -40,6 +42,8 @@ object DatabaseFactory {
                 FoodLogItems,
                 UserFavouritedRecipes,
                 RecipeReviews,
+                Chats,
+                Messages,
             )
         }
     }

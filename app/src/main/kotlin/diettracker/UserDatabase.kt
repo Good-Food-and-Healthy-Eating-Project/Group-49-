@@ -12,6 +12,7 @@ import diettracker.models.Professional
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertIgnore
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
@@ -78,7 +79,10 @@ fun linkClientToProfessional(
         Clients.insertIgnore {
             it[Clients.client_id] = clientId
         }
-        ClientProfessionalLink.insertIgnore {
+        ClientProfessionalLink.deleteWhere {
+            ClientProfessionalLink.client_id eq clientId
+        }
+        ClientProfessionalLink.insert{
             it[ClientProfessionalLink.client_id] = clientId
             it[ClientProfessionalLink.professional_id] = professionalId
         }
