@@ -235,7 +235,7 @@ class ProfessionalRoutingTest {
                 createClient {
                     install(HttpCookies)
                 }
-            client.post("/Professional-Login") {
+            client.post("/Login") {
                 contentType(ContentType.Application.FormUrlEncoded)
                 setBody(
                     listOf("email" to "test@test.com", "password" to "test@test.com")
@@ -319,6 +319,7 @@ class ProfessionalRoutingTest {
             val client =
                 createClient {
                     install(HttpCookies)
+                    followRedirects = false
                 }
             client.post("/Login") {
                 contentType(ContentType.Application.FormUrlEncoded)

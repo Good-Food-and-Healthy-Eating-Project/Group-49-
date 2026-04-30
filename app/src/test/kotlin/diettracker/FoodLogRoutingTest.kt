@@ -45,7 +45,7 @@ class FoodLogRoutingTest {
                     it[first_name] = "Sponge"
                     it[second_name] = "Bob"
                     it[email] = "foodlog@test.com"
-                    it[password_hash] = "password_hash"
+                    it[password_hash] = BCrypt.hashpw("foodlog@test.com", BCrypt.gensalt())
                     it[created_at] = time
                 } get Users.user_id
 
@@ -95,6 +95,15 @@ class FoodLogRoutingTest {
     fun should_load_food_log_page() =
         testApplication {
             application { module(testing = true) }
+            val client =
+                createClient {
+                    install(io.ktor.client.plugins.cookies.HttpCookies)
+                    followRedirects = false
+                }
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(listOf("email" to "foodlog@test.com", "password" to "foodlog@test.com").formUrlEncode())
+            }
             val result = client.get("/food_log")
 
             assertEquals(200, result.status.value)
@@ -104,6 +113,15 @@ class FoodLogRoutingTest {
     fun should_search_recipe_in_food_log() =
         testApplication {
             application { module(testing = true) }
+            val client =
+                createClient {
+                    install(io.ktor.client.plugins.cookies.HttpCookies)
+                    followRedirects = false
+                }
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(listOf("email" to "foodlog@test.com", "password" to "foodlog@test.com").formUrlEncode())
+            }
             val result = client.get("/food_log?query=Test")
             val body = result.bodyAsText()
 
@@ -115,6 +133,15 @@ class FoodLogRoutingTest {
     fun should_search_food_in_log() =
         testApplication {
             application { module(testing = true) }
+            val client =
+                createClient {
+                    install(io.ktor.client.plugins.cookies.HttpCookies)
+                    followRedirects = false
+                }
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(listOf("email" to "foodlog@test.com", "password" to "foodlog@test.com").formUrlEncode())
+            }
             val result = client.get("/food_log?foodquery=apple")
             val body = result.bodyAsText()
 

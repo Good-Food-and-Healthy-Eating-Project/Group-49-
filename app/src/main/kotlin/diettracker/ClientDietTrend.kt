@@ -5,7 +5,12 @@ import diettracker.db.tables.FoodLogItems
 import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.Foods
 import diettracker.db.tables.Users
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.pebble.PebbleContent
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondRedirect
 import io.ktor.server.sessions.get
+import io.ktor.server.sessions.sessions
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -82,4 +87,65 @@ object ClientDietTrend {
                 )
             }
         }
+}
+
+private const val MIN_PROTEIN_PERCENT = 0.1
+private const val MAX_FAT_PERCENT = 0.35
+private const val MIN_CARBS_PERCENT = 0.4
+
+fun buildGuidanceMessages(
+    calorieGoal: Int?,
+    totalCaloriesInt: Int,
+    proteinPercent: Double,
+    fatPercent: Double,
+    carbsPercent: Double,
+): List<String> {
+    val messages = mutableListOf<String>()
+    if (calorieGoal != null && totalCaloriesInt > calorieGoal) {
+        messages.add("You are over your daily calorie target")
+    } else {
+        messages.add("You are within your calorie target")
+    }
+    if (proteinPercent < MIN_PROTEIN_PERCENT) messages.add("Protein intake is low")
+    if (fatPercent > MAX_FAT_PERCENT) messages.add("Fat intake is high")
+    if (carbsPercent < MIN_CARBS_PERCENT) messages.add("Carbohydrate intake is low")
+    messages.add("Aim for a balanced diet with a mix of protein, carbs, and fats")
+    return messages
+}
+
+suspend fun ApplicationCall.dietTrend() {
+    val email = this.sessions.get<UserSession>()?.email
+
+    if (email == null) {
+        this.respondRedirect("/Login")
+        return
+    }
+
+    val userId = ClientDietTrend.getUserId(email)
+
+    if (userId == null) {
+        this.respondRedirect("/Login")
+        return
+    }
+
+    val trends = ClientDietTrend.getDietTrend(userId)
+    val today = LocalDate.now()
+    val currentYear = today.year
+    val currentMonth = today.month
+    val daysInMonth = today.lengthOfMonth()
+    val firstDay = today.withDayOfMonth(1)
+    val leadingEmptyDays = firstDay.dayOfWeek.value - 1
+
+    this.respond(
+        PebbleContent(
+            "pages/client_dash/client_dash.peb",
+            mapOf(
+                "trends" to trends,
+                "currentYear" to currentYear,
+                "currentMonth" to currentMonth,
+                "daysInMonth" to daysInMonth,
+                "leadingEmptyDays" to leadingEmptyDays,
+            ),
+        ),
+    )
 }

@@ -20,24 +20,11 @@ Home
         </div>
     {% endif %}
 
-    <div class="calendar-widget">
-<div class="calendar-title">
-    <h3>Diet Trend</h3>
-    <div class="calendar-navigation">
-        <a
-            class="calendar-nav-button"
-            href="/client_dash?year={{ previousYear }}&month={{ previousMonth }}"
-        >
-            &lt; Previous
-        </a>
-    <h2>{{ currentYear }} / {{ currentMonth }}</h2>
-    <a
-        class="calendar-nav-button"
-        href="/client_dash?year={{ nextYear }}&month={{ nextMonth }}"
-    >
-        Next &gt;
-    </a>
-</div>
+<div class="calendar-widget">
+    <div class="calendar-title">
+        <h3>Diet Trend</h3>
+        <h2>{{ currentYear }} / {{ currentMonth }}</h2>
+    </div>
         <div class="calendar-weekdays">
             <div>Mon</div>
             <div>Tue</div>
@@ -57,7 +44,7 @@ Home
                     {% for trend in trends %}
                         {% if trend.dayOfMonth == day %}
                             {% set found = true %}
-                            <div class="day-box {{ trend.colourClass }}">
+                            <div class="day-box {{ trend.exceeds ? 'red' : 'green' }}">
                                 {{ day }}
                                 <div class="tooltip">
                                     Kcal: {{ trend.totalCalorie }} / {{ trend.targetCalorie }}
@@ -76,6 +63,22 @@ Home
         {% if trends is empty %}
             <div class="no-data">No diet data</div>
         {% endif %}
+
+        <div class="Daily Overview">
+            <h2>Today's Summary</h2>
+
+            <p>Calories: {{ totalCalories }} / {{ goal }} kcal</p>
+            <p>Protein: {{ totalProtein }}g</p>
+            <p>Carbs: {{ totalCarbs }}g</p>
+            <p>Fat: {{ totalFat }}g</p>
+
+            <h3>Guidance</h3>
+            <ul>
+                {% for msg in messages %}
+                    <li>{{ msg }}</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 </div>
 

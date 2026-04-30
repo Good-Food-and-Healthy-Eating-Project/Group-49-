@@ -2,7 +2,9 @@ package diettracker
 
 import diettracker.db.tables.Clients
 import diettracker.routes.quizRoutes
+import diettracker.routing.configureClientDashRoute
 import diettracker.routing.configureFoodRoutes
+import diettracker.routing.configureRecipeRoutes
 import diettracker.routing.foodDiaryRoutes
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -33,16 +35,12 @@ private const val MAX_MONTH = 12
 
 fun Application.configureRouting() {
     routing {
-        configureStatic()
+        staticResources("/static", "static")
         configurePublicRoutes()
         configureProfessionalRoutes()
         configureAuthRoutes()
         configureProtectedRoutes()
     }
-}
-
-fun Route.configureStatic() {
-    staticResources("/static", "static")
 }
 
 fun Route.configurePublicRoutes() {
@@ -55,6 +53,24 @@ fun Route.configurePublicRoutes() {
         )
     }
 
+    configureClientDashRoute()
+    configureFoodRoutes()
+    foodDiaryRoutes()
+
+    authenticate("group49-client_auth") {
+        get("/") { call.dashboardPage() }
+        get("/logout") { call.logout() }
+    }
+
+    get("/diary") {
+        call.respond(PebbleContent("pages/client_dash/food_diary.peb", mapOf("showNavbar" to true)))
+    }
+
+    configureRecipeRoutes()
+
+    get("/health") {
+        call.respondText("OK")
+    }
     configureClientDashboardRoute()
     configureFoodRoutes()
     foodDiaryRoutes()
@@ -165,8 +181,8 @@ fun Route.configureProfessionalRoutes() {
 
 private fun Route.configureClientProfessionalRoutes() {
     get("/professionals") {
-        val email = call.sessions.get<UserSession>()?.email
-        val userId = email?.let { getUserIdByEmail(it) }
+        val email = call.sessions.get<UserSession>()?.email ?: return@get call.respondRedirect("/Login")
+        val userId = email.let { getUserIdByEmail(it) }
         val userRoles = userId?.let { getUserRoles(it) } ?: emptyList()
         val professionals = getAllProfessionals()
         val hasCompletedQuiz = userId?.let { getClientCalorieGoal(it) } != null
@@ -189,6 +205,8 @@ private fun Route.configureClientProfessionalRoutes() {
 
         val clientIdString = getUserIdByEmail(email)
 
+        // Convert the client ID to an integer for database use.
+        // If conversion fails, return an error to prevent invalid data being stored.
         val clientId =
             clientIdString?.toString()?.toIntOrNull()
                 ?: return@post call.respondText(
@@ -221,7 +239,6 @@ private fun Route.configureProfessionalAccountRoutes() {
                 ?: return@get call.respondText("User not found")
         val userRoles = getUserRoles(professionalId)
         val clients = getClientsForProfessional(professionalId)
-
         call.respondTemplate(
             "pages/professionals/professionals_dash.peb",
             mapOf(
