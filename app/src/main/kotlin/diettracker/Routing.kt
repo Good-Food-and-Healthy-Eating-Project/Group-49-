@@ -4,10 +4,10 @@ import diettracker.db.tables.Clients
 import diettracker.routes.quizRoutes
 import diettracker.routing.configureFoodRoutes
 import diettracker.routing.foodDiaryRoutes
+import diettracker.routing.profileRoutes
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate
-import io.ktor.server.http.content.staticResources
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.pebble.respondTemplate
 import io.ktor.server.request.receiveParameters
@@ -24,7 +24,6 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDate
-import diettracker.routing.profileRoutes
 
 private const val MAX_REVIEW_RATING = 5
 private const val MIN_YEAR = 1900
@@ -40,10 +39,6 @@ fun Application.configureRouting() {
         configureAuthRoutes()
         configureProtectedRoutes()
     }
-}
-
-fun Route.configureStatic() {
-    staticResources("/static", "static")
 }
 
 fun Route.configurePublicRoutes() {
