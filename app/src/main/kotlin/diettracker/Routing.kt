@@ -25,13 +25,8 @@ import io.ktor.server.sessions.sessions
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import java.time.LocalDate
 
 private const val MAX_REVIEW_RATING = 5
-private const val MIN_YEAR = 1900
-private const val MAX_YEAR = 2100
-private const val MIN_MONTH = 1
-private const val MAX_MONTH = 12
 
 fun Application.configureRouting() {
     routing {
@@ -71,7 +66,7 @@ fun Route.configurePublicRoutes() {
     get("/health") {
         call.respondText("OK")
     }
-    configureClientDashboardRoute()
+    configureClientDashRoute()
     configureFoodRoutes()
     foodDiaryRoutes()
     profileRoutes()
@@ -85,68 +80,6 @@ fun Route.configurePublicRoutes() {
 
     get("/health") {
         call.respondText("OK")
-    }
-}
-
-fun Route.configureClientDashboardRoute() {
-    get("/client_dash") {
-        val email = call.sessions.get<UserSession>()?.email
-        val userId = email?.let { getUserIdByEmail(it) }
-        val userRoles = userId?.let { getUserRoles(it) } ?: emptyList()
-        val dailyCalorieGoal = userId?.let { getClientCalorieGoal(it) }
-
-        val today = LocalDate.now()
-        val selectedYear =
-            call.request.queryParameters["year"]?.toIntOrNull() ?: today.year
-        val selectedMonth =
-            call.request.queryParameters["month"]?.toIntOrNull() ?: today.monthValue
-
-        val selectedDate =
-            if (selectedMonth in MIN_MONTH..MAX_MONTH && selectedYear in MIN_YEAR..MAX_YEAR) {
-                LocalDate.of(selectedYear, selectedMonth, 1)
-            } else {
-                today.withDayOfMonth(1)
-            }
-
-        val currentYear = selectedDate.year
-        val currentMonth = selectedDate.month
-        val currentMonthValue = selectedDate.monthValue
-        val previousMonthDate = selectedDate.minusMonths(1)
-        val nextMonthDate = selectedDate.plusMonths(1)
-
-        val trends =
-            userId
-                ?.let { ClientDietTrend.getDietTrend(it) }
-                ?.filter {
-                    it.date.year == currentYear && it.date.month == currentMonth
-                } ?: emptyList<DailyDietTrend>()
-
-        val daysInMonth = selectedDate.lengthOfMonth()
-        val firstDay = selectedDate.withDayOfMonth(1)
-        val leadingEmptyDays = firstDay.dayOfWeek.value - 1
-
-        call.respond(
-            PebbleContent(
-                "pages/client_dash/client_dash.peb",
-                mapOf(
-                    "showNavbar" to true,
-                    "userRoles" to userRoles,
-                    "isProfessional" to userRoles.contains("professional"),
-                    "userId" to (userId as Any? ?: ""),
-                    "dailyCalorieGoal" to (dailyCalorieGoal as Any? ?: ""),
-                    "trends" to trends,
-                    "currentYear" to currentYear,
-                    "currentMonth" to currentMonth,
-                    "currentMonthValue" to currentMonthValue,
-                    "daysInMonth" to daysInMonth,
-                    "leadingEmptyDays" to leadingEmptyDays,
-                    "previousYear" to previousMonthDate.year,
-                    "previousMonth" to previousMonthDate.monthValue,
-                    "nextYear" to nextMonthDate.year,
-                    "nextMonth" to nextMonthDate.monthValue,
-                ),
-            ),
-        )
     }
 }
 
