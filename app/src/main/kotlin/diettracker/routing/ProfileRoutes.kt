@@ -22,6 +22,21 @@ fun Route.profileRoutes() {
     configureProfileUpdateRoute()
 }
 
+/**
+ * Handles requests to the profile page and loads the user's profile data.
+ *
+ * It first checks if the user is logged in using the session. If no session
+ * or no user ID is found, the user will then be redirected to the login page.
+ *
+ * If the user is valid, it checks the Clients table to retrieve their stored
+ * profile data (age, weight, height, goal, gender, and daily calorie goal).
+ * The result is mapped into a format that can be passed to the template.
+ *
+ * The data is then sent to the profile.peb page so it can be displayed to the user.
+ * This separation allows the database logic to stay in the backend while the UI
+ * only receives the data it needs. single() is used because the code expects
+ * the database to contain one exact client record for that logged in user
+ */
 private fun Route.configureProfilePageRoute() {
     get("/profile") {
         val email = call.sessions.get<UserSession>()?.email
@@ -63,6 +78,24 @@ private fun Route.configureProfilePageRoute() {
     }
 }
 
+/**
+ * Handles updates to the user's profile details.
+ *
+ * This defines the profileupdate POST route.
+ * It runs when the user submits the profile form by pressing the update button.
+ * The route first checks the session to make sure the user is logged in, then
+ * uses the email to find the matching client ID.
+ *
+ * It reads the new height, weight, age, gender, and goal from the submitted
+ * form. If a field is missing or left blank, the current value from the Clients
+ * table is kept instead. This prevents existing profile data from being
+ * overwritten with null values. This is done by checking each value from the
+ * form and replacing it with the current value if it's null or blank.
+ *
+ * After choosing the final profile values, it recalculates the user's daily
+ * calorie goal and updates the Clients table. The user is then redirected back
+ * to the profile page so they can see the updated details.
+ */
 private fun Route.configureProfileUpdateRoute() {
     post("/profileupdate") {
         val email = call.sessions.get<UserSession>()?.email
