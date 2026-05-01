@@ -6,10 +6,10 @@ import diettracker.routing.configureClientDashRoute
 import diettracker.routing.configureFoodRoutes
 import diettracker.routing.configureRecipeRoutes
 import diettracker.routing.foodDiaryRoutes
+import diettracker.routing.profileRoutes
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate
-import io.ktor.server.http.content.staticResources
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.pebble.respondTemplate
 import io.ktor.server.request.receiveParameters
@@ -38,7 +38,7 @@ private const val MAX_MONTH = 12
 
 fun Application.configureRouting() {
     routing {
-        staticResources("/static", "static")
+        configureStatic()
         configurePublicRoutes()
         configureProfessionalRoutes()
         configureAuthRoutes()
@@ -77,6 +77,7 @@ fun Route.configurePublicRoutes() {
     configureClientDashboardRoute()
     configureFoodRoutes()
     foodDiaryRoutes()
+    profileRoutes()
 
     authenticate("group49-client_auth") {
         get("/") { call.dashboardPage() }
