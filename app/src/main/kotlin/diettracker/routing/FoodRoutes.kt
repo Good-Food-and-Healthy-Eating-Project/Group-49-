@@ -124,7 +124,7 @@ private fun Route.configureFoodPostRoutes() {
 /**
  * Handles recipe search requests from the food log page.
  *
- * It gets the recipe search query, finds matching recipes by calling a 
+ * It gets the recipe search query, finds matching recipes by calling a
  * helper function, loads the user's saved meals and current nutrition totals,
  * then displays the add food page with the recipe results.
  */

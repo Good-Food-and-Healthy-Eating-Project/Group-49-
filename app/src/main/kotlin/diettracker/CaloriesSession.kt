@@ -69,11 +69,7 @@ suspend fun ApplicationCall.foodLogPage() {
  */
 private data class RecipeLogResult(val foods: List<CurrentMealFood>, val nutrients: NutrientValues)
 
-
-private fun logRecipeIngredients(
-    recipeid: Int,
-    userId: Int?,
-): RecipeLogResult {
+private fun logRecipeIngredients(recipeid: Int): RecipeLogResult {
     var addCalories = 0
     var addProtein = 0
     var addFat = 0
@@ -87,17 +83,17 @@ private fun logRecipeIngredients(
                 .map { row -> row }
 
         /**val logId =
-            if (userId != null) {
-                FoodLogs.insert {
-                    it[FoodLogs.user_id] = userId
-                    it[FoodLogs.log_date] = Instant.now()
-                    it[FoodLogs.meal_type] = "recipe"
-                    it[FoodLogs.notes] = ""
-                } get FoodLogs.food_log_id
-            } else {
-                null
-            }
-        */
+         if (userId != null) {
+         FoodLogs.insert {
+         it[FoodLogs.user_id] = userId
+         it[FoodLogs.log_date] = Instant.now()
+         it[FoodLogs.meal_type] = "recipe"
+         it[FoodLogs.notes] = ""
+         } get FoodLogs.food_log_id
+         } else {
+         null
+         }
+         */
 
         for (i in ingredients) {
             val foodId = i[RecipeIngredients.food_id]
@@ -110,13 +106,13 @@ private fun logRecipeIngredients(
             addFat += n.fat
             addCarbs += n.carbs
             /**logId?.let {
-                FoodLogItems.insert { row ->
-                    row[FoodLogItems.food_log_id] = it
-                    row[FoodLogItems.food_id] = foodId
-                    row[FoodLogItems.quantity_g] = quantity
-                }
-            }
-                */
+             FoodLogItems.insert { row ->
+             row[FoodLogItems.food_log_id] = it
+             row[FoodLogItems.food_id] = foodId
+             row[FoodLogItems.quantity_g] = quantity
+             }
+             }
+             */
         }
     }
     return RecipeLogResult(foodsToAdd, NutrientValues(addCalories, addProtein, addFat, addCarbs))
@@ -143,9 +139,7 @@ suspend fun ApplicationCall.foodLogRecipe() {
         return
     }
 
-    val email = sessions.get<UserSession>()?.email
-    val userId = email?.let { getUserIdByEmail(it) }
-    val result = logRecipeIngredients(recipeid, userId)
+    val result = logRecipeIngredients(recipeid)
 
     val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession(0, 0, 0, 0)
     sessions.set(
@@ -166,7 +160,8 @@ suspend fun ApplicationCall.foodLogRecipe() {
  *
  * This is used in foodLogCustom() when the user adds a custom food.
  * It calculates the calories, protein, fat, and carbs for the
- * selected food and gram amount by calling calcNutrients(). If a user ID is provided, * it also saves the custom food item to the food log tables.
+ * selected food and gram amount by calling calcNutrients(). If a user ID is
+ * provided, it also saves the custom food item to the food log tables.
  *
  * @param userId The ID of the logged-in user, or null if unavailable.
  * @param foodId The ID of the selected food item.
@@ -273,7 +268,7 @@ fun searchRecipes(query: String): List<Recipe> =
  *
  * This is used by configureFoodLogRoute() and configureFoodSearchRoute()
  * when the user searches for food items it then returns
- * an empty list if the search text is blank or contains numbers or 
+ * an empty list if the search text is blank or contains numbers or
  * the foods thats match the query.
  *
  * @param foodquery The food search text entered by the user.
@@ -326,7 +321,7 @@ data class NutrientValues(val calories: Int, val protein: Int, val fat: Int, val
  *
  * This is used by logRecipeIngredients() and calcAndLogCustomFood() when food
  * is added to the current food log session. It gets the food's nutrition values
- * per 100g from the database, scales them using the selected gram amount by using 
+ * per 100g from the database, scales them using the selected gram amount by using
  * the multiplier, and returns the calculated calories, protein, fat, and carbs
  * together as NutrientValues.
  *

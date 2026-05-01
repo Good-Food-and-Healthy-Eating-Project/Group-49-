@@ -89,7 +89,8 @@ private fun Route.configureProfilePageRoute() {
  * It reads the new height, weight, age, gender, and goal from the submitted
  * form. If a field is missing or left blank, the current value from the Clients
  * table is kept instead. This prevents existing profile data from being
- * overwritten with null values. This is done by checking each value from the form and * replacing it with the current value if it's null or blank.
+ * overwritten with null values. This is done by checking each value from the
+ * form and replacing it with the current value if it's null or blank.
  *
  * After choosing the final profile values, it recalculates the user's daily
  * calorie goal and updates the Clients table. The user is then redirected back

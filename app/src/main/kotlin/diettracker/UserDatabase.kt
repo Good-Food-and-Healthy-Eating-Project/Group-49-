@@ -149,19 +149,19 @@ object UserDatabase {
         }
 
     /**
-    * Adds a new user account to the database after validating the email and password.
-    *
-    * This is used by the register/signup route when the user signs up.
-    * It lowercases the email, checks that the email and password
-    * are valid, makes sure the email is not already in the Users table, stores
-    * the new user with a hashed password, and links the user to the "client" role
-    * if that role exists.
-    *
-    * @param email The email address submitted by the user during registration.
-    * @param password The plain-text password submitted by the user during
-    * sign up.
-    * @return True if the user was successfully added, otherwise false.
-    */
+     * Adds a new user account to the database after validating the email and password.
+     *
+     * This is used by the register/signup route when the user signs up.
+     * It lowercases the email, checks that the email and password
+     * are valid, makes sure the email is not already in the Users table, stores
+     * the new user with a hashed password, and links the user to the "client" role
+     * if that role exists.
+     *
+     * @param email The email address submitted by the user during registration.
+     * @param password The plain-text password submitted by the user during
+     * sign up.
+     * @return True if the user was successfully added, otherwise false.
+     */
     fun addUser(
         email: String,
         password: String,
@@ -208,19 +208,19 @@ object UserDatabase {
         }
 
     /**
-    * Checks whether the submitted email already exists in the Users table.
-    *
-    * This is used by isEmailValid() when validating an email during registration.
-    * It lowercases the submitted email, searches the Users table for a matching
-    * email, and returns true if at least one matching user already exists.
-    *
-    * This is needed so the app can block duplicate accounts from being created
-    * with the same email address. Without this, multiple users could register
-    * using the same email, which would break login and account identification.
-    *
-    * @param email The email address being checked for duplicates.
-    * @return true if the email already exists in the database, otherwise false.
-    */
+     * Checks whether the submitted email already exists in the Users table.
+     *
+     * This is used by isEmailValid() when validating an email during registration.
+     * It lowercases the submitted email, searches the Users table for a matching
+     * email, and returns true if at least one matching user already exists.
+     *
+     * This is needed so the app can block duplicate accounts from being created
+     * with the same email address. Without this, multiple users could register
+     * using the same email, which would break login and account identification.
+     *
+     * @param email The email address being checked for duplicates.
+     * @return true if the email already exists in the database, otherwise false.
+     */
     fun isEmailDuplicate(email: String): Boolean {
         val preexistingUser =
             transaction {
