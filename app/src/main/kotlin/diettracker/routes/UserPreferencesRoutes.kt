@@ -95,7 +95,7 @@ fun Route.quizRoutes() {
  * Calculates total daily energy expenditure
  * For goals which were to lose or maintain weight, NHS guidelines of 500 for calorie adjustment were used
  * **/
-private fun calculateDailyCalorieGoal(
+fun calculateDailyCalorieGoal(
     weightKg: Int?,
     heightCm: Int?,
     age: Int?,

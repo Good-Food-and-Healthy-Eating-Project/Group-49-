@@ -146,6 +146,12 @@ private fun Route.configureClientProfessionalRoutes() {
         val userRoles = userId?.let { getUserRoles(it) } ?: emptyList()
         val professionals = getAllProfessionals()
         val hasCompletedQuiz = userId?.let { getClientCalorieGoal(it) } != null
+        val linkedProfessionalIds =
+            if (userId != null && !userRoles.contains("professional")) {
+                getLinkedProfessionalIdsForClient(userId)
+            } else {
+                emptyList()
+            }
 
         call.respondTemplate(
             "pages/professionals/professionals.peb",
@@ -155,8 +161,28 @@ private fun Route.configureClientProfessionalRoutes() {
                 "showNavbar" to true,
                 "hasCompletedQuiz" to hasCompletedQuiz,
                 "userId" to (userId ?: ""),
+                "linkedProfessionalIds" to linkedProfessionalIds,
             ),
         )
+    }
+
+    post("/unlink-professional") {
+        val session = call.sessions.get<UserSession>()
+        val email = session?.email ?: return@post call.respondRedirect("/Login")
+        val clientId =
+            getUserIdByEmail(email)?.toString()?.toIntOrNull()
+                ?: return@post call.respondText(
+                    "Invalid client ID",
+                    status = HttpStatusCode.InternalServerError,
+                )
+        val professionalId =
+            call.receiveParameters()["professional_id"]?.toIntOrNull()
+                ?: return@post call.respondText(
+                    "Invalid professional",
+                    status = HttpStatusCode.BadRequest,
+                )
+        unlinkClientFromProfessional(clientId, professionalId)
+        call.respondRedirect("/professionals")
     }
 
     post("/select-professional") {

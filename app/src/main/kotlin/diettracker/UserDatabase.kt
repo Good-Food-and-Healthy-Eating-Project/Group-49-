@@ -11,6 +11,7 @@ import diettracker.models.ClientInfo
 import diettracker.models.Professional
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -88,6 +89,26 @@ fun linkClientToProfessional(
                 it[ClientProfessionalLink.client_id] = clientId
                 it[ClientProfessionalLink.professional_id] = professionalId
             }
+        }
+    }
+}
+
+fun getLinkedProfessionalIdsForClient(clientId: Int): List<Int> =
+    transaction {
+        ClientProfessionalLink
+            .selectAll()
+            .where { ClientProfessionalLink.client_id eq clientId }
+            .map { it[ClientProfessionalLink.professional_id] }
+    }
+
+fun unlinkClientFromProfessional(
+    clientId: Int,
+    professionalId: Int,
+) {
+    transaction {
+        ClientProfessionalLink.deleteWhere {
+            (ClientProfessionalLink.client_id eq clientId) and
+                (ClientProfessionalLink.professional_id eq professionalId)
         }
     }
 }

@@ -20,6 +20,11 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDate
 
+/**
+ * This page contains all the routing functions used for the client dashboard page
+ * The Client dashboard displays guidance messages based on UK recommended nutritional intake
+ * The messages help the user know if they are following recommended guidelines
+ * **/
 internal fun Route.configureClientDashRoute() {
     get("/client_dash") {
         val email = call.sessions.get<UserSession>()?.email
@@ -33,6 +38,8 @@ internal fun Route.configureClientDashRoute() {
         call.respond(PebbleContent("pages/client_dash/client_dash.peb", buildClientDashModel(userId)))
     }
 }
+
+/****/
 
 internal fun buildClientDashModel(userId: Int): Map<String, Any> {
     val userRoles = getUserRoles(userId)

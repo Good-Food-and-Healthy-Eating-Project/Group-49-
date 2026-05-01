@@ -6,11 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="3e8b2f3c-ea88-445f-8f8a-aedd969d0c66" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/models/ClientInfo.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/models/ClientInfo.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/Routing.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/Routing.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/UserDatabase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/UserDatabase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/db/tables/Clients.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/db/tables/Clients.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routes/UserPreferencesRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routes/UserPreferencesRoutes.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/services/DiaryEntryHelpers.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/services/DiaryEntryHelpers.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/client_dash/add_food.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/client_dash/add_food.peb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/view_client_details.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/view_client_details.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ClientDashRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ClientDashRoutes.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/professionals.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/professionals.peb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,7 +19,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="118" />
+    <option name="cachedIndexableFilesCount" value="122" />
   </component>
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
@@ -45,7 +46,10 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.MCP Project settings loaded": "true",
-    "git-widget-placeholder": "feature/client__dash__improvement"
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "feature/client__dash__improvement",
+    "kotlin-language-version-configured": "true"
   }
 }]]></component>
   <component name="RunManager">
@@ -66,9 +70,16 @@
       </method>
     </configuration>
   </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="26563dcb-6ccb-4d65-9621-0ea5f1364be7" name="Changes" comment="" />
+      <changelist id="3e8b2f3c-ea88-445f-8f8a-aedd969d0c66" name="Changes" comment="" />
       <created>1776693178881</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />

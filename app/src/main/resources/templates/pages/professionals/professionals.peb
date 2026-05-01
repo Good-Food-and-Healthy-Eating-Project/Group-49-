@@ -17,6 +17,48 @@
         </div>
     {% endif %}
 
+    {% if not isProfessional and linkedProfessionalIds is not empty %}
+        <div class="current-pros-section">
+            <h2 class="section-label">Your Current Professional(s)</h2>
+            <div class="pro-grid">
+                {% for pro in professionals %}
+                    {% if linkedProfessionalIds contains pro.id %}
+                        <div class="card pro-card linked-card">
+                            <div class="pro-card-top">
+                                <div class="pro-avatar">
+                                    {% if pro.firstName is not empty %}{{ pro.firstName | slice(0, 1) }}{% endif %}{% if pro.lastName is not empty %}{{ pro.lastName | slice(0, 1) }}{% endif %}
+                                </div>
+                                <div class="pro-header-info">
+                                    <h3 class="pro-name">{{ pro.firstName }} {{ pro.lastName }}</h3>
+                                    {% if pro.jobTitle %}
+                                        <p class="pro-title">{{ pro.jobTitle }}{% if pro.organization %} · {{ pro.organization }}{% endif %}</p>
+                                    {% elseif pro.organization %}
+                                        <p class="pro-title">{{ pro.organization }}</p>
+                                    {% endif %}
+                                </div>
+                                <span class="linked-badge">Selected</span>
+                            </div>
+                            {% if pro.bio %}
+                                <hr class="divider">
+                                <p class="pro-bio">{{ pro.bio }}</p>
+                            {% endif %}
+                            <div class="pro-card-footer">
+                                <form method="post" action="/unlink-professional"
+                                      onsubmit="return confirm('Are you sure you want to unlink from {{ pro.firstName }} {{ pro.lastName }}?');">
+                                    <input type="hidden" name="professional_id" value="{{ pro.id }}">
+                                    <button type="submit" class="btn btn-danger" style="width: 100%;">
+                                        Unlink Professional
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        <hr class="section-divider">
+    {% endif %}
+
     {% if professionals is empty %}
         <div class="empty-state" style="padding: 2.5rem; text-align: center; border-radius: var(--radius-lg);">
             <p style="font-size: 1.05rem;">No professionals are registered yet. Check back soon.</p>
@@ -46,12 +88,18 @@
 
                     {% if not isProfessional %}
                         <div class="pro-card-footer">
-                            <form method="post" action="/select-professional">
-                                <input type="hidden" name="professional_id" value="{{ pro.id }}">
-                                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                                    Select Professional
-                                </button>
-                            </form>
+                            {% if linkedProfessionalIds contains pro.id %}
+                                <div class="already-linked-indicator">
+                                    <span class="linked-badge">&#10003; Currently Selected</span>
+                                </div>
+                            {% else %}
+                                <form method="post" action="/select-professional">
+                                    <input type="hidden" name="professional_id" value="{{ pro.id }}">
+                                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                        Select Professional
+                                    </button>
+                                </form>
+                            {% endif %}
                         </div>
                     {% endif %}
                 </div>
@@ -145,6 +193,69 @@
 
     .pro-card-footer {
         margin-top: 1.25rem;
+    }
+
+    .current-pros-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .section-label {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 1rem;
+    }
+
+    .section-divider {
+        border: none;
+        border-top: 1px solid var(--border-color, #e5e7eb);
+        margin: 1.5rem 0;
+    }
+
+    .linked-card {
+        border: 2px solid var(--sage, #6b8f71);
+    }
+
+    .linked-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        background: var(--sage-light, #d4e6d6);
+        color: var(--sage-dark, #3a5c3e);
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        white-space: nowrap;
+        margin-left: auto;
+    }
+
+    .already-linked-indicator {
+        display: flex;
+        justify-content: center;
+    }
+
+    .already-linked-indicator .linked-badge {
+        font-size: 0.85rem;
+        padding: 0.4rem 1rem;
+    }
+
+    .btn-danger {
+        background: #ef4444;
+        color: #fff;
+        border: none;
+        border-radius: var(--radius, 6px);
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
     }
 </style>
 {% endblock %}
