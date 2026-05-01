@@ -91,6 +91,12 @@ fun Route.configurePublicRoutes() {
     }
 }
 
+/**
+ * Routing for client dashboard
+ *
+ * Retrieved logged-in user ID from the session
+ * Renders dashboard template with data defined separately
+ * **/
 fun Route.configureClientDashboardRoute() {
     get("/client_dash") {
         val email = call.sessions.get<UserSession>()?.email

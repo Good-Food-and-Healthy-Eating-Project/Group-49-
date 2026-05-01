@@ -64,16 +64,57 @@ Home
             <div class="no-data">No diet data</div>
         {% endif %}
 
-        <div class="Daily Overview">
-            <h2>Today's Summary</h2>
+        <div class="daily-overview">
+            <h2 class="summary-title">Today's Summary</h2>
 
-            <p>Calories: {{ totalCalories }} / {{ goal }} kcal</p>
-            <p>Protein: {{ totalProtein }}g</p>
-            <p>Carbs: {{ totalCarbs }}g</p>
-            <p>Fat: {{ totalFat }}g</p>
+            <div class="nutrient-row">
+                <div class="nutrient-header">
+                    <span class="nutrient-name">Calories</span>
+                    <span class="nutrient-values">{{ totalCalories }} / {% if calorieGoal is not empty %}{{ calorieGoal }} kcal{% else %}– kcal{% endif %}</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill calories-fill" style="width: {{ caloriePct }}%;"></div>
+                </div>
+            </div>
 
-            <h3>Guidance</h3>
-            <ul>
+            <div class="nutrient-row">
+                <div class="nutrient-header">
+                    <span class="nutrient-name">Protein</span>
+                    <span class="nutrient-values">{{ totalProtein }}g / {% if targetProtein is not empty %}{{ targetProtein }}g{% else %}–{% endif %}</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill protein-fill" style="width: {{ proteinPct }}%;"></div>
+                </div>
+            </div>
+
+            <div class="nutrient-row">
+                <div class="nutrient-header">
+                    <span class="nutrient-name">Carbs</span>
+                    <span class="nutrient-values">{{ totalCarbs }}g / {% if targetCarbs is not empty %}{{ targetCarbs }}g{% else %}–{% endif %}</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill carbs-fill" style="width: {{ carbsPct }}%;"></div>
+                </div>
+            </div>
+
+            <div class="nutrient-row">
+                <div class="nutrient-header">
+                    <span class="nutrient-name">Fat</span>
+                    <span class="nutrient-values">{{ totalFat }}g / {% if targetFat is not empty %}{{ targetFat }}g{% else %}–{% endif %}</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill fat-fill" style="width: {{ fatPct }}%;"></div>
+                </div>
+            </div>
+
+            <p class="macro-reference">
+                Macro targets based on the
+                <a href="https://www.gov.uk/government/publications/the-eatwell-guide" target="_blank" rel="noopener">UK Eatwell Guide</a>
+                (Public Health England, 2016): 50% carbs, 35% fat, 15% protein of total energy.
+            </p>
+
+            <h3 class="guidance-title">Guidance</h3>
+            <ul class="guidance-list">
                 {% for msg in messages %}
                     <li>{{ msg }}</li>
                 {% endfor %}
@@ -121,6 +162,89 @@ Home
 
     .calorie-goal-link:hover {
         text-decoration: underline;
+    }
+
+    .daily-overview {
+        background: #FDFAF5;
+        border: 1px solid #EDE6D8;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1.25rem;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+    .summary-title {
+        margin: 0 0 1.25rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #3D2B1F;
+    }
+
+    .nutrient-row {
+        margin-bottom: 1rem;
+    }
+
+    .nutrient-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 0.3rem;
+    }
+
+    .nutrient-name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #5C4033;
+    }
+
+    .nutrient-values {
+        font-size: 0.85rem;
+        color: #7A6855;
+    }
+
+    .progress-track {
+        height: 10px;
+        background: #EDE6D8;
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: 999px;
+        transition: width 0.4s ease;
+    }
+
+    .calories-fill { background: #C4603A; }
+    .protein-fill  { background: #6B8F71; }
+    .carbs-fill    { background: #E8A838; }
+    .fat-fill      { background: #8B6BAE; }
+
+    .macro-reference {
+        margin: 1rem 0 0;
+        font-size: 0.75rem;
+        color: #9E8E7E;
+        line-height: 1.5;
+    }
+
+    .macro-reference a {
+        color: #9E8E7E;
+        text-decoration: underline;
+    }
+
+    .guidance-title {
+        margin: 1.25rem 0 0.5rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #5C4033;
+    }
+
+    .guidance-list {
+        margin: 0;
+        padding-left: 1.2rem;
+        font-size: 0.875rem;
+        color: #7A6855;
+        line-height: 1.7;
     }
 </style>
 {% endblock %}

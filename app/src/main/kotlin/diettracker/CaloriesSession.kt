@@ -29,9 +29,22 @@ import java.time.Instant
 
 const val GRAMS_PER_SERVING = 100
 
+/**
+ * Stores the user's current nutrition totals in the session.
+ *
+ * @param calories The current total calories.
+ * @param protein The current total protein.
+ * @param fat The current total fat.
+ * @param carbs The current total carbohydrates.
+ */
 @Serializable
 data class CaloriesSession(val calories: Int = 0, val protein: Int = 0, val fat: Int = 0, val carbs: Int = 0)
 
+/**
+ * Displays the food log page with the current nutrition totals.
+ *
+ * It gets the saved calorie session values and passes them to the page.
+ */
 suspend fun ApplicationCall.foodLogPage() {
     val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession()
     respondTemplate(
@@ -45,12 +58,18 @@ suspend fun ApplicationCall.foodLogPage() {
     )
 }
 
+/**
+ * Stores the foods and nutrients added from a recipe.
+ *
+ * This is used by logRecipeIngredients() so it can return both the recipe
+ * foods added to the current meal and the total nutrition values.
+ *
+ * @param foods The list of recipe foods added to the current meal.
+ * @param nutrients The total nutrition values calculated from the recipe.
+ */
 private data class RecipeLogResult(val foods: List<CurrentMealFood>, val nutrients: NutrientValues)
 
-private fun logRecipeIngredients(
-    recipeid: Int,
-    userId: Int?,
-): RecipeLogResult {
+private fun logRecipeIngredients(recipeid: Int): RecipeLogResult {
     var addCalories = 0
     var addProtein = 0
     var addFat = 0
@@ -63,17 +82,18 @@ private fun logRecipeIngredients(
                 .where { RecipeIngredients.recipe_id eq recipeid }
                 .map { row -> row }
 
-        val logId =
-            if (userId != null) {
-                FoodLogs.insert {
-                    it[FoodLogs.user_id] = userId
-                    it[FoodLogs.log_date] = Instant.now()
-                    it[FoodLogs.meal_type] = "recipe"
-                    it[FoodLogs.notes] = ""
-                } get FoodLogs.food_log_id
-            } else {
-                null
-            }
+        /**val logId =
+         if (userId != null) {
+         FoodLogs.insert {
+         it[FoodLogs.user_id] = userId
+         it[FoodLogs.log_date] = Instant.now()
+         it[FoodLogs.meal_type] = "recipe"
+         it[FoodLogs.notes] = ""
+         } get FoodLogs.food_log_id
+         } else {
+         null
+         }
+         */
 
         for (i in ingredients) {
             val foodId = i[RecipeIngredients.food_id]
@@ -85,18 +105,28 @@ private fun logRecipeIngredients(
             addProtein += n.protein
             addFat += n.fat
             addCarbs += n.carbs
-            logId?.let {
-                FoodLogItems.insert { row ->
-                    row[FoodLogItems.food_log_id] = it
-                    row[FoodLogItems.food_id] = foodId
-                    row[FoodLogItems.quantity_g] = quantity
-                }
-            }
+            /**logId?.let {
+             FoodLogItems.insert { row ->
+             row[FoodLogItems.food_log_id] = it
+             row[FoodLogItems.food_id] = foodId
+             row[FoodLogItems.quantity_g] = quantity
+             }
+             }
+             */
         }
     }
     return RecipeLogResult(foodsToAdd, NutrientValues(addCalories, addProtein, addFat, addCarbs))
 }
 
+/**
+ * Handles adding a selected recipe to the current food log session.
+ *
+ * This is used in configureFoodPostRoutes() by the food_log_recipe post
+ * route .This is used when a user selects a recipe. It gets the
+ * recipe ID from the form, adds the recipe foods to the current meal
+ * session, updates the current nutrition totals, and redirects back to the
+ * food log page.
+ */
 suspend fun ApplicationCall.foodLogRecipe() {
     val params = receiveParameters()
     val recipeIdStr = params["recipeId"]
@@ -109,9 +139,7 @@ suspend fun ApplicationCall.foodLogRecipe() {
         return
     }
 
-    val email = sessions.get<UserSession>()?.email
-    val userId = email?.let { getUserIdByEmail(it) }
-    val result = logRecipeIngredients(recipeid, userId)
+    val result = logRecipeIngredients(recipeid)
 
     val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession(0, 0, 0, 0)
     sessions.set(
@@ -127,13 +155,26 @@ suspend fun ApplicationCall.foodLogRecipe() {
     respondRedirect("/food_log")
 }
 
+/**
+ * Calculates the nutrition values for a custom food item.
+ *
+ * This is used in foodLogCustom() when the user adds a custom food.
+ * It calculates the calories, protein, fat, and carbs for the
+ * selected food and gram amount by calling calcNutrients(). If a user ID is
+ * provided, it also saves the custom food item to the food log tables.
+ *
+ * @param userId The ID of the logged-in user, or null if unavailable.
+ * @param foodId The ID of the selected food item.
+ * @param grams The amount of the food item in grams.
+ * @return The calculated nutrition values for the selected food and gram amount.
+ */
 private fun calcAndLogCustomFood(
     userId: Int?,
     foodId: Int,
     grams: Int,
 ): NutrientValues =
     transaction {
-        val n = calcNutrients(foodId, grams)
+        val nutrients = calcNutrients(foodId, grams)
         if (userId != null) {
             val logId =
                 FoodLogs.insert {
@@ -148,9 +189,18 @@ private fun calcAndLogCustomFood(
                 it[FoodLogItems.quantity_g] = grams.toBigDecimal()
             }
         }
-        n
+        nutrients
     }
 
+/**
+ * Handles adding a custom food item to the current food log session.
+ *
+ * This is used in configureFoodPostRoutes() by food_log_custom Post
+ * route when the user adds a custom food. It gets the
+ * food ID and gram amount from the form, calculates the nutrition values,
+ * updates the current nutrition totals, adds the food to the current meal
+ * session, and displays the updated food log page.
+ */
 suspend fun ApplicationCall.foodLogCustom() {
     val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession(0, 0, 0, 0)
     val params = receiveParameters()
@@ -181,6 +231,16 @@ suspend fun ApplicationCall.foodLogCustom() {
     respondRedirect("/food_log")
 }
 
+/**
+ * Searches the recipe database using the user's search text.
+ *
+ * This is used by configureFoodLogRoute() and configureRecipeSearchRoute()
+ * when the user searches for recipes from the food log page. It returns an
+ * empty list if the search text is blank or contains numbers.
+ *
+ * @param query The recipe search text entered by the user.
+ * @return A list of matching recipes.
+ */
 fun searchRecipes(query: String): List<Recipe> =
     transaction {
         val searchTerm = query.lowercase()
@@ -203,6 +263,17 @@ fun searchRecipes(query: String): List<Recipe> =
         return@transaction recipes
     }
 
+/**
+ * Searches the food database using the user's search text.
+ *
+ * This is used by configureFoodLogRoute() and configureFoodSearchRoute()
+ * when the user searches for food items it then returns
+ * an empty list if the search text is blank or contains numbers or
+ * the foods thats match the query.
+ *
+ * @param foodquery The food search text entered by the user.
+ * @return A list of matching food items with their nutrition values per 100g.
+ */
 fun searchFoods(foodquery: String): List<Food> =
     transaction {
         val searchTerm = foodquery.lowercase()
@@ -229,8 +300,35 @@ fun searchFoods(foodquery: String): List<Food> =
         return@transaction foods
     }
 
+/**
+ * Stores calculated nutrition totals in one object.
+ *
+ * This is needed because several functions calculate calories, protein, fat,
+ * and carbs together. Instead of returning or passing four separate values,
+ * this class keeps them grouped as one result. This makes it easier for
+ * calcNutrients(), logRecipeIngredients(), foodLogRecipe(), foodLogCustom(),
+ * and calcAndLogCustomFood() to share nutrition values and keeps my code a bit neater.
+ *
+ * @param calories The total calories.
+ * @param protein The total protein.
+ * @param fat The total fat.
+ * @param carbs The total carbohydrates.
+ */
 data class NutrientValues(val calories: Int, val protein: Int, val fat: Int, val carbs: Int)
 
+/**
+ * Calculates nutrition values for a food item based on the gram amount.
+ *
+ * This is used by logRecipeIngredients() and calcAndLogCustomFood() when food
+ * is added to the current food log session. It gets the food's nutrition values
+ * per 100g from the database, scales them using the selected gram amount by using
+ * the multiplier, and returns the calculated calories, protein, fat, and carbs
+ * together as NutrientValues.
+ *
+ * @param foodId The ID of the food item being calculated.
+ * @param grams The amount of the food item in grams.
+ * @return The calculated nutrition values, or zero values if the food is not found.
+ */
 fun calcNutrients(
     foodId: Int,
     grams: Int,
@@ -249,20 +347,28 @@ fun calcNutrients(
     )
 }
 
+/**
+ * Resets the current food log session.
+ *
+ * Used in configureFoodPostRoutes() by the food_log_reset POST
+ * route when the user presses the reset button. It resets the nutrition
+ * totals and removes all foods from the current meal session, then displays
+ * the food log page with zero values.
+ */
 suspend fun ApplicationCall.foodLogReset() {
     sessions.set(CaloriesSession(0, 0, 0, 0))
     sessions.set(CurrentMealSession(emptyList()))
-    respondTemplate(
-        "pages/client_dash/add_food.peb",
-        mapOf(
-            "calories" to 0,
-            "protein" to 0,
-            "fat" to 0,
-            "carbs" to 0,
-        ),
-    )
+    respondRedirect("/food_log")
 }
 
+/**
+ * Saves the current food log session to the user's diary.
+ *
+ * This is used in configureFoodPostRoutes() by the save_food_log POST
+ * route when the user presses the save to diary button. It checks the user is
+ * logged in, checks there are foods in the current meal session, saves those
+ * foods to the diary using saveFoodLog(), then clears the current session.
+ */
 suspend fun ApplicationCall.saveCurrentFoodLog() {
     val mealType = getMealTypeByTime()
     val notes = ""

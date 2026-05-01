@@ -12,6 +12,20 @@ fun main(args: Array<String>) {
     EngineMain.main(args)
 }
 
+/**
+ * Main setup function for the Ktor application.
+ *
+ * Sets up the database connection, session cookies, authentication,
+ * routing, and Pebble templates.
+ *
+ * The database is only initialised when testing is false, so tests can run
+ * without starting the normal database setup. The session cookies store the
+ * logged-in user, the current nutrition totals, and the current meal foods etc
+ * while the user is using the site.
+ *
+ * @param testing Whether the application is running in test mode.
+ */
+
 fun Application.module(testing: Boolean = false) {
     if (!testing) {
         DatabaseFactory.init()
