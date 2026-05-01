@@ -22,6 +22,12 @@ import io.ktor.server.sessions.sessions
 
 private const val DEFAULT_GRAMS = 100
 
+/**
+ * Sets up all the food related routes for the feature.
+ *
+ * It includes the main food log page, food log actions, recipe searches,
+ * and food searches.
+ */
 fun Route.configureFoodRoutes() {
     configureFoodLogRoute()
     configureFoodPostRoutes()
@@ -29,6 +35,13 @@ fun Route.configureFoodRoutes() {
     configureFoodSearchRoute()
 }
 
+/**
+ * Handles requests to the food log page.
+ *
+ * This route checks if the user is logged in then loads their saved meals,
+ * gets the current calorie session totals and displays recipe or food
+ * search results when a search query is provided.
+ */
 private fun Route.configureFoodLogRoute() {
     get("/food_log") {
         call.sessions.get<UserSession>() ?: return@get call.respondRedirect("/Login")
@@ -92,6 +105,13 @@ private fun Route.configureFoodLogRoute() {
     }
 }
 
+/**
+ * Handles form submissions from the food log page.
+ *
+ * This includes adding recipe food, adding custom food, resetting the food log,
+ * saving a meal, adding a saved meal to the log, and saving the current food log
+ * to the diary.
+ */
 private fun Route.configureFoodPostRoutes() {
     post("/food_log_recipe") { call.foodLogRecipe() }
     post("/food_log_custom") { call.foodLogCustom() }
@@ -101,6 +121,13 @@ private fun Route.configureFoodPostRoutes() {
     post("/save_food_log") { call.saveCurrentFoodLog() }
 }
 
+/**
+ * Handles recipe search requests from the food log page.
+ *
+ * It gets the recipe search query, finds matching recipes by calling a 
+ * helper function, loads the user's saved meals and current nutrition totals,
+ * then displays the add food page with the recipe results.
+ */
 private fun Route.configureRecipeSearchRoute() {
     get("/recipe_search") {
         val query = call.request.queryParameters["query"] ?: ""
@@ -129,6 +156,13 @@ private fun Route.configureRecipeSearchRoute() {
     }
 }
 
+/**
+ * Handles food search requests from the food log page.
+ *
+ * It gets the food search query and gram amount, finds matching foods and
+ * then loads the user's saved meals and current nutrition totals,
+ * then displays the add food page with the food results.
+ */
 private fun Route.configureFoodSearchRoute() {
     get("/food_search") {
         val query = call.request.queryParameters["foodquery"] ?: ""
