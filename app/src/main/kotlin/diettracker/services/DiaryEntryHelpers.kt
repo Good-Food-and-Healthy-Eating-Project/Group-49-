@@ -62,7 +62,7 @@ fun buildDayViewUrl(
     hasEntries: Boolean,
 ): String? {
     return if (hasEntries) {
-        "/food_diary/day?date=$date"
+        "/food_diary_day?date=$date"
     } else {
         null
     }
