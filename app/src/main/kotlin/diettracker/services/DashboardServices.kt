@@ -160,6 +160,7 @@ fun buildClientDashModel(
             macroPercent(nutrition.totalProtein, totalMacros),
             macroPercent(nutrition.totalFat, totalMacros),
             macroPercent(nutrition.totalCarbs, totalMacros),
+            goal = goal,
         )
 
     // Calculating target macros based on calorie goal

@@ -144,16 +144,35 @@ fun buildGuidanceMessages(
     proteinPercent: Double,
     fatPercent: Double,
     carbsPercent: Double,
+    goal: String?
 ): List<String> {
     val messages = mutableListOf<String>()
-    if (calorieGoal != null && totalCaloriesInt > calorieGoal) {
-        messages.add("You are over your daily calorie target")
-    } else {
-        messages.add("You are within your calorie target")
+    if (calorieGoal != null) {
+        val diff = totalCaloriesInt - calorieGoal
+        if (diff > 0) {
+            when(goal) {
+                "lose" -> messages.add("You are $diff kcal over your target - this may slow weight loss. Consider a lighter next meal.")
+                "maintain" -> messages.add("You are $diff kcal over your target - try to stay closer to your goal.")
+                "gain" -> messages.add("You are $diff kcal above your target - this supports muscle gain but avoid excessive surplus")
+                else -> messages.add("You are $diff kcal over your target.")
+            }
+        } else {
+            messages.add("You are within your target.")
+        }
     }
-    if (proteinPercent < MIN_PROTEIN_PERCENT) messages.add("Protein intake is low")
-    if (fatPercent > MAX_FAT_PERCENT) messages.add("Fat intake is high")
-    if (carbsPercent < MIN_CARBS_PERCENT) messages.add("Carbohydrate intake is low")
-    messages.add("Aim for a balanced diet with a mix of protein, carbs, and fats")
-    return messages
+    if (proteinPercent < MIN_PROTEIN_PERCENT)
+        if (goal == "gain") {
+            messages.add("Protein intake is low — increasing protein is important for muscle growth.")
+        } else{
+            messages.add("Protein intake is low — consider foods like eggs, chicken, or beans.")
+        }
+    if (fatPercent > MAX_FAT_PERCENT) {
+        messages.add("Fat intake is high — try reducing fried or processed foods.")
+    }
+    if (carbsPercent < MIN_CARBS_PERCENT) {
+        messages.add("Carbohydrate intake is low — consider adding whole grains or fruits.")
+
+    }
+    // Used Claude AI to find (.take()) Limits message counts for all cases being true
+    return messages.take(4)
 }

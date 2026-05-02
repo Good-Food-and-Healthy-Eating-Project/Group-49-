@@ -148,6 +148,17 @@
 </div>
 
 <style>
+    .success-banner {
+        background: var(--sage-light);
+        color: var(--brown);
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
     .log-food-page {
         padding: 2rem 0;
     }
