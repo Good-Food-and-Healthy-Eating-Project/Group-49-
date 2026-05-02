@@ -1,6 +1,7 @@
 package diettracker
 
 import diettracker.db.tables.Clients
+import diettracker.db.tables.Users
 import diettracker.routes.quizRoutes
 import diettracker.routing.configureClientDashRoute
 import diettracker.routing.configureClientProfessionalRoutes
@@ -182,12 +183,15 @@ private fun Route.configureProfessionalAccountRoutes() {
 
 fun fetchClientData(clientId: Int): Map<String, Any?>? =
     transaction {
-        Clients
+        (Clients innerJoin Users)
             .selectAll()
             .where { Clients.client_id eq clientId }
             .map {
                 mapOf(
                     "clientId" to it[Clients.client_id],
+                    "firstName" to it[Users.first_name],
+                    "lastName" to it[Users.second_name],
+                    "email" to it[Users.email],
                     "goal" to it[Clients.goal],
                     "calorieGoal" to it[Clients.daily_calorie_goal],
                     "age" to it[Clients.age],

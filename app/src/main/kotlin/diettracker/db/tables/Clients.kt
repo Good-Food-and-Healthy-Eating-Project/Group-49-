@@ -11,6 +11,8 @@ private const val GENDER_MAX_LEN = 10
 object Clients : Table("clients") {
     val client_id = integer("client_id").references(Users.user_id)
     val data_of_birth = date("date_of_birth").nullable()
+    val firstName = varchar("first_name", GOAL_MAX_LEN).nullable()
+    val lastName = varchar("last_name", GOAL_MAX_LEN).nullable()
     val height_cm = integer("height_cm").nullable()
     val weight_kg = integer("weight_kg").nullable()
     val age = integer("age").nullable()

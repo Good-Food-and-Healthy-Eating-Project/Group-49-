@@ -56,9 +56,15 @@
         .profile-form input,
         .profile-form select {
             padding: 10px;
-            border: 1px solid #bdbdbd;
+            border: 2px solid #8C7B6A;
             border-radius: 4px;
             font-size: 16px;
+        }
+
+        .profile-form input:focus,
+        .profile-form select:focus {
+            outline: 3px solid #A94F24;
+            border-color: #A94F24;
         }
 
         .update-button {
@@ -66,6 +72,8 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
+            background: #A94F24;
+            color: white;
         }
     </style>
 </head>
@@ -92,22 +100,22 @@
             <form method="post" action="/profileupdate" class="profile-form">
 
                 <div class="profile-section">
-                    <label class="profile-label">Height</label>
-                    <input type="number" name="height" placeholder="Current: {{ userinfo.height }}">
+                    <label for="height" class="profile-label">Height</label>
+                    <input id="height" type="number" name="height" value="{{ userinfo.height }}">
                 </div>
 
                 <div class="profile-section">
-                    <label class="profile-label">Weight</label>
-                    <input type="number" name="weight" placeholder="Current: {{ userinfo.weight }}">
+                    <label for="weight" class="profile-label">Weight</label>
+                    <input id="weight" type="number" name="weight" value="{{ userinfo.weight }}">
                 </div>
 
                 <div class="profile-section">
-                    <label class="profile-label">Age</label>
-                    <input type="number" name="age" placeholder="Current: {{ userinfo.age }}">
+                    <label for="age" class="profile-label">Age</label>
+                    <input id="age" type="number" name="age" value="{{ userinfo.age }}">
                 </div>
 
                 <div class="profile-section">
-                    <label class="profile-label">Gender</label>
+                    <label for="gender" class="profile-label">Gender</label>
                     <select name="gender">
                         <option value="">Current: {{ userinfo.gender }}</option>
                         <option value="male">Male</option>
@@ -116,7 +124,7 @@
                 </div>
 
                 <div class="profile-section">
-                    <label class="profile-label">Goal</label>
+                    <label for="goal" class="profile-label">Goal</label>
                     <select name="goal">
                         <option value="">Current: {{ userinfo.goal }}</option>
                         <option value="lose">Lose weight</option>

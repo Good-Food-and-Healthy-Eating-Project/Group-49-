@@ -142,6 +142,16 @@
 			<input type="hidden" name="userId" value="{{ userId }}">
 
 			<div class="field-group">
+				<label for="first_name">First Name</label>
+				<input id="first_name" name="first_name" type="text">
+			</div>
+
+			<div class="field-group">
+				<label for="last_name">Last Name</label>
+				<input id="last_name" name="last_name" type="text">
+			</div>
+
+			<div class="field-group">
 				<label for="height">Height (cm)</label>
 				<input id="height" name="height" type="number">
 			</div>

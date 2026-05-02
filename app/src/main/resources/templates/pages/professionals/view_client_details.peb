@@ -6,7 +6,8 @@
 
     <h1>Client Overview</h1>
 
-    <p>Client ID: {{ client.clientId }}</p>
+    <p>Name: {{ client.firstName }} {{ client.lastName }}</p>
+    <p>Email: {{ client.email }}</p>
     <p>Goal: {{ client.goal }}</p>
     <p>Daily Calorie Target: {{ client.calorieGoal }} kcal</p>
     <p>Age: {{ client.age }}</p>
