@@ -84,6 +84,7 @@ Home
             {% endif %}
         </div>
 
+        <div class="right-column">
         <div class="daily-overview">
             <h3 class="summary-title">Today's Nutrition</h3>
 
@@ -140,7 +141,20 @@ Home
                 {% endfor %}
             </ul>
         </div>
+        <div class="healthyeatingguide">
+        <h3>Healthy Eating Guide</h3>
+            <p>
+            This app uses the UK Eatwell Guide to set your nutrition targets:
+            </p>
 
+            <ul>
+              <li>🍞 Carbohydrates: ~50%</li>
+              <li>🥑 Fats: ~35%</li>
+              <li>🍗 Protein: ~15%</li>
+            </ul>
+
+            <img src="/static/css/Images/Eatwell%20guide.jpeg" alt="UK Eatwell Guide showing balanced diet proportions">
+        </div>
     </div>
 </div>
 
