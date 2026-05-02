@@ -141,12 +141,21 @@ private const val MIN_CARBS_PERCENT = 0.4
 fun buildGuidanceMessages(
     calorieGoal: Int?,
     totalCaloriesInt: Int,
-    proteinPercent: Double,
-    fatPercent: Double,
-    carbsPercent: Double,
+
+    proteinGrams: Double,
+    proteinTarget: Int?,
+
+    fatGrams: Double,
+    fatTarget: Int?,
+
+    carbsGrams: Double,
+    carbsTarget: Int?,
+
     goal: String?
 ): List<String> {
     val messages = mutableListOf<String>()
+
+    // Calories
     if (calorieGoal != null) {
         val diff = totalCaloriesInt - calorieGoal
         if (diff > 0) {
@@ -160,19 +169,25 @@ fun buildGuidanceMessages(
             messages.add("You are within your target.")
         }
     }
-    if (proteinPercent < MIN_PROTEIN_PERCENT)
+
+    // Protein
+    if (proteinTarget != null && proteinGrams < proteinTarget)
         if (goal == "gain") {
             messages.add("Protein intake is low — increasing protein is important for muscle growth.")
         } else{
             messages.add("Protein intake is low — consider foods like eggs, chicken, or beans.")
         }
-    if (fatPercent > MAX_FAT_PERCENT) {
+
+    // Fat
+    if (fatTarget != null && fatGrams > fatTarget) {
         messages.add("Fat intake is high — try reducing fried or processed foods.")
     }
-    if (carbsPercent < MIN_CARBS_PERCENT) {
+
+    //Carbohydrates
+    if (carbsTarget != null && carbsGrams < carbsTarget) {
         messages.add("Carbohydrate intake is low — consider adding whole grains or fruits.")
 
     }
     // Used Claude AI to find (.take()) Limits message counts for all cases being true
-    return messages.take(4)
+    return messages
 }

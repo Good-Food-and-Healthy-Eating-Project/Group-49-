@@ -152,20 +152,23 @@ fun buildClientDashModel(
     val totalCaloriesInt = nutrition.totalCalories.toInt()
     val totalMacros = nutrition.totalProtein + nutrition.totalFat + nutrition.totalCarbs
 
-    // Generating feedback messages based on food entries and whether following nutritional guidelines
-    val guidanceMessages =
-        buildGuidanceMessages(
-            calorieGoal,
-            totalCaloriesInt,
-            macroPercent(nutrition.totalProtein, totalMacros),
-            macroPercent(nutrition.totalFat, totalMacros),
-            macroPercent(nutrition.totalCarbs, totalMacros),
-            goal = goal,
-        )
-
     // Calculating target macros based on calorie goal
     // Handles null as calorie goal might not exist due to making the quiz optional
     val macroTargets = calculateMacroTargets(calorieGoal)
+
+    // Generating feedback messages based on food entries and whether following nutritional guidelines
+    val guidanceMessages =
+        buildGuidanceMessages(
+            calorieGoal = calorieGoal,
+            totalCaloriesInt = totalCaloriesInt,
+            proteinGrams = nutrition.totalProtein,
+            proteinTarget = macroTargets.proteinG,
+            fatGrams = nutrition.totalFat,
+            fatTarget = macroTargets.fatG,
+            carbsGrams = nutrition.totalCarbs,
+            carbsTarget = macroTargets.carbsG,
+            goal = goal,
+        )
 
     // Sends data to template so it can be accessed
     return mapOf(
