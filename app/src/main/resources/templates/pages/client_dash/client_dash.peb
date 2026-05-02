@@ -173,7 +173,8 @@ Home
     .calorie-goal-label {
         margin: 0 0 8px;
         font-size: 13px;
-        color: #7A6855;
+        /*color: #7A6855;*/
+        color: #4A3F35;
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
@@ -187,7 +188,8 @@ Home
 
     .calorie-goal-link {
         font-size: 13px;
-        color: #C4603A;
+        /*color: #C4603A;*/
+        color: #A94F24;
         text-decoration: none;
     }
 
@@ -201,7 +203,7 @@ Home
         gap: 1.5rem;
         align-items: start;
     }
-
+    /* This is an adjustment for mobile accessibility */
     @media (max-width: 768px) {
         .dashboard-grid {
             grid-template-columns: 1fr;
@@ -242,12 +244,14 @@ Home
 
     .nutrient-values {
         font-size: 0.85rem;
-        color: #7A6855;
+        color: #4A3F35;
+        /*color: #7A6855; */
     }
 
     .progress-track {
         height: 10px;
-        background: #EDE6D8;
+        /*background: #EDE6D8;*/
+        background: #D9D0C5;
         border-radius: 999px;
         overflow: hidden;
     }
@@ -257,21 +261,30 @@ Home
         border-radius: 999px;
         transition: width 0.4s ease;
     }
-
+    /*
     .calories-fill { background: #C4603A; }
     .protein-fill  { background: #6B8F71; }
     .carbs-fill    { background: #E8A838; }
     .fat-fill      { background: #8B6BAE; }
+    */
+    .calories-fill { background: #A94F24; }
+    .protein-fill  { background: #3F7A5C; }
+    .carbs-fill    { background: #C47A1E; }
+    .fat-fill      { background: #7A5BA6; }
 
     .macro-reference {
         margin: 1rem 0 0;
+        color: #5A4A3F;
+        /*
         font-size: 0.75rem;
         color: #9E8E7E;
+        */
         line-height: 1.5;
     }
 
     .macro-reference a {
-        color: #9E8E7E;
+        /*color: #9E8E7E;*/
+        color: #5A4A3F;
         text-decoration: underline;
     }
 
@@ -286,7 +299,8 @@ Home
         margin: 0;
         padding-left: 1.2rem;
         font-size: 0.875rem;
-        color: #7A6855;
+        /*color: #7A6855;*/
+        color: #4A3F35;
         line-height: 1.7;
     }
 </style>
