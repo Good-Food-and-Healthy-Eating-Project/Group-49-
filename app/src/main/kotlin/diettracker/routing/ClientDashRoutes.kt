@@ -13,10 +13,10 @@ import io.ktor.server.sessions.sessions
 
 /**
  * This page contains all the routing functions used for the client dashboard page
- * The Client dashboard displays guidance messages based on UK recommended nutritional intake
+ * The Client dashboard displays guidance messages based on UK recommended nutritional guidelines
  * The messages help the user know if they are following recommended guidelines
  **/
-internal fun Route.configureClientDashRoute() {
+fun Route.configureClientDashRoute() {
     get("/client_dash") {
         val email = call.sessions.get<UserSession>()?.email
         val userId = email?.let { getUserIdByEmail(it) }

@@ -15,7 +15,7 @@ import org.jetbrains.exposed.v1.jdbc.update
 private const val ACTIVITY_MULTIPLIER = 1.55
 private const val GOAL_CALORIE_ADJUSTMENT = 500
 
-// Constants in the Mifflin-St Jeor Equation to calculate TDEE
+// Constants in the Mifflin-St Jeor Equation to calculate TDEE (Total Daily energy expenditure)
 private const val BMR_WEIGHT_FACTOR = 10.0
 private const val BMR_HEIGHT_FACTOR = 6.25
 private const val BMR_AGE_FACTOR = 5.0

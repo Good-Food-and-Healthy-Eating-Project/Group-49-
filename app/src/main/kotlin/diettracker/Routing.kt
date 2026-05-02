@@ -5,9 +5,9 @@ import diettracker.routes.quizRoutes
 import diettracker.routing.configureClientDashRoute
 import diettracker.routing.configureClientProfessionalRoutes
 import diettracker.routing.configureFoodRoutes
-import diettracker.routing.professionalProfileRoutes
 import diettracker.routing.configureRecipeRoutes
 import diettracker.routing.foodDiaryRoutes
+import diettracker.routing.professionalProfileRoutes
 import diettracker.routing.profileRoutes
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -93,7 +93,6 @@ fun Route.configureClientRoutes() {
         call.respond(PebbleContent("pages/client_dash/food_diary.peb", mapOf("showNavbar" to true)))
     }
 }
-
 
 /**
  * Routing for authentication routes - login, signup and quiz
@@ -181,6 +180,22 @@ private fun Route.configureProfessionalAccountRoutes() {
     professionalProfileRoutes()
 }
 
+private fun fetchClientData(clientId: Int): Map<String, Any?>? =
+    transaction {
+        Clients
+            .selectAll()
+            .where { Clients.client_id eq clientId }
+            .map {
+                mapOf(
+                    "clientId" to it[Clients.client_id],
+                    "goal" to it[Clients.goal],
+                    "calorieGoal" to it[Clients.daily_calorie_goal],
+                    "age" to it[Clients.age],
+                    "gender" to it[Clients.gender],
+                )
+            }.singleOrNull()
+    }
+
 /**
  * Route for a professional to view a specific client's diet details
  *
@@ -203,21 +218,7 @@ fun Route.configureViewClientDetailsRoutes() {
         }
 
         // Fetch the client's basic info from the database
-        val clientData =
-            transaction {
-                Clients
-                    .selectAll()
-                    .where { Clients.client_id eq clientId }
-                    .map {
-                        mapOf(
-                            "clientId" to it[Clients.client_id],
-                            "goal" to it[Clients.goal],
-                            "calorieGoal" to it[Clients.daily_calorie_goal],
-                            "age" to it[Clients.age],
-                            "gender" to it[Clients.gender],
-                        )
-                    }.singleOrNull()
-            }
+        val clientData = fetchClientData(clientId)
 
         val today = LocalDate.now()
         // Default to current month if no query params provided
