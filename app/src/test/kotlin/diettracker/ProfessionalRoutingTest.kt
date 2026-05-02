@@ -345,7 +345,7 @@ class ProfessionalRoutingTest {
                         .size
                 }
             assertEquals(302, result.status.value)
-            assertEquals("/client_dash", result.headers[HttpHeaders.Location])
+            assertEquals("/professionals?linked=true", result.headers[HttpHeaders.Location])
             assertEquals(1, linkCount)
         }
 }

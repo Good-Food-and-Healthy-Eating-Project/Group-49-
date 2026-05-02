@@ -50,6 +50,7 @@ private suspend fun ApplicationCall.handleGetProfessionals() {
             emptyList()
         }
 
+    val justLinked = request.queryParameters["linked"] == "true"
     respondTemplate(
         "pages/professionals/professionals.peb",
         mapOf(
@@ -59,6 +60,7 @@ private suspend fun ApplicationCall.handleGetProfessionals() {
             "hasCompletedQuiz" to hasCompletedQuiz,
             "userId" to (userId ?: ""),
             "linkedProfessionalIds" to linkedProfessionalIds,
+            "justLinked" to justLinked,
         ),
     )
 }
@@ -80,7 +82,7 @@ private suspend fun ApplicationCall.handleSelectProfessional() {
                 respondText("Invalid professional", status = HttpStatusCode.BadRequest)
             } else {
                 linkClientToProfessional(clientId, professionalId)
-                respondRedirect("/client_dash")
+                respondRedirect("/professionals?linked=true")
             }
         }
     }

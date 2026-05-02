@@ -10,6 +10,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDate
+
 /**
  * Used https://www.gov.uk/government/publications/the-eatwell-guide for the nutritional guidelines
  * Macro targets calculated using user's daily calorie goal and proportions recommended
@@ -48,7 +49,10 @@ private data class CalendarMonthModel(
     val leadingEmptyDays: Int,
 )
 
-private fun buildCalendarMonthModel(year: Int?, month: Int?): CalendarMonthModel {
+private fun buildCalendarMonthModel(
+    year: Int?,
+    month: Int?,
+): CalendarMonthModel {
     val today = LocalDate.now()
     val selectedYear = year ?: today.year
     val selectedMonth = month ?: today.monthValue
@@ -73,6 +77,13 @@ private fun buildCalendarMonthModel(year: Int?, month: Int?): CalendarMonthModel
         leadingEmptyDays = selectedDate.withDayOfMonth(1).dayOfWeek.value - 1,
     )
 }
+
+private fun fetchClientProfile(userId: Int): Pair<Int?, String?> =
+    transaction {
+        Clients.selectAll().where { Clients.client_id eq userId }.singleOrNull()?.let {
+            it[Clients.daily_calorie_goal] to it[Clients.goal]
+        } ?: (null to null)
+    }
 
 private fun calculateMacroTargets(calorieGoal: Int?): MacroTargets {
     calorieGoal ?: return MacroTargets(null, null, null)
@@ -113,7 +124,11 @@ private fun macroPercent(
  *
  * The returned map can then be used in the pebble template to access these values and display them
  **/
-fun buildClientDashModel(userId: Int, year: Int? = null, month: Int? = null): Map<String, Any> {
+fun buildClientDashModel(
+    userId: Int,
+    year: Int? = null,
+    month: Int? = null,
+): Map<String, Any> {
     val userRoles = getUserRoles(userId)
     val dailyCalorieGoal = getClientCalorieGoal(userId)
     val calendar = buildCalendarMonthModel(year, month)
@@ -125,15 +140,7 @@ fun buildClientDashModel(userId: Int, year: Int? = null, month: Int? = null): Ma
             .filter { it.date.year == calendar.currentYear && it.date.month == calendar.currentMonth }
 
     // Get client data from database
-    val client =
-        transaction {
-            Clients
-                .selectAll()
-                .where { Clients.client_id eq userId }
-                .singleOrNull()
-        }
-    val calorieGoal = client?.get(Clients.daily_calorie_goal)
-    val goal = client?.get(Clients.goal)
+    val (calorieGoal, goal) = fetchClientProfile(userId)
 
     // Get today's nutritional intake
     val today = LocalDate.now()
