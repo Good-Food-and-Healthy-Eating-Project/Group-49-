@@ -1,5 +1,9 @@
 package diettracker.db.tables
 
+/**
+ * This table links recipes to their ingredients and stores the quantity for each food item
+ **/
+
 import diettracker.db.MAX_LEN
 import org.jetbrains.exposed.v1.core.Table
 

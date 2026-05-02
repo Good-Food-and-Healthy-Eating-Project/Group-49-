@@ -1,5 +1,9 @@
 package diettracker.db.tables
 
+/**
+ * This table links saved meals to their food items and stores quantities in the database
+ **/
+
 import org.jetbrains.exposed.v1.core.Table
 
 object SavedMealFoods : Table("saved_meal_foods") {

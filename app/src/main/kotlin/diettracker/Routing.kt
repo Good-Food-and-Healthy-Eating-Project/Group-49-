@@ -3,7 +3,9 @@ package diettracker
 import diettracker.db.tables.Clients
 import diettracker.routes.quizRoutes
 import diettracker.routing.configureClientDashRoute
+import diettracker.routing.configureClientProfessionalRoutes
 import diettracker.routing.configureFoodRoutes
+import diettracker.routing.professionalProfileRoutes
 import diettracker.routing.configureRecipeRoutes
 import diettracker.routing.foodDiaryRoutes
 import diettracker.routing.profileRoutes
@@ -25,7 +27,6 @@ import io.ktor.server.sessions.sessions
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import diettracker.services.getClientDashboardData
 import java.time.LocalDate
 import kotlin.math.abs
 
@@ -36,17 +37,29 @@ private const val MAX_YEAR = 2100
 private const val MIN_MONTH = 1
 private const val MAX_MONTH = 12
 
+/**
+ * Entry point for all application routing
+ *
+ * Registers all route groups so they are available when the app starts
+ **/
 fun Application.configureRouting() {
     routing {
         configureStatic()
         configurePublicRoutes()
+        configureClientRoutes()
         configureProfessionalRoutes()
         configureAuthRoutes()
         configureProtectedRoutes()
     }
 }
 
+/**
+ * Public routes accessible to all users - no login required
+ *
+ * Only includes the landing page, recipes and health check
+ **/
 fun Route.configurePublicRoutes() {
+    // Landing page shown to unauthenticated users
     get("/") {
         call.respond(
             PebbleContent(
@@ -56,65 +69,35 @@ fun Route.configurePublicRoutes() {
         )
     }
 
-    configureClientDashRoute()
-    configureFoodRoutes()
-    foodDiaryRoutes()
-
-    authenticate("group49-client_auth") {
-        get("/") { call.dashboardPage() }
-        get("/logout") { call.logout() }
-    }
-
-    get("/diary") {
-        call.respond(PebbleContent("pages/client_dash/food_diary.peb", mapOf("showNavbar" to true)))
-    }
-
+    // Recipes are publicly browsable without an account
     configureRecipeRoutes()
 
-    get("/health") {
-        call.respondText("OK")
-    }
-    configureClientDashboardRoute()
-    configureFoodRoutes()
-    foodDiaryRoutes()
-    profileRoutes()
-
-    authenticate("group49-client_auth") {
-        get("/") { call.dashboardPage() }
-        get("/logout") { call.logout() }
-    }
-
-    configureRecipeRoutes()
-
+    // Health check endpoint used to verify the server is running
     get("/health") {
         call.respondText("OK")
     }
 }
 
 /**
- * Routing for client dashboard
+ * Client routes that require a logged-in session
  *
- * Retrieved logged-in user ID from the session
- * Renders dashboard template with data defined separately
- * **/
-fun Route.configureClientDashboardRoute() {
-    get("/client_dash") {
-        val email = call.sessions.get<UserSession>()?.email
-        val userId = email?.let { getUserIdByEmail(it) }
-            ?: return@get call.respondRedirect("/Login")
+ * Each route redirects to /Login if no session is found
+ **/
+fun Route.configureClientRoutes() {
+    configureClientDashRoute()
+    configureFoodRoutes()
+    foodDiaryRoutes()
+    profileRoutes()
 
-        val year = call.request.queryParameters["year"]?.toIntOrNull()
-        val month = call.request.queryParameters["month"]?.toIntOrNull()
-
-        call.respond(
-            PebbleContent(
-                "pages/client_dash/client_dash.peb",
-                getClientDashboardData(userId, year, month),
-            ),
-        )
+    get("/diary") {
+        call.respond(PebbleContent("pages/client_dash/food_diary.peb", mapOf("showNavbar" to true)))
     }
 }
 
+
+/**
+ * Routing for authentication routes - login, signup and quiz
+ **/
 fun Route.configureAuthRoutes() {
     get("/Sign-Up") { call.signUpPage() }
     post("/Sign-Up") { call.signUpUser() }
@@ -124,6 +107,7 @@ fun Route.configureAuthRoutes() {
 
     get("/quiz") {
         val userId = call.request.queryParameters["userId"]
+        // Ensures userId exists before getting to quiz page
         if (userId == null) {
             call.respondRedirect("/Sign-Up")
             return@get
@@ -135,101 +119,37 @@ fun Route.configureAuthRoutes() {
             ),
         )
     }
-
+    // For additional quiz-related routes
     quizRoutes()
 }
 
+/**
+ * Groups all professional-related routes together
+ *
+ * Includes client-professional linking, professional account management
+ * and viewing client details
+ **/
 fun Route.configureProfessionalRoutes() {
     configureClientProfessionalRoutes()
     configureProfessionalAccountRoutes()
     configureViewClientDetailsRoutes()
 }
 
-private fun Route.configureClientProfessionalRoutes() {
-    get("/professionals") {
-        val email = call.sessions.get<UserSession>()?.email ?: return@get call.respondRedirect("/Login")
-        val userId = email.let { getUserIdByEmail(it) }
-        val userRoles = userId?.let { getUserRoles(it) } ?: emptyList()
-        val professionals = getAllProfessionals()
-        val hasCompletedQuiz = userId?.let { getClientCalorieGoal(it) } != null
-        val linkedProfessionalIds =
-            if (userId != null && !userRoles.contains("professional")) {
-                getLinkedProfessionalIdsForClient(userId)
-            } else {
-                emptyList()
-            }
-
-        call.respondTemplate(
-            "pages/professionals/professionals.peb",
-            mapOf(
-                "professionals" to professionals,
-                "isProfessional" to userRoles.contains("professional"),
-                "showNavbar" to true,
-                "hasCompletedQuiz" to hasCompletedQuiz,
-                "userId" to (userId ?: ""),
-                "linkedProfessionalIds" to linkedProfessionalIds,
-            ),
-        )
-    }
-
-    post("/unlink-professional") {
-        val session = call.sessions.get<UserSession>()
-        val email = session?.email ?: return@post call.respondRedirect("/Login")
-        val clientId =
-            getUserIdByEmail(email)?.toString()?.toIntOrNull()
-                ?: return@post call.respondText(
-                    "Invalid client ID",
-                    status = HttpStatusCode.InternalServerError,
-                )
-        val professionalId =
-            call.receiveParameters()["professional_id"]?.toIntOrNull()
-                ?: return@post call.respondText(
-                    "Invalid professional",
-                    status = HttpStatusCode.BadRequest,
-                )
-        unlinkClientFromProfessional(clientId, professionalId)
-        call.respondRedirect("/professionals")
-    }
-
-    post("/select-professional") {
-        val session = call.sessions.get<UserSession>()
-        val email = session?.email ?: return@post call.respondRedirect("/Login")
-
-        val clientIdString = getUserIdByEmail(email)
-
-        // Convert the client ID to an integer for database use.
-        // If conversion fails, return an error to prevent invalid data being stored.
-        val clientId =
-            clientIdString?.toString()?.toIntOrNull()
-                ?: return@post call.respondText(
-                    "Invalid client ID",
-                    status = HttpStatusCode.InternalServerError,
-                )
-
-        if (getClientCalorieGoal(clientId) == null) {
-            return@post call.respondRedirect("/quiz?userId=$clientId")
-        }
-
-        val professionalId =
-            call.receiveParameters()["professional_id"]?.toIntOrNull()
-                ?: return@post call.respondText(
-                    "Invalid professional",
-                    status = HttpStatusCode.BadRequest,
-                )
-
-        linkClientToProfessional(clientId, professionalId)
-        call.respondRedirect("/client_dash")
-    }
-}
-
+/**
+ * Routes for the professional's own account
+ *
+ * Handles professional dashboard, sign up, login and quiz
+ **/
 private fun Route.configureProfessionalAccountRoutes() {
     get("/professionals_dash") {
+        // Redirect to login if not authenticated
         val session = call.sessions.get<UserSession>()
         val email = session?.email ?: return@get call.respondRedirect("/Login")
         val professionalId =
             getUserIdByEmail(email)
                 ?: return@get call.respondText("User not found")
         val userRoles = getUserRoles(professionalId)
+        // Get all clients linked to this professional for display on the dashboard
         val clients = getClientsForProfessional(professionalId)
         call.respondTemplate(
             "pages/professionals/professionals_dash.peb",
@@ -246,6 +166,7 @@ private fun Route.configureProfessionalAccountRoutes() {
 
     get("/professional-quiz") {
         val userId = call.request.queryParameters["userId"]
+        // Redirect back to sign up if no userId in query params
         if (userId == null) {
             call.respondRedirect("/Professional-Sign-Up")
             return@get
@@ -256,10 +177,19 @@ private fun Route.configureProfessionalAccountRoutes() {
 
     get("/Professional-Login") { call.profLoginPage() }
     post("/Professional-Login") { call.loginProfessional() }
+
+    professionalProfileRoutes()
 }
 
+/**
+ * Route for a professional to view a specific client's diet details
+ *
+ * Shows client info, monthly diet trends and how many days they were on track
+ * Shows monthly trend using calendar from client dashboard so professional can see if client is on track
+ **/
 fun Route.configureViewClientDetailsRoutes() {
     get("/professional/client/{clientId}") {
+        // Redirect to login if not authenticated
         val session = call.sessions.get<UserSession>()
         val email = session?.email ?: return@get call.respondRedirect("/Login")
         val professionalId = getUserIdByEmail(email) ?: return@get call.respondText("User not found")
@@ -272,6 +202,7 @@ fun Route.configureViewClientDetailsRoutes() {
             return@get
         }
 
+        // Fetch the client's basic info from the database
         val clientData =
             transaction {
                 Clients
@@ -289,8 +220,10 @@ fun Route.configureViewClientDetailsRoutes() {
             }
 
         val today = LocalDate.now()
+        // Default to current month if no query params provided
         val selectedYear = call.request.queryParameters["year"]?.toIntOrNull() ?: today.year
         val selectedMonth = call.request.queryParameters["month"]?.toIntOrNull() ?: today.monthValue
+        // Validate the date range to prevent invalid dates being used
         val selectedDate =
             if (selectedMonth in MIN_MONTH..MAX_MONTH && selectedYear in MIN_YEAR..MAX_YEAR) {
                 LocalDate.of(selectedYear, selectedMonth, 1)
@@ -303,12 +236,15 @@ fun Route.configureViewClientDetailsRoutes() {
         val previousMonthDate = selectedDate.minusMonths(1)
         val nextMonthDate = selectedDate.plusMonths(1)
         val daysInMonth = selectedDate.lengthOfMonth()
+        // Used to offset the calendar grid so days align to the correct weekday
         val leadingEmptyDays = selectedDate.withDayOfMonth(1).dayOfWeek.value - 1
 
         val allTrends = ClientDietTrend.getDietTrend(clientId)
+        // Filter trends to only show the selected month
         val trends = allTrends.filter { it.date.year == currentYear && it.date.month == currentMonth }
 
         val todayCalories = allTrends.find { it.date == today }?.totalCalorie?.toInt() ?: 0
+        // Count days where calorie intake was within the tolerance of the target
         val onTrackDays = trends.count { abs(it.totalCalorie - it.targetCalorie) <= ON_TRACK_TOLERANCE }
 
         call.respondTemplate(

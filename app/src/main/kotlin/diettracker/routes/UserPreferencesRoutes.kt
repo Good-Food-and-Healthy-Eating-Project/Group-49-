@@ -89,8 +89,6 @@ fun Route.quizRoutes() {
 }
 
 /**
- * Using private fun to ensure this function can only be used in this file
- *
  * This function uses the Mifflin-St Jeor Equation (assuming moderate activity for all users)
  * Calculates total daily energy expenditure
  * For goals which were to lose or maintain weight, NHS guidelines of 500 for calorie adjustment were used

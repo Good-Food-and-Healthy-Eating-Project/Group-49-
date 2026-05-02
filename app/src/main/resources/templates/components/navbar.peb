@@ -12,7 +12,7 @@
                 <a href="/professionals_dash" class="nav-link">Dashboard</a>
             </li>
             <li>
-                <a href="/profile" class="nav-link">Profile</a>
+                <a href="/professional-profile" class="nav-link">Profile</a>
             </li>
             <li>
                 <a href="/messages" class="nav-link">Messages</a>

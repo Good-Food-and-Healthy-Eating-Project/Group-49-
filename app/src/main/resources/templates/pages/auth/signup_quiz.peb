@@ -1,3 +1,7 @@
+{#
+  Quiz page used to collect optional user data (height, weight, age, gender, goal)
+  to personalise dietary recommendations and calculate calorie targets.
+#}
 <!DOCTYPE html>
 <html lang="en">
 <head>
