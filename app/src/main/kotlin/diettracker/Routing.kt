@@ -180,7 +180,7 @@ private fun Route.configureProfessionalAccountRoutes() {
     professionalProfileRoutes()
 }
 
-private fun fetchClientData(clientId: Int): Map<String, Any?>? =
+fun fetchClientData(clientId: Int): Map<String, Any?>? =
     transaction {
         Clients
             .selectAll()

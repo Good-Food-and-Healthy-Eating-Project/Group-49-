@@ -291,7 +291,7 @@ class ProfessionalRoutingTest {
             assertTrue(body.contains("Client Overview"))
             assertTrue(body.contains("Client ID"))
             assertTrue(body.contains("Goal"))
-            assertTrue(body.contains("Daily Calories"))
+            assertTrue(body.contains("Daily Calorie Target"))
             assertTrue(body.contains("Age"))
             assertTrue(body.contains("Gender"))
         }
