@@ -18,15 +18,25 @@ import io.ktor.server.sessions.sessions
  **/
 fun Route.configureClientDashRoute() {
     get("/client_dash") {
+        // get client email from session
         val email = call.sessions.get<UserSession>()?.email
         val userId = email?.let { getUserIdByEmail(it) }
-
+        // redirect to login page if user not logged in
         if (userId == null) {
             call.respondRedirect("/Login")
             return@get
         }
 
         // Dashboard data is built in DashboardServices to keep routing logic separate
-        call.respond(PebbleContent("pages/client_dash/client_dash.peb", buildClientDashModel(userId)))
+        call.respond(
+            PebbleContent(
+                "pages/client_dash/client_dash.peb",
+                buildClientDashModel(
+                    userId = userId,
+                    year = call.request.queryParameters["year"]?.toIntOrNull(),
+                    month = call.request.queryParameters["month"]?.toIntOrNull(),
+                ),
+            ),
+        )
     }
 }

@@ -10,7 +10,6 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDate
-
 /**
  * Used https://www.gov.uk/government/publications/the-eatwell-guide for the nutritional guidelines
  * Macro targets calculated using user's daily calorie goal and proportions recommended
@@ -30,8 +29,50 @@ private const val CALS_PERG_PROTEIN = 4.0
 private const val CALS_PERG_CARBS = 4.0
 private const val CALS_PERG_FAT = 9.0
 private const val PERCENTAGE_CONV = 100.0
+private const val MIN_YEAR = 1900
+private const val MAX_YEAR = 2100
+private const val MIN_MONTH = 1
+private const val MAX_MONTH = 12
 
 private data class MacroTargets(val proteinG: Int?, val carbsG: Int?, val fatG: Int?)
+
+private data class CalendarMonthModel(
+    val currentYear: Int,
+    val currentMonth: java.time.Month,
+    val currentMonthValue: Int,
+    val previousYear: Int,
+    val previousMonth: Int,
+    val nextYear: Int,
+    val nextMonth: Int,
+    val daysInMonth: Int,
+    val leadingEmptyDays: Int,
+)
+
+private fun buildCalendarMonthModel(year: Int?, month: Int?): CalendarMonthModel {
+    val today = LocalDate.now()
+    val selectedYear = year ?: today.year
+    val selectedMonth = month ?: today.monthValue
+    // Validate range to prevent invalid dates
+    val selectedDate =
+        if (selectedMonth in MIN_MONTH..MAX_MONTH && selectedYear in MIN_YEAR..MAX_YEAR) {
+            LocalDate.of(selectedYear, selectedMonth, 1)
+        } else {
+            today.withDayOfMonth(1)
+        }
+    val previousMonthDate = selectedDate.minusMonths(1)
+    val nextMonthDate = selectedDate.plusMonths(1)
+    return CalendarMonthModel(
+        currentYear = selectedDate.year,
+        currentMonth = selectedDate.month,
+        currentMonthValue = selectedDate.monthValue,
+        previousYear = previousMonthDate.year,
+        previousMonth = previousMonthDate.monthValue,
+        nextYear = nextMonthDate.year,
+        nextMonth = nextMonthDate.monthValue,
+        daysInMonth = selectedDate.lengthOfMonth(),
+        leadingEmptyDays = selectedDate.withDayOfMonth(1).dayOfWeek.value - 1,
+    )
+}
 
 private fun calculateMacroTargets(calorieGoal: Int?): MacroTargets {
     calorieGoal ?: return MacroTargets(null, null, null)
@@ -67,21 +108,21 @@ private fun macroPercent(
 /**
  * Builds the data map for the client dashboard template
  *
- * Gets user information, nutritional data, and trends
+ * Gets user information, nutritional data, and trends for the selected month
  * This information is used to calculate calorie and macronutrient targets
  *
  * The returned map can then be used in the pebble template to access these values and display them
  **/
-fun buildClientDashModel(userId: Int): Map<String, Any> {
-    // Retrieve user and basic data
+fun buildClientDashModel(userId: Int, year: Int? = null, month: Int? = null): Map<String, Any> {
     val userRoles = getUserRoles(userId)
     val dailyCalorieGoal = getClientCalorieGoal(userId)
-    val trends = ClientDietTrend.getDietTrend(userId)
-    val today = LocalDate.now()
-    val currentYear = today.year
-    val currentMonth = today.month
-    val daysInMonth = today.lengthOfMonth()
-    val leadingEmptyDays = today.withDayOfMonth(1).dayOfWeek.value - 1
+    val calendar = buildCalendarMonthModel(year, month)
+
+    // Filter trends to only show the selected month
+    val trends =
+        ClientDietTrend
+            .getDietTrend(userId)
+            .filter { it.date.year == calendar.currentYear && it.date.month == calendar.currentMonth }
 
     // Get client data from database
     val client =
@@ -91,17 +132,16 @@ fun buildClientDashModel(userId: Int): Map<String, Any> {
                 .where { Clients.client_id eq userId }
                 .singleOrNull()
         }
-    // In case of null values
     val calorieGoal = client?.get(Clients.daily_calorie_goal)
     val goal = client?.get(Clients.goal)
 
     // Get today's nutritional intake
+    val today = LocalDate.now()
     val nutrition = getDailyNutritionSummary(userId, today)
 
     // Checking if user is meeting calorie target
     val status = if (calorieGoal != null && nutrition.totalCalories > calorieGoal) "Over target" else "On track"
 
-    // Calculating macro values and ensuring no division by zero
     val totalCaloriesInt = nutrition.totalCalories.toInt()
     val totalMacros = nutrition.totalProtein + nutrition.totalFat + nutrition.totalCarbs
 
@@ -127,10 +167,15 @@ fun buildClientDashModel(userId: Int): Map<String, Any> {
         "userId" to (userId as Any? ?: ""),
         "dailyCalorieGoal" to (dailyCalorieGoal ?: ""),
         "trends" to trends,
-        "currentYear" to currentYear,
-        "currentMonth" to currentMonth,
-        "daysInMonth" to daysInMonth,
-        "leadingEmptyDays" to leadingEmptyDays,
+        "currentYear" to calendar.currentYear,
+        "currentMonth" to calendar.currentMonth,
+        "currentMonthValue" to calendar.currentMonthValue,
+        "daysInMonth" to calendar.daysInMonth,
+        "leadingEmptyDays" to calendar.leadingEmptyDays,
+        "previousYear" to calendar.previousYear,
+        "previousMonth" to calendar.previousMonth,
+        "nextYear" to calendar.nextYear,
+        "nextMonth" to calendar.nextMonth,
         "totalCalories" to totalCaloriesInt,
         "totalProtein" to nutrition.totalProtein.toInt(),
         "totalCarbs" to nutrition.totalCarbs.toInt(),

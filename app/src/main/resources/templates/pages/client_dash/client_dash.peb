@@ -25,73 +25,71 @@ Home
 
     <div class="dashboard-grid">
 
-        <div class="calendar-widget">
-            <div class="calendar-title">
-                <h3>Diet Trend</h3>
-                <h2>{{ currentYear }} / {{ currentMonth }}</h2>
-            </div>
-            <div class="calendar-weekdays">
-                <div>Mon</div>
-                <div>Tue</div>
-                <div>Wed</div>
-                <div>Thu</div>
-                <div>Fri</div>
-                <div>Sat</div>
-                <div>Sun</div>
-            </div>
-            <div class="calendar-grid">
-                {% for i in 1..leadingEmptyDays %}
-                    <div class="day-cell empty-cell"></div>
-                {% endfor %}
-                {% for day in 1..daysInMonth %}
-                    {% set found = false %}
-                    <div class="day-cell">
-                        {% for trend in trends %}
-                            {% if trend.dayOfMonth == day %}
-                                {% set found = true %}
-                                <div class="day-box {{ trend.exceeds ? 'red' : 'green' }}">
-                                    {{ day }}
-                                    <div class="tooltip">
-                                        Kcal: {{ trend.totalCalorie }} / {{ trend.targetCalorie }}
-                                    </div>
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                        {% if not found %}
-                            <div class="day-box empty-day">
-                                {{ day }}
+<div class="calendar-widget">
+    <div class="calendar-title">
+        <h3>Diet Trend</h3>
+    </div>
+
+    <div class="calendar-navigation">
+        <a
+            class="calendar-nav-button"
+            href="/client_dash?year={{ previousYear }}&month={{ previousMonth }}"
+        >
+            &lt; Previous
+        </a>
+
+        <h2>{{ currentYear }} / {{ currentMonthValue }}</h2>
+
+        <a
+            class="calendar-nav-button"
+            href="/client_dash?year={{ nextYear }}&month={{ nextMonth }}"
+        >
+            Next &gt;
+        </a>
+    </div>
+
+    <div class="calendar-weekdays">
+        <div>Mon</div>
+        <div>Tue</div>
+        <div>Wed</div>
+        <div>Thu</div>
+        <div>Fri</div>
+        <div>Sat</div>
+        <div>Sun</div>
+    </div>
+
+    <div class="calendar-grid">
+        {% for i in 1..leadingEmptyDays %}
+            <div class="day-cell empty-cell"></div>
+        {% endfor %}
+
+        {% for day in 1..daysInMonth %}
+            {% set found = false %}
+            <div class="day-cell">
+                {% for trend in trends %}
+                    {% if trend.dayOfMonth == day %}
+                        {% set found = true %}
+                        <div class="day-box {{ trend.colourClass }}">
+                            {{ day }}
+                            <div class="tooltip">
+                                Kcal: {{ trend.totalCalorie }} / {{ trend.targetCalorie }}
                             </div>
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% endif %}
                 {% endfor %}
-            </div>
-            {% if trends is empty %}
-                <div class="no-data">No diet data</div>
-            {% endif %}
-        </div>
 
-        <div class="daily-overview">
-            <h2 class="summary-title">Today's Summary</h2>
-
-            <div class="nutrient-row">
-                <div class="nutrient-header">
-                    <span class="nutrient-name">Calories</span>
-                    <span class="nutrient-values">{{ totalCalories }} / {% if calorieGoal is not empty %}{{ calorieGoal }} kcal{% else %}– kcal{% endif %}</span>
-                </div>
-                <div class="progress-track">
-                    <div class="progress-fill calories-fill" style="width: {{ caloriePct }}%;"></div>
-                </div>
+                {% if not found %}
+                    <div class="day-box empty-day">
+                        {{ day }}
+                    </div>
+                {% endif %}
             </div>
+        {% endfor %}
+    </div>
 
-            <div class="nutrient-row">
-                <div class="nutrient-header">
-                    <span class="nutrient-name">Protein</span>
-                    <span class="nutrient-values">{{ totalProtein }}g / {% if targetProtein is not empty %}{{ targetProtein }}g{% else %}–{% endif %}</span>
-                </div>
-                <div class="progress-track">
-                    <div class="progress-fill protein-fill" style="width: {{ proteinPct }}%;"></div>
-                </div>
-            </div>
+    {% if trends is empty %}
+        <div class="no-data">No diet data</div>
+    {% endif %}
 
             <div class="nutrient-row">
                 <div class="nutrient-header">
@@ -103,6 +101,10 @@ Home
                 </div>
             </div>
 
+            <p>Calories: {{ totalCalories }} / {{ calorieGoal  }} kcal</p>
+            <p>Protein: {{ totalProtein }}g</p>
+            <p>Carbs: {{ totalCarbs }}g</p>
+            <p>Fat: {{ totalFat }}g</p>
             <div class="nutrient-row">
                 <div class="nutrient-header">
                     <span class="nutrient-name">Fat</span>
@@ -143,6 +145,7 @@ Home
 
     .calorie-goal-card {
         display: inline-block;
+        margin-top: 24px;
         padding: 24px 32px;
         background: #FDFAF5;
         border: 1px solid #EDE6D8;

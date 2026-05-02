@@ -3,7 +3,7 @@
 
         <a href="/" class="nav-brand">
             <span class="brand-icon">&#9679;</span>
-            <span class="brand-text">SiteName</span>
+            <span class="brand-text">Diet Tracker</span>
         </a>
 
         {% if isProfessional %}
