@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="3e8b2f3c-ea88-445f-8f8a-aedd969d0c66" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/auth/login.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/auth/login.peb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/client_dash/client_dash.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/client_dash/client_dash.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/auth/signup.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/auth/signup.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/auth/signup_quiz.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/auth/signup_quiz.peb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
