@@ -5,20 +5,22 @@
     padding: 0;
 }
 
-/* --- Design Tokens --- */
+/* --- Design Constants --- : I can easily see what the colours map to*/
+/*Colours generated using coolors*/
+/*AI used for contrast improvements to find colour which better satisfy WCAG requirements */
 :root {
-    --cream:        #F7F3EC;
-    --cream-dark:   #EDE6D8;
+    --cream:        #F3E4DD;
+    --cream-dark:   #D9D0C5;
     --brown:        #3B2A1A;
-    --brown-mid:    #6B4E35;
-    --terracotta:   #C4603A;
-    --terracotta-light: #E8896A;
+    --brown-mid:    #5A3F2A;
+    --terracotta:   #A94F24;
+    --terracotta-light: #C96A45;
     --sage:         #7A8C72;
     --sage-light:   #B5C4AE;
     --warm-white:   #FDFAF5;
     --text-primary: #2C1E10;
-    --text-secondary: #7A6855;
-    --text-muted:   #A89880;
+    --text-secondary: #4A3F35;
+    --text-muted:   #4A3F35;
 
     --font-display: 'Playfair Display', Georgia, serif;
     --font-body:    'DM Sans', sans-serif;
@@ -356,6 +358,7 @@ a:hover { color: var(--brown); }
 
 .form-input:focus,
 .form-select:focus {
+    outline: 3px solid var(--terracotta);
     border-color: var(--terracotta-light);
     box-shadow: 0 0 0 3px rgba(196, 96, 58, 0.12);
 }
@@ -460,14 +463,16 @@ a:hover { color: var(--brown); }
     position: relative;
 }
 .day-box.green {
-    background-color: #65f096;
+    background-color: #2E7D32;
+    color: white;
 }
 .day-box.red {
-    background-color: #f34444;
+    background-color: #B71C1C;
+    color: white;
 }
 .day-box.empty-day {
-    background-color: #eee;
-    color: #6b6a6a;
+    background-color: #E5DED6;
+    color: #2C1E10;
     cursor: default;
 }
 /* Use ChatGPT to help understand how to use tooltips. */
@@ -490,7 +495,7 @@ a:hover { color: var(--brown); }
 }
 .no-data {
     font-size: 14px;
-    color: #646363;
+    color: var(--text-secondary);
     margin-top: 12px;
     text-align: center;
 }
@@ -510,9 +515,9 @@ a:hover { color: var(--brown); }
 }
 .calendar-nav-button {
     padding: 6px 10px;
-    border: 1px solid #EDE6D8;
+    border: 1.5px solid var(--cream-dark);
     border-radius: 8px;
-    color: #C4603A;
+    color: var(--terracotta);
     text-decoration: none;
     font-size: 13px;
     background: #FDFAF5;
