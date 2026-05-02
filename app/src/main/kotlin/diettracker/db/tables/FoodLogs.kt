@@ -1,5 +1,9 @@
 package diettracker.db.tables
 
+/**
+ * This table stores a user's food log entries and saves them in the database
+ **/
+
 import diettracker.db.MAX_LEN
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.javatime.timestamp

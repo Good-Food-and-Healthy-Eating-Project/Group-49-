@@ -1,16 +1,69 @@
-    {% extends "layouts/base.peb" %}
+{% extends "layouts/base.peb" %}
 
-        {% block title %}{{ pageTitle | default("View Client Details") }}{% endblock %}
+{% block title %}{{ pageTitle | default("View Client Details") }}{% endblock %}
 
-    {% block content %}
+{% block content %}
 
-        <h1>Client Overview</h1>
+    <h1>Client Overview</h1>
 
-        <p>Client ID: {{ client.clientId }}</p>
-        <p>Goal: {{ client.goal }}</p>
-        <p>Daily Calories: {{ client.calorieGoal }}</p>
+    <p>Client ID: {{ client.clientId }}</p>
+    <p>Goal: {{ client.goal }}</p>
+    <p>Daily Calorie Target: {{ client.calorieGoal }} kcal</p>
+    <p>Age: {{ client.age }}</p>
+    <p>Gender: {{ client.gender }}</p>
 
-        <p>Age: {{ client.age }}</p>
-        <p>Gender: {{ client.gender }}</p>
+    <div class="client-summary" style="margin: 20px 0; padding: 16px; border: 1px solid #EDE6D8; border-radius: 12px; background: #FDFAF5; display: inline-block;">
+        <h2 style="margin-top: 0;">Monthly Summary</h2>
+        <p>On track: <strong>{{ onTrackDays }} / {{ totalTrackedDays }}</strong> days this month
+            <span style="font-size: 13px; color: #7A6855;">(within 100 kcal of target)</span>
+        </p>
+        <p>Today: <strong>{{ todayCalories }} kcal</strong> / {{ client.calorieGoal }} kcal target</p>
+    </div>
 
-    {% endblock %}
+    <div class="calendar-widget" style="width: auto; min-width: 340px; margin-top: 20px;">
+        <div class="calendar-navigation">
+            <a href="/professional/client/{{ client.clientId }}?year={{ previousYear }}&month={{ previousMonth }}" class="calendar-nav-button">&laquo; Prev</a>
+            <h2>{{ currentYear }} / {{ currentMonth }}</h2>
+            <a href="/professional/client/{{ client.clientId }}?year={{ nextYear }}&month={{ nextMonth }}" class="calendar-nav-button">Next &raquo;</a>
+        </div>
+        <div class="calendar-weekdays" style="margin-top: 12px;">
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+            <div>Sun</div>
+        </div>
+        <div class="calendar-grid">
+            {% for i in 1..leadingEmptyDays %}
+                <div class="day-cell empty-cell"></div>
+            {% endfor %}
+            {% for day in 1..daysInMonth %}
+                {% set found = false %}
+                <div class="day-cell">
+                    {% for trend in trends %}
+                        {% if trend.dayOfMonth == day %}
+                            {% set found = true %}
+                            <div class="day-box {{ trend.colourClass }}">
+                                {{ day }}
+                                <div class="tooltip">
+                                    Kcal: {{ trend.totalCalorie | numberformat("0") }} / {{ trend.targetCalorie }}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    {% if not found %}
+                        <div class="day-box empty-day">
+                            {{ day }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        {% if trends is empty %}
+            <div class="no-data">No diet data for this month</div>
+        {% endif %}
+    </div>
+
+{% endblock %}

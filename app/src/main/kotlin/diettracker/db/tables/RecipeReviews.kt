@@ -1,5 +1,9 @@
 package diettracker.db.tables
 
+/**
+ * This table stores user reviews for recipes and saves them in the database
+ **/
+
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.javatime.timestamp
 

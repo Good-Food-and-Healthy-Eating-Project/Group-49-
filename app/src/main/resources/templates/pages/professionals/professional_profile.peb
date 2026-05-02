@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .profile-header {
+            border: 2px solid #bdbdbd;
+            padding: 20px;
+            background: #ffffff;
+            margin-bottom: 20px;
+        }
+
+        .profile-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .profile-info {
+            font-size: 18px;
+            color: #333;
+            margin: 6px 0;
+        }
+
+        .profile-form {
+            border: 2px solid #bdbdbd;
+            padding: 20px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .profile-label {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .profile-form input,
+        .profile-form textarea {
+            padding: 10px;
+            border: 1px solid #bdbdbd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .profile-form textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .update-button {
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    {% include "components/navbar.peb" %}
+
+    <main class="main-content">
+        <div class="profile-container">
+
+            <div class="profile-header">
+                <h1 class="profile-title">Profile</h1>
+
+                {% if userinfo is not null %}
+                    <p class="profile-info">Professional ID: {{ userinfo.professional_id }}</p>
+                    {% if email is defined %}
+                        <p class="profile-info">Email: {{ email }}</p>
+                    {% endif %}
+                    <p class="profile-info">Name: {{ userinfo.first_name }} {{ userinfo.second_name }}</p>
+                {% else %}
+                    <p class="profile-info">No profile information found.</p>
+                {% endif %}
+            </div>
+
+            <form method="post" action="/professional-profile-update" class="profile-form">
+
+                <div class="profile-section">
+                    <label class="profile-label">Job Title</label>
+                    <input type="text" name="job_title" placeholder="Current: {{ userinfo.job_title }}">
+                </div>
+
+                <div class="profile-section">
+                    <label class="profile-label">Organisation</label>
+                    <input type="text" name="organisation" placeholder="Current: {{ userinfo.organisation }}">
+                </div>
+
+                <div class="profile-section">
+                    <label class="profile-label">Bio</label>
+                    <textarea name="bio" placeholder="Current: {{ userinfo.bio }}"></textarea>
+                </div>
+
+                <button type="submit" class="update-button">Update</button>
+
+            </form>
+        </div>
+    </main>
+</body>
+</html>

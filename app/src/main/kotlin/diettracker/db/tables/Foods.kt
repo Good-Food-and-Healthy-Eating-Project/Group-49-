@@ -1,5 +1,9 @@
 package diettracker.db.tables
 
+/**
+ * This table stores all food items and their nutritional values per 100g and saves it in the database
+ **/
+
 import diettracker.db.MAX_LEN
 import org.jetbrains.exposed.v1.core.Table
 

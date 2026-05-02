@@ -185,7 +185,7 @@ class FoodLogRoutingTest {
 
             assertEquals(302, result.status.value)
             assertEquals(200, page.status.value)
-            assertTrue(body.contains("Total Calories: 220")) // grams / 100 * 110
+            assertTrue(body.contains("220 kcal")) // grams / 100 * 110
         }
 
     @Test
@@ -235,7 +235,7 @@ class FoodLogRoutingTest {
 
             assertEquals(302, result.status.value)
             assertEquals(200, page.status.value)
-            assertTrue(body.contains("Total Calories: 220")) // 110 + (55 / 100 * 200)
+            assertTrue(body.contains("220 kcal")) // 110 + (55 / 100 * 200)
         }
 
     @Test
@@ -274,7 +274,7 @@ class FoodLogRoutingTest {
 
             assertEquals(302, result.status.value)
             assertEquals(200, page.status.value)
-            assertTrue(body.contains("Total Calories: 0"))
+            assertTrue(body.contains("0 kcal"))
         }
 
     @Test
@@ -293,7 +293,7 @@ class FoodLogRoutingTest {
             val body = result.bodyAsText()
 
             assertEquals(200, result.status.value)
-            assertTrue(body.contains("Total Calories: 0"))
+            assertTrue(body.contains("0 kcal"))
         }
 
     @Test
@@ -312,6 +312,6 @@ class FoodLogRoutingTest {
             val body = result.bodyAsText()
 
             assertEquals(200, result.status.value)
-            assertTrue(body.contains("Total Calories: 0"))
+            assertTrue(body.contains("0 kcal"))
         }
 }
