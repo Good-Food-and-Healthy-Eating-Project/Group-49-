@@ -177,10 +177,13 @@ fun buildGuidanceMessages(
         } else{
             messages.add("Protein intake is low — consider foods like eggs, chicken, or beans.")
         }
+    if (proteinTarget != null && proteinGrams >= proteinTarget) {
+        messages.add("Protein intake is on track - Well done")
+    }
 
     // Fat
     if (fatTarget != null && fatGrams > fatTarget) {
-        messages.add("Fat intake is high — try reducing fried or processed foods.")
+        messages.add("Fat intake is high (${fatGrams.toInt()}g / ${fatTarget}g) - reduce fried or processed foods.")
     }
 
     //Carbohydrates
@@ -188,6 +191,5 @@ fun buildGuidanceMessages(
         messages.add("Carbohydrate intake is low — consider adding whole grains or fruits.")
 
     }
-    // Used Claude AI to find (.take()) Limits message counts for all cases being true
-    return messages
+    return messages.take(4)
 }
