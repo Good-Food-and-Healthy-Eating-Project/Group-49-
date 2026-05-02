@@ -37,7 +37,7 @@
 		.subtitle {
 			text-align: center;
 			font-size: 14px;
-			color: #7A6855;
+			color: #4A3F35;
 			margin-bottom: 28px;
 		}
 
@@ -49,13 +49,13 @@
 			display: block;
 			margin-bottom: 6px;
 			font-size: 14px;
-			color: #6B4E35;
+			color: #4A3F35;
 		}
 
 		input, textarea {
 			width: 100%;
 			border-radius: 8px;
-			border: 1px solid #EDE6D8;
+			border: 2px solid #8C7B6A;
 			padding: 10px 12px;
 			font-size: 14px;
 			background: #fff;
@@ -72,8 +72,13 @@
 			min-height: 100px;
 		}
 
+		input:focus, textarea:focus {
+			outline: 3px solid #A94F24;
+			border-color: #A94F24;
+		}
+
 		input:invalid, textarea:invalid {
-			border-color: #C4603A;
+			border-color: #A94F24;
 		}
 
 		.name-row {
@@ -94,7 +99,7 @@
 			height: 44px;
 			border-radius: 8px;
 			border: none;
-			background: #C4603A;
+			background: #A94F24;
 			color: white;
 			font-size: 15px;
 			cursor: pointer;

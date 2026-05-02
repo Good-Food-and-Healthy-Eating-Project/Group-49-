@@ -13,10 +13,10 @@
     <p>Age: {{ client.age }}</p>
     <p>Gender: {{ client.gender }}</p>
 
-    <div class="client-summary" style="margin: 20px 0; padding: 16px; border: 1px solid #EDE6D8; border-radius: 12px; background: #FDFAF5; display: inline-block;">
+    <div class="client-summary" style="margin: 20px 0; padding: 16px; border: 2px solid #8C7B6A; border-radius: 12px; background: #FDFAF5; display: inline-block;">
         <h2 style="margin-top: 0;">Monthly Summary</h2>
         <p>On track: <strong>{{ onTrackDays }} / {{ totalTrackedDays }}</strong> days this month
-            <span style="font-size: 13px; color: #7A6855;">(within 100 kcal of target)</span>
+            <span style="font-size: 13px; color: #4A3F35;">(within 100 kcal of target)</span>
         </p>
         <p>Today: <strong>{{ todayCalories }} kcal</strong> / {{ client.calorieGoal }} kcal target</p>
     </div>

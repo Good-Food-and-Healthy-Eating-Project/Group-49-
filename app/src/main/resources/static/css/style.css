@@ -253,13 +253,13 @@ a:hover { color: var(--brown); }
 
 .footer-tagline {
     font-size: 0.85rem;
-    color: var(--text-muted);
+    color: var(--cream);
     letter-spacing: 0.05em;
 }
 
 .footer-copy {
     font-size: 0.8rem;
-    color: var(--text-muted);
+    color: var(--cream);
 }
 
 /* =============================================

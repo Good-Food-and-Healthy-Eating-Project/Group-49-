@@ -11,7 +11,7 @@
         font-size: 1.2rem;
         padding: 1rem 3rem;
         margin-right: 20px;
-        border: 2px solid #bdbdbd;
+        border: 2px solid #8C7B6A;
         border-radius: 6px;
         background: #fff;
         color: #222;
@@ -21,6 +21,12 @@
     }
     .landing-btn:last-child {
         margin-right: 0;
+    }
+    .landing-btn:hover {
+    background: #F3E4DD;
+    }
+    .landing-btn:focus {
+        outline: 3px solid #A94F24;
     }
     .prof-section {
         margin: 40px auto 0 auto;
@@ -41,7 +47,7 @@
         </div>
         
         <div class="prof-section">
-            <hr style="margin:32px 0 24px 0; border:none; border-top:2px solid #bdbdbd;">
+            <hr style="margin:32px 0 24px 0; border:none; border-top:2px solid #8C7B6A;">
             <div style="font-weight:600; font-size:1.1rem; margin-bottom:18px;">Professionals</div>
             <form action="/Professional-Sign-Up" method="get" style="margin-bottom:10px;">
                 <button type="submit" class="landing-btn" style="width:100%;margin-bottom:10px;">Professional Signup</button>
