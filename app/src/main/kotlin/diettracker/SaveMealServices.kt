@@ -159,7 +159,7 @@ suspend fun ApplicationCall.saveCurrentMeal() {
                 foods = currentMeal.foods,
             )
             sessions.set(CurrentMealSession(emptyList()))
-            respondRedirect("/food_log")
+            respondRedirect("/food_log?success=diary")
         }
     }
 }
@@ -222,5 +222,5 @@ suspend fun ApplicationCall.addSavedMealToLog() {
         ),
     )
 
-    respondRedirect("/food_log")
+    respondRedirect("/food_log?success=added")
 }

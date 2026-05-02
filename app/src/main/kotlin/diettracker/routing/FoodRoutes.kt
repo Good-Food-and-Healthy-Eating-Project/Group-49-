@@ -57,6 +57,7 @@ private fun Route.configureFoodLogRoute() {
         val protein = session?.protein ?: 0
         val fat = session?.fat ?: 0
         val carbs = session?.carbs ?: 0
+        val success = call.request.queryParameters["success"]
 
         when {
             recipeQuery != null && recipeQuery.isNotBlank() -> {
@@ -90,16 +91,15 @@ private fun Route.configureFoodLogRoute() {
             }
 
             else -> {
-                call.respondTemplate(
-                    "pages/client_dash/add_food.peb",
-                    mapOf(
-                        "calories" to calories,
-                        "protein" to protein,
-                        "fat" to fat,
-                        "carbs" to carbs,
-                        "savedMeals" to savedMeals,
-                    ),
+                val model = mutableMapOf<String, Any>(
+                    "calories" to calories,
+                    "protein" to protein,
+                    "fat" to fat,
+                    "carbs" to carbs,
+                    "savedMeals" to savedMeals,
                 )
+                if (success != null) model["success"] = success
+                call.respondTemplate("pages/client_dash/add_food.peb", model)
             }
         }
     }
@@ -178,6 +178,7 @@ private fun Route.configureFoodSearchRoute() {
         val fat = session?.fat ?: 0
         val carbs = session?.carbs ?: 0
 
+        val success = call.request.queryParameters["success"]
         call.respondTemplate(
             "pages/client_dash/add_food.peb",
             mapOf(
@@ -188,6 +189,8 @@ private fun Route.configureFoodSearchRoute() {
                 "carbs" to carbs,
                 "grams" to grams,
                 "savedMeals" to savedMeals,
+                // Non nullable default here
+                "success" to (success ?: ""),
             ),
         )
     }

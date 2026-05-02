@@ -3,6 +3,19 @@
 {% block title %}Log Food{% endblock %}
 
 {% block content %}
+
+{% if success is defined%}
+<div id="success-banner" class="success-banner">
+    {% if success == "saved" %}Meal Saved!{% else %}Added!{% endif %}
+</div>
+{% endif %}
+{# Used Claude AI here to explain how to implement a confirmation feature which times out using javascript #}
+<script>
+  setTimeout(() => {
+    const b = document.getElementById('success-banner');
+    if (b) b.remove();
+  }, 3000);
+</script>
 <div class="log-food-page">
 
     <div class="page-header">
