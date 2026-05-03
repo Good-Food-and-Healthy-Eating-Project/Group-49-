@@ -39,6 +39,9 @@ fun Route.quizRoutes() {
             call.respondRedirect("/Sign-Up")
             return@post
         }
+        // Adding first name and last name to quiz so clients have the better details
+        val firstName: String? = params["first_name"]
+        val lastName: String? = params["last_name"]
 
         // Assigning inputs from the form to variables
         val height = params["height"]?.toIntOrNull()
@@ -64,6 +67,8 @@ fun Route.quizRoutes() {
                 // Inserts inputs into the database if client doesn't exist
                 Clients.insert {
                     it[Clients.client_id] = userId
+                    it[Clients.firstName] = firstName
+                    it[Clients.lastName] = lastName
                     it[Clients.height_cm] = height
                     it[Clients.weight_kg] = weight
                     it[Clients.age] = age
@@ -73,7 +78,10 @@ fun Route.quizRoutes() {
                 }
             } else {
                 // Update existing client with new data from quiz
+                // Doesn't update user ID as that stays constant
                 Clients.update({ Clients.client_id eq userId }) {
+                    it[Clients.firstName] = firstName
+                    it[Clients.lastName] = lastName
                     it[Clients.height_cm] = height
                     it[Clients.weight_kg] = weight
                     it[Clients.age] = age

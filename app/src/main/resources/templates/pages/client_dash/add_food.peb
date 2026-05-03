@@ -3,10 +3,23 @@
 {% block title %}Log Food{% endblock %}
 
 {% block content %}
+
+{% if success is defined%}
+<div id="success-banner" class="success-banner">
+    {% if success == "saved" %}Meal Saved!{% else %}Added!{% endif %}
+</div>
+{% endif %}
+{# Used Claude AI here to explain how to implement a confirmation feature which times out using javascript #}
+<script>
+  setTimeout(() => {
+    const b = document.getElementById('success-banner');
+    if (b) b.remove();
+  }, 3000);
+</script>
 <div class="log-food-page">
 
     <div class="page-header">
-        <h1>Log Food</h1>
+        <h2>Log Food</h2>
         <p>Search for a meal, ingredient, or saved meal to add to your diary.</p>
     </div>
 
@@ -135,6 +148,17 @@
 </div>
 
 <style>
+    .success-banner {
+        background: var(--sage-light);
+        color: var(--brown);
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
     .log-food-page {
         padding: 2rem 0;
     }

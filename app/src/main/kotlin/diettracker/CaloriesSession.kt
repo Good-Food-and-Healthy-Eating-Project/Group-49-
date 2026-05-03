@@ -152,7 +152,7 @@ suspend fun ApplicationCall.foodLogRecipe() {
     )
     val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
     sessions.set(CurrentMealSession(currentMeal.foods + result.foods))
-    respondRedirect("/food_log")
+    respondRedirect("/food_log?success=added")
 }
 
 /**
@@ -228,7 +228,7 @@ suspend fun ApplicationCall.foodLogCustom() {
     val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
     sessions.set(CurrentMealSession(currentMeal.foods + CurrentMealFood(foodId = foodId, grams = grams)))
 
-    respondRedirect("/food_log")
+    respondRedirect("/food_log?success=added")
 }
 
 /**
@@ -390,7 +390,7 @@ suspend fun ApplicationCall.saveCurrentFoodLog() {
             sessions.set(CaloriesSession(0, 0, 0, 0))
             sessions.set(CurrentMealSession(emptyList()))
 
-            respondRedirect("/food_log")
+            respondRedirect("/food_log?success=diary")
         }
     }
 }

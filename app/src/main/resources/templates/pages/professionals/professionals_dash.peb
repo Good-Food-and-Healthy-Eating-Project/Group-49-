@@ -21,7 +21,7 @@
                         {% if client.firstName is not empty %}{{ client.firstName | slice(0, 1) }}{% endif %}{% if client.lastName is not empty %}{{ client.lastName | slice(0, 1) }}{% endif %}
                     </div>
                     <div class="client-info">
-                        <h3 class="client-name">{{ client.firstName }} {{ client.lastName }}</h3>
+                        <h2 class="client-name">{{ client.firstName }} {{ client.lastName }}</h2>
                         <p class="client-email">{{ client.email }}</p>
                         <div class="client-meta">
                             {% if client.goal %}
@@ -82,7 +82,7 @@
 
     .client-email {
         font-size: 0.85rem;
-        color: var(--text-muted);
+        color: var(--text-secondary);
         margin-bottom: 0.65rem;
         white-space: nowrap;
         overflow: hidden;
@@ -109,7 +109,12 @@
     }
 
     .btn-view-details:hover {
-        background: var(--terracotta-dark, #b85c38);
+        background: #7A3518;
+    }
+
+    .btn-view-details:focus {
+        outline: 3px solid #2C1E10;
+        outline-offset: 2px;
     }
 </style>
 {% endblock %}

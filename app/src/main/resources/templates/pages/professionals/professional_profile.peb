@@ -13,7 +13,7 @@
         }
 
         .profile-header {
-            border: 2px solid #bdbdbd;
+            border: 2px solid #8C7B6A;
             padding: 20px;
             background: #ffffff;
             margin-bottom: 20px;
@@ -33,7 +33,7 @@
         }
 
         .profile-form {
-            border: 2px solid #bdbdbd;
+            border: 2px solid #8C7B6A;
             padding: 20px;
             background: #ffffff;
             display: flex;
@@ -56,9 +56,15 @@
         .profile-form input,
         .profile-form textarea {
             padding: 10px;
-            border: 1px solid #bdbdbd;
+            border: 2px solid #8C7B6A;
             border-radius: 4px;
             font-size: 16px;
+        }
+
+        .profile-form input:focus,
+        .profile-form textarea:focus {
+            outline: 3px solid #A94F24;
+            border-color: #A94F24;
         }
 
         .profile-form textarea {
@@ -71,6 +77,13 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
+            background: #A94F24;
+            color: white;
+            border: none;
+        }
+
+        .update-button:hover {
+            background: #A94E2E;
         }
     </style>
 </head>
@@ -97,18 +110,18 @@
             <form method="post" action="/professional-profile-update" class="profile-form">
 
                 <div class="profile-section">
-                    <label class="profile-label">Job Title</label>
-                    <input type="text" name="job_title" placeholder="Current: {{ userinfo.job_title }}">
+                     <label for="job_title" class="profile-label">Job Title</label>
+                    <input id="job_title" type="text" name="job_title" value="{{ userinfo.job_title }}">
                 </div>
 
                 <div class="profile-section">
-                    <label class="profile-label">Organisation</label>
-                    <input type="text" name="organisation" placeholder="Current: {{ userinfo.organisation }}">
+                    <label for="organisation" class="profile-label">Organisation</label>
+                    <input id="organisation" type="text" name="organisation" value="{{ userinfo.organisation }}">
                 </div>
 
                 <div class="profile-section">
-                    <label class="profile-label">Bio</label>
-                    <textarea name="bio" placeholder="Current: {{ userinfo.bio }}"></textarea>
+                    <label for="bio" class="profile-label">Bio</label>
+                    <textarea id="bio" name="bio">{{ userinfo.bio }}</textarea>
                 </div>
 
                 <button type="submit" class="update-button">Update</button>

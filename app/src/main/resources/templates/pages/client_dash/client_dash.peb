@@ -7,162 +7,186 @@ Home
 {% block content %}
 <div class="client-dashboard-page">
 
-    <div class="dashboard-header">
-        {% if dailyCalorieGoal is not empty %}
-            <div class="calorie-goal-card">
-                <p class="calorie-goal-label">Daily Calorie Goal</p>
-                <p class="calorie-goal-value">{{ dailyCalorieGoal }} kcal</p>
-            </div>
-        {% else %}
-            <div class="calorie-goal-card calorie-goal-card--empty">
-                <p class="calorie-goal-label">No daily calorie goal set</p>
-                {% if userId is not empty %}
-                    <a href="/quiz?userId={{ userId }}" class="calorie-goal-link">Complete the quiz to get your goal</a>
-                {% endif %}
-            </div>
-        {% endif %}
-    </div>
-
     <div class="dashboard-grid">
 
-        <div class="calendar-widget">
-            <div class="calendar-title">
-                <h3>Diet Trend</h3>
+        <!-- LEFT: Calorie goal + Today's nutrition -->
+        <div class="left-column">
+
+            {% if dailyCalorieGoal is not empty %}
+                <div class="calorie-goal-card">
+                    <p class="calorie-goal-label">Daily Calorie Goal</p>
+                    <p class="calorie-goal-value">{{ dailyCalorieGoal }} kcal</p>
+                </div>
+            {% else %}
+                <div class="calorie-goal-card calorie-goal-card--empty">
+                    <p class="calorie-goal-label">No daily calorie goal set</p>
+                    {% if userId is not empty %}
+                        <a href="/quiz?userId={{ userId }}" class="calorie-goal-link">Complete the quiz to get your goal</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <div class="daily-overview">
+                <h3 class="summary-title">Today's Nutrition</h3>
+
+                <div class="nutrient-row">
+                    <div class="nutrient-header">
+                        <span class="nutrient-name">Calories</span>
+                        <span class="nutrient-values">{{ totalCalories }} kcal / {% if calorieGoal is not empty %}{{ calorieGoal }} kcal{% else %}–{% endif %}</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill calories-fill" style="width: {{ caloriePct }}%;"></div>
+                    </div>
+                </div>
+
+                <div class="nutrient-row">
+                    <div class="nutrient-header">
+                        <span class="nutrient-name">Protein</span>
+                        <span class="nutrient-values">{{ totalProtein }}g / {% if targetProtein is not empty %}{{ targetProtein }}g{% else %}–{% endif %}</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill protein-fill" style="width: {{ proteinPct }}%;"></div>
+                    </div>
+                </div>
+
+                <div class="nutrient-row">
+                    <div class="nutrient-header">
+                        <span class="nutrient-name">Carbs</span>
+                        <span class="nutrient-values">{{ totalCarbs }}g / {% if targetCarbs is not empty %}{{ targetCarbs }}g{% else %}–{% endif %}</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill carbs-fill" style="width: {{ carbsPct }}%;"></div>
+                    </div>
+                </div>
+
+                <div class="nutrient-row">
+                    <div class="nutrient-header">
+                        <span class="nutrient-name">Fat</span>
+                        <span class="nutrient-values">{{ totalFat }}g / {% if targetFat is not empty %}{{ targetFat }}g{% else %}–{% endif %}</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill fat-fill" style="width: {{ fatPct }}%;"></div>
+                    </div>
+                </div>
+
+                <p class="macro-reference">
+                    Macro targets based on the
+                    <a href="https://www.gov.uk/government/publications/the-eatwell-guide" target="_blank" rel="noopener">UK Eatwell Guide</a>
+                    (Public Health England, 2016): 50% carbs, 35% fat, 15% protein of total energy.
+                </p>
+
+                <h3 class="guidance-title">Guidance</h3>
+                <ul class="guidance-list">
+                    {% for msg in messages %}
+                        <li>{{ msg }}</li>
+                    {% endfor %}
+                </ul>
             </div>
 
-            <div class="calendar-navigation">
-                <a class="calendar-nav-button" href="/client_dash?year={{ previousYear }}&month={{ previousMonth }}">
-                    &lt; Previous
-                </a>
-                <h2>{{ currentYear }} / {{ currentMonthValue }}</h2>
-                <a class="calendar-nav-button" href="/client_dash?year={{ nextYear }}&month={{ nextMonth }}">
-                    Next &gt;
-                </a>
+        </div>{# end left-column #}
+
+        <!-- RIGHT: Eatwell guide + Calendar -->
+        <div class="right-column">
+
+            <div class="healthyeatingguide">
+                <div class="eatwell-text">
+                    <h3>Healthy Eating Guide</h3>
+                    <p>This app uses the UK Eatwell Guide to set your nutrition targets:</p>
+                    <ul class="macro-inline">
+                        <li>Carbohydrates ~50%</li>
+                        <li>Fats ~35%</li>
+                        <li>Protein ~15%</li>
+                    </ul>
+                </div>
+                <div class="eatwell-image">
+                    <img src="/static/css/Images/Eatwell%20guide.jpeg" alt="UK Eatwell Guide showing balanced diet proportions">
+                </div>
             </div>
 
-            <div class="calendar-weekdays">
-                <div>Mon</div>
-                <div>Tue</div>
-                <div>Wed</div>
-                <div>Thu</div>
-                <div>Fri</div>
-                <div>Sat</div>
-                <div>Sun</div>
-            </div>
+            <div class="calendar-widget">
+                <div class="calendar-title">
+                    <h3>Diet Trend</h3>
+                </div>
 
-            <div class="calendar-grid">
-                {% for i in 1..leadingEmptyDays %}
-                    <div class="day-cell empty-cell"></div>
-                {% endfor %}
+                <div class="calendar-navigation">
+                    <a class="calendar-nav-button" href="/client_dash?year={{ previousYear }}&month={{ previousMonth }}">
+                        &lt; Previous
+                    </a>
+                    <h2>{{ currentYear }} / {{ currentMonthValue }}</h2>
+                    <a class="calendar-nav-button" href="/client_dash?year={{ nextYear }}&month={{ nextMonth }}">
+                        Next &gt;
+                    </a>
+                </div>
 
-                {% for day in 1..daysInMonth %}
-                    {% set found = false %}
-                    <div class="day-cell">
-                        {% for trend in trends %}
-                            {% if trend.dayOfMonth == day %}
-                                {% set found = true %}
-                                <div class="day-box {{ trend.colourClass }}">
-                                    {{ day }}
-                                    <div class="tooltip">
-                                        Kcal: {{ trend.totalCalorie }} / {{ trend.targetCalorie }}
+                <div class="calendar-weekdays">
+                    <div>Mon</div>
+                    <div>Tue</div>
+                    <div>Wed</div>
+                    <div>Thu</div>
+                    <div>Fri</div>
+                    <div>Sat</div>
+                    <div>Sun</div>
+                </div>
+
+                <div class="calendar-grid">
+                    {% for i in 1..leadingEmptyDays %}
+                        <div class="day-cell empty-cell"></div>
+                    {% endfor %}
+
+                    {% for day in 1..daysInMonth %}
+                        {% set found = false %}
+                        <div class="day-cell">
+                            {% for trend in trends %}
+                                {% if trend.dayOfMonth == day %}
+                                    {% set found = true %}
+                                    <div class="day-box {{ trend.colourClass }}">
+                                        {{ day }}
+                                        <div class="tooltip">
+                                            Kcal: {{ trend.totalCalorie }} / {{ trend.targetCalorie }}
+                                        </div>
                                     </div>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if not found %}
+                                <div class="day-box empty-day">
+                                    {{ day }}
                                 </div>
                             {% endif %}
-                        {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
 
-                        {% if not found %}
-                            <div class="day-box empty-day">
-                                {{ day }}
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+                {% if trends is empty %}
+                    <div class="no-data">No diet data</div>
+                {% endif %}
             </div>
 
-            {% if trends is empty %}
-                <div class="no-data">No diet data</div>
-            {% endif %}
-        </div>
-
-        <div class="daily-overview">
-            <h3 class="summary-title">Today's Nutrition</h3>
-
-            <div class="nutrient-row">
-                <div class="nutrient-header">
-                    <span class="nutrient-name">Calories</span>
-                    <span class="nutrient-values">{{ totalCalories }} kcal / {% if calorieGoal is not empty %}{{ calorieGoal }} kcal{% else %}–{% endif %}</span>
-                </div>
-                <div class="progress-track">
-                    <div class="progress-fill calories-fill" style="width: {{ caloriePct }}%;"></div>
-                </div>
-            </div>
-
-            <div class="nutrient-row">
-                <div class="nutrient-header">
-                    <span class="nutrient-name">Protein</span>
-                    <span class="nutrient-values">{{ totalProtein }}g / {% if targetProtein is not empty %}{{ targetProtein }}g{% else %}–{% endif %}</span>
-                </div>
-                <div class="progress-track">
-                    <div class="progress-fill protein-fill" style="width: {{ proteinPct }}%;"></div>
-                </div>
-            </div>
-
-            <div class="nutrient-row">
-                <div class="nutrient-header">
-                    <span class="nutrient-name">Carbs</span>
-                    <span class="nutrient-values">{{ totalCarbs }}g / {% if targetCarbs is not empty %}{{ targetCarbs }}g{% else %}–{% endif %}</span>
-                </div>
-                <div class="progress-track">
-                    <div class="progress-fill carbs-fill" style="width: {{ carbsPct }}%;"></div>
-                </div>
-            </div>
-
-            <div class="nutrient-row">
-                <div class="nutrient-header">
-                    <span class="nutrient-name">Fat</span>
-                    <span class="nutrient-values">{{ totalFat }}g / {% if targetFat is not empty %}{{ targetFat }}g{% else %}–{% endif %}</span>
-                </div>
-                <div class="progress-track">
-                    <div class="progress-fill fat-fill" style="width: {{ fatPct }}%;"></div>
-                </div>
-            </div>
-
-            <p class="macro-reference">
-                Macro targets based on the
-                <a href="https://www.gov.uk/government/publications/the-eatwell-guide" target="_blank" rel="noopener">UK Eatwell Guide</a>
-                (Public Health England, 2016): 50% carbs, 35% fat, 15% protein of total energy.
-            </p>
-
-            <h3 class="guidance-title">Guidance</h3>
-            <ul class="guidance-list">
-                {% for msg in messages %}
-                    <li>{{ msg }}</li>
-                {% endfor %}
-            </ul>
-        </div>
+        </div>{# end right-column #}
 
     </div>
 </div>
 
 <style>
     .client-dashboard-page {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 1.5rem;
+        padding: 1.5rem 3rem;
     }
 
-    .dashboard-header {
-        margin-bottom: 1.5rem;
+
+    .left-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
     }
 
     .calorie-goal-card {
-        display: inline-block;
-        margin-top: 24px;
-        padding: 24px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1.25rem;
         background: #FDFAF5;
         border: 1px solid #EDE6D8;
         border-radius: 12px;
-        text-align: center;
         box-shadow: 0 4px 16px rgba(0,0,0,0.06);
     }
 
@@ -173,21 +197,23 @@ Home
     .calorie-goal-label {
         margin: 0 0 8px;
         font-size: 13px;
-        color: #7A6855;
+        /*color: #7A6855;*/
+        color: #4A3F35;
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
 
     .calorie-goal-value {
         margin: 0;
-        font-size: 36px;
+        font-size: 1.5rem;
         font-weight: 700;
-        color: #C4603A;
+        color: #A94F24;
     }
 
     .calorie-goal-link {
         font-size: 13px;
-        color: #C4603A;
+        /*color: #C4603A;*/
+        color: #A94F24;
         text-decoration: none;
     }
 
@@ -197,11 +223,83 @@ Home
 
     .dashboard-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 2fr 3fr;
         gap: 1.5rem;
         align-items: start;
     }
 
+    .right-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: center;
+    }
+
+    .healthyeatingguide {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+        width: 100%;
+        max-width: 650px;
+
+        background: #FDFAF5;
+        border: 1px solid #EDE6D8;
+        height: 200px;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+    /* LEFT SIDE TEXT */
+    .eatwell-text {
+        flex: 1;
+        min-width: 200px;
+    }
+    /* RIGHT SIDE IMAGE */
+    .eatwell-image {
+        flex: 2;
+        height: 100%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .eatwell-image img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    .healthyeatingguide h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #3D2B1F;
+    }
+
+    .healthyeatingguide p {
+        font-size: 0.9rem;
+        color: #4A3F35;
+        margin: 0.25rem 0;
+    }
+
+    .macro-inline {
+        display: flex;
+        gap: 1rem;
+        list-style: none;
+        padding: 0;
+        margin: 0.25rem 0;
+        font-size: 0.9rem;
+        color: #4A3F35;
+    }
+
+    .healthyeatingguide img {
+        max-width: 100%;
+        max-height: 100%;
+        display: block;
+        object-fit: contain;
+        border-radius: 8px;
+        margin-top: 0.75rem;
+    }
+    /* This is an adjustment for mobile accessibility */
     @media (max-width: 768px) {
         .dashboard-grid {
             grid-template-columns: 1fr;
@@ -242,12 +340,14 @@ Home
 
     .nutrient-values {
         font-size: 0.85rem;
-        color: #7A6855;
+        color: #4A3F35;
+        /*color: #7A6855; */
     }
 
     .progress-track {
         height: 10px;
-        background: #EDE6D8;
+        /*background: #EDE6D8;*/
+        background: #D9D0C5;
         border-radius: 999px;
         overflow: hidden;
     }
@@ -257,21 +357,30 @@ Home
         border-radius: 999px;
         transition: width 0.4s ease;
     }
-
+    /*
     .calories-fill { background: #C4603A; }
     .protein-fill  { background: #6B8F71; }
     .carbs-fill    { background: #E8A838; }
     .fat-fill      { background: #8B6BAE; }
+    */
+    .calories-fill { background: #A94F24; }
+    .protein-fill  { background: #3F7A5C; }
+    .carbs-fill    { background: #C47A1E; }
+    .fat-fill      { background: #7A5BA6; }
 
     .macro-reference {
         margin: 1rem 0 0;
+        color: #5A4A3F;
+        /*
         font-size: 0.75rem;
         color: #9E8E7E;
+        */
         line-height: 1.5;
     }
 
     .macro-reference a {
-        color: #9E8E7E;
+        /*color: #9E8E7E;*/
+        color: #5A4A3F;
         text-decoration: underline;
     }
 
@@ -286,7 +395,8 @@ Home
         margin: 0;
         padding-left: 1.2rem;
         font-size: 0.875rem;
-        color: #7A6855;
+        /*color: #7A6855;*/
+        color: #4A3F35;
         line-height: 1.7;
     }
 </style>

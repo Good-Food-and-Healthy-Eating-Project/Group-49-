@@ -19,18 +19,18 @@
 	}
 
 	.favourites {
-		background: var(--terracotta-light);
+		background: #FDFAF5;
 		border: 2px solid var(--terracotta);
 		border-radius: 8px;
 		padding: 1rem;
 		min-height: 520px;
-		color: #e8f5ec;
+		color: #2C1E10;
 	}
 
 	.favourites-title {
 		margin: 0 0 0.75rem 0;
 		font-size: 0.95rem;
-		color: #e8f5ec;
+		color: #2C1E10;
 	}
 
 	.favourite-entry {
@@ -39,7 +39,7 @@
 		padding: 0.5rem 0.75rem;
 		margin-bottom: 0.5rem;
 		font-size: 0.85rem;
-		color: #e8f5ec;
+		color: #FDFAF5;
 		transition: background 0.2s ease;
 	}
 
@@ -55,7 +55,7 @@
 	.search-bar {
 		height: 52px;
 		background: #ffffff;
-		border: 2px solid #b9b9b9;
+		border: 2px solid #8C7B6A;
 		border-radius: 8px;
 		padding: 0.9rem 1rem;
 	}
@@ -68,21 +68,21 @@
 
 	.recipe-card {
 		background: #c8ecd4;
-		border: 2px solid #8fcca2;
+		border: 2px solid #4A7A5A;
 		border-radius: 8px;
 		min-height: 200px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		font-size: 0.9rem;
-		color: #2a5c38;
+		color: #1A3D28;
 		cursor: pointer;
     	transition: border-color 0.2s ease;
 		position: relative;
 	}
 
 	.recipe-card:hover {
-    border-color: #2a5c38;
+    border-color: #1A3D28;
 	}
 
 	.recipe-card img {
@@ -226,7 +226,7 @@
 					<div class="cards-grid">
 						{% for recipe in recipes %}
 							<div class="recipe-card" data-recipe="{{ recipe.name }}" data-id="{{ recipe.id }}" onclick="window.location.href='/recipes/' + this.getAttribute('data-id')">
-								<div class="heart {% if recipe.isFavourited %}active{% endif %}" aria-label="favourite"></div>
+								<button class="heart {% if recipe.isFavourited %}active{% endif %}" aria-label="Favourite {{ recipe.name }}" type="button"></button>
 								
 								{% if recipe.thumbnail %}
 									<img src="{{ recipe.thumbnail }}" alt="{{ recipe.name }}">
