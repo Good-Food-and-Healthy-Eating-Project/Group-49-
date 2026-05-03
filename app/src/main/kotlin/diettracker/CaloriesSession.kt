@@ -1,7 +1,5 @@
 package diettracker
 
-import diettracker.db.tables.FoodLogItems
-import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.Foods
 import diettracker.db.tables.RecipeIngredients
 import diettracker.db.tables.Recipes
@@ -25,7 +23,6 @@ import org.jetbrains.exposed.v1.core.lowerCase
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import java.time.Instant
 
 const val GRAMS_PER_SERVING = 100
 
@@ -160,36 +157,18 @@ suspend fun ApplicationCall.foodLogRecipe() {
  *
  * This is used in foodLogCustom() when the user adds a custom food.
  * It calculates the calories, protein, fat, and carbs for the
- * selected food and gram amount by calling calcNutrients(). If a user ID is
- * provided, it also saves the custom food item to the food log tables.
+ * selected food and gram amount by calling calcNutrients().
  *
- * @param userId The ID of the logged-in user, or null if unavailable.
  * @param foodId The ID of the selected food item.
  * @param grams The amount of the food item in grams.
  * @return The calculated nutrition values for the selected food and gram amount.
  */
 private fun calcAndLogCustomFood(
-    userId: Int?,
     foodId: Int,
     grams: Int,
 ): NutrientValues =
     transaction {
-        val nutrients = calcNutrients(foodId, grams)
-        if (userId != null) {
-            val logId =
-                FoodLogs.insert {
-                    it[FoodLogs.user_id] = userId
-                    it[FoodLogs.log_date] = Instant.now()
-                    it[FoodLogs.meal_type] = "custom"
-                    it[FoodLogs.notes] = ""
-                } get FoodLogs.food_log_id
-            FoodLogItems.insert {
-                it[FoodLogItems.food_log_id] = logId
-                it[FoodLogItems.food_id] = foodId
-                it[FoodLogItems.quantity_g] = grams.toBigDecimal()
-            }
-        }
-        nutrients
+        calcNutrients(foodId, grams)
     }
 
 /**
@@ -206,7 +185,22 @@ suspend fun ApplicationCall.foodLogCustom() {
     val params = receiveParameters()
     val foodIdStr = params["foodId"]
     val foodId = foodIdStr?.toIntOrNull()
-    val grams = params["grams"]?.toIntOrNull() ?: GRAMS_PER_SERVING
+    var grams = params["grams"]?.toIntOrNull() ?: GRAMS_PER_SERVING
+    
+    if (grams > 5000) {
+        respondTemplate(
+            "pages/client_dash/add_food.peb",
+            mapOf(
+                "calories" to caloriesSession.calories,
+                "protein" to caloriesSession.protein,
+                "fat" to caloriesSession.fat,
+                "carbs" to caloriesSession.carbs,
+                "error" to "Maximum is 5000g."
+            ),
+        )
+        return
+    }
+
     if (foodId == null) {
         respondTemplate(
             "pages/client_dash/add_food.peb",
@@ -215,9 +209,7 @@ suspend fun ApplicationCall.foodLogCustom() {
         return
     }
 
-    val email = sessions.get<UserSession>()?.email
-    val userId = email?.let { getUserIdByEmail(it) }
-    val nutrients = calcAndLogCustomFood(userId, foodId, grams)
+    val nutrients = calcAndLogCustomFood(foodId, grams)
 
     val newTotalCals = caloriesSession.calories + nutrients.calories
     val newTotalProtein = caloriesSession.protein + nutrients.protein
