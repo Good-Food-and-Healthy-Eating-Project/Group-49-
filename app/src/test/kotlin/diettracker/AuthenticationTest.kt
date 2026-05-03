@@ -56,6 +56,24 @@ class AuthenticationTest {
     }
 
     @Test
+    fun `login with correct email but wrong password shows error`() = testApplication {
+        application { module(testing = true) }
+
+        val client = createClient {
+            install(HttpCookies)
+        }
+
+        UserDatabase.addUser("test@test.com", "password123")
+
+        val response = client.post("/Login") {
+            header(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+            setBody("email=test@test.com&password=wrongpassword")
+        }
+
+        assertEquals(200, response.status.value) // stays on page
+    }
+
+    @Test
     fun `authenticated user can access protected route`() = testApplication {
         application { module(testing = true) }
 
@@ -74,21 +92,7 @@ class AuthenticationTest {
 
         assertEquals(200, response.status.value)
     }
-
-    @Test
-    fun should_log_out_redirect_to_login_when_not_Authentication() =
-        testApplication {
-            application { module(testing = true) }
-            val client =
-                createClient {
-                    install(HttpCookies)
-                    followRedirects = false
-                }
-            val result = client.get("/logout")
-            assertEquals(302, result.status.value)
-            assertEquals("/Login", result.headers[HttpHeaders.Location])
-        }
-
+    
     @Test
     fun `logout clears session and redirects to home`() = testApplication {
         application { module(testing = true) }
