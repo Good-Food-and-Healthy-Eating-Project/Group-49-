@@ -9,6 +9,11 @@
     {% if success == "saved" %}Meal Saved!{% else %}Added!{% endif %}
 </div>
 {% endif %}
+{% if error is defined %}
+<div class="error-banner">
+        {{ error }}
+</div>
+{% endif %}
 {# Used Claude AI here to explain how to implement a confirmation feature which times out using javascript #}
 <script>
   setTimeout(() => {
@@ -114,7 +119,7 @@
                         </div>
                         <div class="form-group" style="margin-top: 1rem;">
                             <label class="form-label">Grams</label>
-                            <input type="number" name="grams" placeholder="e.g. 150" min="1" required class="form-input">
+                            <input type="number" name="grams" placeholder="e.g. 150" min="1" max="5000" required class="form-input">
                         </div>
                     {% else %}
                         <p class="empty-hint">No foods found — try a search above.</p>
@@ -154,6 +159,18 @@
         font-weight: 600;
         font-size: 1rem;
         padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .error-banner {
+        background: #fbe4e6;
+        color: #8a1c24;
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 1rem 1.5rem;
+        border: 1px solid #f1b8be;
         border-radius: 8px;
         margin-bottom: 1.5rem;
         text-align: center;
