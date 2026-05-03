@@ -215,7 +215,7 @@ a:hover { color: var(--brown); }
 }
 
 .page-wrapper {
-    max-width: 1200px;
+    max-width: 1600px;
     margin: 0 auto;
     padding: 0 2rem;
 }
@@ -421,21 +421,34 @@ a:hover { color: var(--brown); }
     padding: 40px;
 }
 .calendar-widget {
-    width: 25%;
+    width: 100%;
+    max-width: 650px;
+    max-height: 380px;
+    margin-top: -0.5rem;
     min-width: 280px;
     padding: 12px;
+    transform-origin: top center;
+    display: block;
+    text-align: center;
+
+    background: #FDFAF5;
+    border: 1px solid #EDE6D8;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
 }
 .calendar-weekdays,
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 42px);
     gap: 10px;
+    justify-content: center;
 }
 .calendar-weekdays {
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 }
 .calendar-weekdays div {
-    width: 42px;
+    width: 38px;
     height: 20px;
     text-align: center;
     font-size: 13px;
@@ -443,8 +456,8 @@ a:hover { color: var(--brown); }
     color: var(--text-secondary);
 }
 .day-cell {
-    width: 42px;
-    height: 42px;
+    width: 38px;
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -454,8 +467,8 @@ a:hover { color: var(--brown); }
     height: 42px;
 }
 .day-box {
-    width: 42px;
-    height: 42px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -501,7 +514,7 @@ a:hover { color: var(--brown); }
 }
 .calendar-title {
     text-align: center;
-    margin-bottom: 16px;
+    margin-bottom: 0.75rem;
 }
 .calendar-navigation {
     display: flex;
