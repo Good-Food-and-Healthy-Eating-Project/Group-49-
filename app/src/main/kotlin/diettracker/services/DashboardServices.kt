@@ -5,6 +5,7 @@ import diettracker.DailyDietTrend
 import diettracker.DailyNutritionSummary
 import diettracker.NutritionInput
 import diettracker.buildGuidanceMessages
+import diettracker.buildNavbarContext
 import diettracker.db.tables.Clients
 import diettracker.getClientCalorieGoal
 import diettracker.getDailyNutritionSummary
@@ -190,10 +191,8 @@ private data class DashboardMapData(
 )
 
 private fun buildDashboardMap(data: DashboardMapData): Map<String, Any> =
-    mapOf(
-        "showNavbar" to true,
+    buildNavbarContext(data.userId, data.userRoles) + mapOf(
         "userRoles" to data.userRoles,
-        "isProfessional" to data.userRoles.contains("professional"),
         "userId" to (data.userId as Any? ?: ""),
         "dailyCalorieGoal" to (data.dailyCalorieGoal ?: ""),
         "trends" to data.trends,

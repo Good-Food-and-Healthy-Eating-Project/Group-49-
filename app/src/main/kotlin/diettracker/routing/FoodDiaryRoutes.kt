@@ -1,6 +1,7 @@
 package diettracker.routing
 
 import diettracker.UserSession
+import diettracker.buildNavbarContext
 import diettracker.getUserIdByEmail
 import diettracker.services.DiaryService
 import io.ktor.server.application.call
@@ -35,8 +36,7 @@ fun Route.foodDiaryRoutes() {
             call.respond(
                 PebbleContent(
                     "pages/client_dash/food_diary.peb",
-                    mapOf(
-                        "showNavbar" to true,
+                    buildNavbarContext(userId) + mapOf(
                         "selectedWeekLabel" to diaryView.selectedWeekLabel,
                         "weekStart" to diaryView.weekStart,
                         "weekEnd" to diaryView.weekEnd,
@@ -67,8 +67,7 @@ fun Route.foodDiaryRoutes() {
             call.respond(
                 PebbleContent(
                     "pages/client_dash/food_diary_day.peb",
-                    mapOf(
-                        "showNavbar" to true,
+                    buildNavbarContext(userId) + mapOf(
                         "dateLabel" to detailView.dateLabel,
                         "totalCalories" to detailView.totalCalories,
                         "protein" to detailView.protein,

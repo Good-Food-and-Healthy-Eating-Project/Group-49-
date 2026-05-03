@@ -13,6 +13,8 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 data class ChatRecord(
     val chatId: Int,
@@ -27,6 +29,7 @@ data class MessageRecord(
     val senderUserId: Int,
     val body: String,
     val createdAt: Instant,
+    val createdAtDisplay: String,
     val readAt: Instant?,
 )
 
@@ -39,10 +42,14 @@ data class ChatSummary(
     val otherUserLastName: String,
     val lastMessageBody: String?,
     val lastMessageAt: Instant?,
+    val lastMessageAtDisplay: String?,
     val createdAt: Instant,
 )
 
 object MessagingRepository {
+    internal val displayFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy")
+    internal val displayZone: ZoneId = ZoneId.systemDefault()
+
     fun findChatById(chatId: Int): ChatRecord? =
         transaction {
             Chats
@@ -121,9 +128,22 @@ object MessagingRepository {
                         otherUserLastName = otherUser[Users.second_name],
                         lastMessageBody = latestMessage?.get(Messages.body),
                         lastMessageAt = latestMessage?.get(Messages.created_at),
+                        lastMessageAtDisplay = latestMessage?.get(Messages.created_at)?.toDisplayTimestamp(),
                         createdAt = row[Chats.created_at],
                     )
                 }.sortedByDescending { summary -> summary.lastMessageAt ?: summary.createdAt }
+        }
+
+    fun countUnreadMessagesForUser(userId: Int): Int =
+        transaction {
+            (Messages innerJoin Chats)
+                .selectAll()
+                .where {
+                    ((Chats.client_id eq userId) or (Chats.professional_id eq userId)) and
+                        not(Messages.senders_user_id eq userId) and
+                        (Messages.read_at eq null)
+                }.count()
+                .toInt()
         }
 
     fun listMessagesForChat(chatId: Int): List<MessageRecord> =
@@ -157,6 +177,7 @@ object MessagingRepository {
                 senderUserId = senderUserId,
                 body = body,
                 createdAt = createdAt,
+                createdAtDisplay = createdAt.toDisplayTimestamp(),
                 readAt = null,
             )
         }
@@ -207,6 +228,8 @@ object MessagingRepository {
             .firstOrNull()
 }
 
+private fun Instant.toDisplayTimestamp(): String = atZone(MessagingRepository.displayZone).format(MessagingRepository.displayFormatter)
+
 private fun org.jetbrains.exposed.v1.core.ResultRow.toChatRecord(): ChatRecord =
     ChatRecord(
         chatId = this[Chats.chat_id],
@@ -222,5 +245,6 @@ private fun org.jetbrains.exposed.v1.core.ResultRow.toMessageRecord(): MessageRe
         senderUserId = this[Messages.senders_user_id],
         body = this[Messages.body],
         createdAt = this[Messages.created_at],
+        createdAtDisplay = this[Messages.created_at].toDisplayTimestamp(),
         readAt = this[Messages.read_at],
     )

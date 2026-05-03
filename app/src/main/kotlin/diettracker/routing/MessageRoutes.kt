@@ -1,7 +1,10 @@
 package diettracker.routing
 
 import diettracker.UserSession
+import diettracker.buildNavbarContext
 import diettracker.db.repositories.MessagingRepository
+import diettracker.getClientsForProfessional
+import diettracker.getLinkedProfessionalIdsForClient
 import diettracker.getUserIdByEmail
 import diettracker.getUserRoles
 import io.ktor.http.HttpStatusCode
@@ -26,9 +29,7 @@ fun Route.configureMessageRoutes() {
 
         call.respondTemplate(
             "pages/messages/messages.peb",
-            mapOf(
-                "showNavbar" to true,
-                "isProfessional" to userRoles.contains("professional"),
+            buildNavbarContext(userId, userRoles, "messages") + mapOf(
                 "chats" to chats,
                 "hasSelectedChat" to false,
                 "selectedChat" to emptyMap<String, Any>(),
@@ -37,6 +38,44 @@ fun Route.configureMessageRoutes() {
                 "messageError" to "",
             ),
         )
+    }
+
+    post("/messages/start") {
+        val email = call.sessions.get<UserSession>()?.email ?: return@post call.respondRedirect("/Login")
+        val userId = getUserIdByEmail(email) ?: return@post call.respond(HttpStatusCode.NotFound, "User not found")
+        val userRoles = getUserRoles(userId)
+        val params = call.receiveParameters()
+        val clientId = params["client_id"]?.toIntOrNull()
+        val professionalId = params["professional_id"]?.toIntOrNull()
+
+        val chat =
+            when {
+                professionalId != null && !userRoles.contains("professional") -> {
+                    val linkedProfessionalIds = getLinkedProfessionalIdsForClient(userId)
+                    if (!linkedProfessionalIds.contains(professionalId)) {
+                        return@post call.respond(HttpStatusCode.Forbidden, "Not allowed")
+                    }
+                    MessagingRepository.findOrCreateChat(
+                        clientId = userId,
+                        professionalId = professionalId,
+                    )
+                }
+
+                clientId != null && userRoles.contains("professional") -> {
+                    val linkedClientIds = getClientsForProfessional(userId).map { it.id }
+                    if (!linkedClientIds.contains(clientId)) {
+                        return@post call.respond(HttpStatusCode.Forbidden, "Not allowed")
+                    }
+                    MessagingRepository.findOrCreateChat(
+                        clientId = clientId,
+                        professionalId = userId,
+                    )
+                }
+
+                else -> return@post call.respond(HttpStatusCode.BadRequest, "Invalid chat participants")
+            }
+
+        call.respondRedirect("/messages/${chat.chatId}")
     }
 
     get("/messages/{conversationId}") {
@@ -64,9 +103,7 @@ fun Route.configureMessageRoutes() {
 
         call.respondTemplate(
             "pages/messages/messages.peb",
-            mapOf(
-                "showNavbar" to true,
-                "isProfessional" to userRoles.contains("professional"),
+            buildNavbarContext(userId, userRoles, "messages") + mapOf(
                 "chats" to chats,
                 "hasSelectedChat" to true,
                 "selectedChat" to selectedChat,

@@ -4,7 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3e8b2f3c-ea88-445f-8f8a-aedd969d0c66" name="Changes" comment="" />
+    <list default="true" id="3e8b2f3c-ea88-445f-8f8a-aedd969d0c66" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/AuthServices.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/AuthServices.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/Routing.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/Routing.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/db/repositories/MessagingRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/db/repositories/MessagingRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/db/tables/ClientProfessionalLink.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/db/tables/ClientProfessionalLink.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ClientProfessionalRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ClientProfessionalRoutes.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/FoodDiaryRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/FoodDiaryRoutes.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/MessageRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/MessageRoutes.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ProfessionalProfileRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ProfessionalProfileRoutes.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ProfileRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ProfileRoutes.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/services/DashboardServices.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/services/DashboardServices.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/components/navbar.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/components/navbar.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/messages/messages.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/messages/messages.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/professionals.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/professionals.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/professionals_dash.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/professionals_dash.peb" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -42,22 +58,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/messagingsystem&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/lewis/Documents/Project/Group-49-&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.general&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Gradle.Download Sources.executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "feature/messagingsystem",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/lewis/Documents/Project/Group-49-",
+    "settings.editor.selected.configurable": "preferences.general",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Dev\Group-49-\app\src\main\resources\static\css\Images" />
@@ -104,7 +121,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/main/kotlin/diettracker/Routing.kt</url>
-          <line>345</line>
+          <line>344</line>
           <properties>
             <option name="lambda-ordinal" value="-1" />
           </properties>

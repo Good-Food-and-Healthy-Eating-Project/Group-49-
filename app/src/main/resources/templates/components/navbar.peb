@@ -16,7 +16,12 @@
                 <a href="/professional-profile" class="nav-link">Profile</a>
             </li>
             <li>
-                <a href="/messages" class="nav-link">Messages</a>
+                <a href="/messages" class="nav-link nav-link--messages {% if currentNav == 'messages' %}nav-link--active{% endif %}">
+                    <span>Messages</span>
+                    {% if unreadMessageCount is defined and unreadMessageCount > 0 %}
+                        <span class="nav-badge">{{ unreadMessageCount }}</span>
+                    {% endif %}
+                </a>
             </li>
             <li>
                 <a href="/logout" class="nav-link">Logout</a>
@@ -38,6 +43,14 @@
             </li>
             <li>
                 <a href="/professionals" class="nav-link">Professionals</a>
+            </li>
+            <li>
+                <a href="/messages" class="nav-link nav-link--messages {% if currentNav == 'messages' %}nav-link--active{% endif %}">
+                    <span>Messages</span>
+                    {% if unreadMessageCount is defined and unreadMessageCount > 0 %}
+                        <span class="nav-badge">{{ unreadMessageCount }}</span>
+                    {% endif %}
+                </a>
             </li>
             <li>
                 <a href="/profile" class="nav-link nav-link--profile">Profile</a>
@@ -82,5 +95,24 @@
         outline: 3px solid #A94F24;
         outline-offset: 2px;
         border-radius: 4px;
+    }
+    .nav-link--messages {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+    }
+    .nav-badge {
+        min-width: 1.2rem;
+        height: 1.2rem;
+        padding: 0 0.3rem;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #c62828;
+        color: #fff;
+        font-size: 0.72rem;
+        font-weight: 700;
+        line-height: 1;
     }
 </style>

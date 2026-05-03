@@ -1,6 +1,7 @@
 package diettracker.routing
 
 import diettracker.UserSession
+import diettracker.buildNavbarContext
 import diettracker.db.tables.Clients
 import diettracker.getUserIdByEmail
 import diettracker.routes.calculateDailyCalorieGoal
@@ -67,9 +68,8 @@ private fun Route.configureProfilePageRoute() {
                     }
                 call.respondTemplate(
                     "pages/client_dash/profile.peb",
-                    mapOf(
+                    buildNavbarContext(userId) + mapOf(
                         "userinfo" to userinfo,
-                        "showNavbar" to true,
                         "email" to email,
                     ),
                 )

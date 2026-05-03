@@ -1,5 +1,7 @@
 {% extends "layouts/base.peb" %}
 
+{% block title %}Messages{% endblock %}
+
 {% block content %}
     <section class="messages-page">
         <header class="page-header">
@@ -23,11 +25,17 @@
                                 >
                                     <div class="conversation-link-header">
                                         <strong>{{ chat.otherUserFirstName }} {{ chat.otherUserLastName }}</strong>
-                                        {% if chat.lastMessageAt %}
-                                            <span>{{ chat.lastMessageAt }}</span>
+                                        {% if chat.lastMessageAt is not null %}
+                                            <span>{{ chat.lastMessageAtDisplay }}</span>
                                         {% endif %}
                                     </div>
-                                    <p>{{ chat.lastMessageBody ?: "No messages yet." }}</p>
+                                    <p>
+                                        {% if chat.lastMessageBody is not null %}
+                                            {{ chat.lastMessageBody }}
+                                        {% else %}
+                                            No messages yet.
+                                        {% endif %}
+                                    </p>
                                 </a>
                             {% endfor %}
                         </div>
@@ -50,7 +58,7 @@
                                 {% for message in messages %}
                                     <article class="message-bubble {% if message.senderUserId == currentUserId %}message-bubble--sent{% else %}message-bubble--received{% endif %}">
                                         <p>{{ message.body }}</p>
-                                        <span>{{ message.createdAt }}</span>
+                                        <span>{{ message.createdAtDisplay }}</span>
                                     </article>
                                 {% endfor %}
                             </div>
@@ -65,7 +73,7 @@
                                 rows="4"
                                 placeholder="Write your message"
                             ></textarea>
-                            {% if messageError %}
+                            {% if messageError is not empty %}
                                 <p class="message-compose-error">{{ messageError }}</p>
                             {% endif %}
                             <div class="message-compose-actions">

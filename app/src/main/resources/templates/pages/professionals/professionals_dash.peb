@@ -34,7 +34,13 @@
                                 <span class="badge badge-sage">{{ client.weightKg }} kg</span>
                             {% endif %}
                         </div>
-                        <a href="/professional/client/{{ client.id }}" class="btn-view-details">View Details</a>
+                        <div class="client-actions">
+                            <a href="/professional/client/{{ client.id }}" class="btn-view-details">View Details</a>
+                            <form method="post" action="/messages/start">
+                                <input type="hidden" name="client_id" value="{{ client.id }}">
+                                <button type="submit" class="btn-view-details btn-start-chat">Open Chat</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             {% endfor %}
@@ -115,6 +121,27 @@
     .btn-view-details:focus {
         outline: 3px solid #2C1E10;
         outline-offset: 2px;
+    }
+
+    .client-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-top: 0.65rem;
+    }
+
+    .client-actions form {
+        margin: 0;
+    }
+
+    .client-actions .btn-view-details {
+        margin-top: 0;
+    }
+
+    .btn-start-chat {
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
     }
 </style>
 {% endblock %}

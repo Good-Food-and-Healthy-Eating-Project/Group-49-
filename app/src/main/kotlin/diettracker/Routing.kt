@@ -93,7 +93,9 @@ fun Route.configureClientRoutes() {
     profileRoutes()
 
     get("/diary") {
-        call.respond(PebbleContent("pages/client_dash/food_diary.peb", mapOf("showNavbar" to true)))
+        val email = call.sessions.get<UserSession>()?.email
+        val userId = email?.let(::getUserIdByEmail)
+        call.respond(PebbleContent("pages/client_dash/food_diary.peb", buildNavbarContext(userId)))
     }
 }
 
@@ -155,9 +157,7 @@ private fun Route.configureProfessionalAccountRoutes() {
         val clients = getClientsForProfessional(professionalId)
         call.respondTemplate(
             "pages/professionals/professionals_dash.peb",
-            mapOf(
-                "showNavbar" to true,
-                "isProfessional" to userRoles.contains("professional"),
+            buildNavbarContext(professionalId, userRoles) + mapOf(
                 "clients" to clients,
             ),
         )
@@ -256,9 +256,7 @@ fun Route.configureViewClientDetailsRoutes() {
 
         call.respondTemplate(
             "pages/professionals/view_client_details.peb",
-            mapOf(
-                "showNavbar" to true,
-                "isProfessional" to userRoles.contains("professional"),
+            buildNavbarContext(professionalId, userRoles) + mapOf(
                 "clients" to clients,
                 "client" to (clientData ?: emptyMap<String, Any?>()),
                 "trends" to trends,
@@ -292,10 +290,10 @@ fun Route.configureRecipeRoutes() {
         val category = call.request.queryParameters["category"]?.trim() ?: ""
         val ingredient = call.request.queryParameters["ingredient"]?.trim() ?: ""
         val email = call.sessions.get<UserSession>()?.email
+        val userId = email?.let(::getUserIdByEmail)
 
         val favouriteIds =
             if (email != null) {
-                val userId = getUserIdByEmail(email)
                 if (userId != null) RecipeDatabaseQuery.getFavourites(userId) else emptyList()
             } else {
                 emptyList()
@@ -319,7 +317,7 @@ fun Route.configureRecipeRoutes() {
 
         call.respondTemplate(
             "pages/recipes_page/recipes.peb",
-            mapOf(
+            buildNavbarContext(userId) + mapOf(
                 "recipes" to recipes,
                 "query" to query,
                 "favouriteRecipes" to favouriteRecipes,
@@ -332,6 +330,7 @@ fun Route.configureRecipeRoutes() {
 
     get("/recipes/{id}") {
         val recipeId = call.parameters["id"]?.toIntOrNull()
+        val email = call.sessions.get<UserSession>()?.email
         if (recipeId == null) {
             call.respond(HttpStatusCode.BadRequest)
             return@get
@@ -348,7 +347,7 @@ fun Route.configureRecipeRoutes() {
 
         call.respondTemplate(
             "pages/recipes_page/recipe_detail.peb",
-            mapOf(
+            buildNavbarContext(email?.let(::getUserIdByEmail)) + mapOf(
                 "recipe" to recipe,
                 "reviews" to reviews,
                 "averageRating" to (averageRating ?: 0.0),
