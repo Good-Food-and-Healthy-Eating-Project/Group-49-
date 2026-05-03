@@ -20,11 +20,11 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.core.lowerCase
-import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 const val GRAMS_PER_SERVING = 100
+const val MAX_GRAMS = 5000
 
 /**
  * Stores the user's current nutrition totals in the session.
@@ -186,8 +186,8 @@ suspend fun ApplicationCall.foodLogCustom() {
     val foodIdStr = params["foodId"]
     val foodId = foodIdStr?.toIntOrNull()
     var grams = params["grams"]?.toIntOrNull() ?: GRAMS_PER_SERVING
-    
-    if (grams > 5000) {
+
+    if (grams > MAX_GRAMS) {
         respondTemplate(
             "pages/client_dash/add_food.peb",
             mapOf(
@@ -195,7 +195,7 @@ suspend fun ApplicationCall.foodLogCustom() {
                 "protein" to caloriesSession.protein,
                 "fat" to caloriesSession.fat,
                 "carbs" to caloriesSession.carbs,
-                "error" to "Maximum is 5000g."
+                "error" to "Maximum is 5000g.",
             ),
         )
         return
