@@ -375,7 +375,7 @@ a:hover { color: var(--brown); }
     letter-spacing: 0.02em;
 }
 .badge-terracotta { background: rgba(196, 96, 58, 0.12); color: var(--terracotta); }
-.badge-sage       { background: rgba(122, 140, 114, 0.15); color: var(--sage); }
+.badge-sage       { background: rgba(122, 140, 114, 0.15); color: #3D5C38; }
 .badge-brown      { background: rgba(59, 42, 26, 0.08); color: var(--brown-mid); }
 
 /* Progress bar */

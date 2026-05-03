@@ -103,32 +103,34 @@
 	</style>
 </head>
 <body>
-	<div class="container">
-		<h1 class="title">Professional Login</h1>
+    <main>
+        <div class="container">
+            <h1 class="title">Professional Login</h1>
 
-		{% if error %}
-			<p class="message">{{ error }}</p>
-		{% endif %}
+            {% if error %}
+                <p class="message">{{ error }}</p>
+            {% endif %}
 
-		<form action="/Professional-Login" method="post" autocomplete="off">
-			<div class="field-group">
-				<label for="email">Email</label>
-				<input id="email" name="email" type="email" required>
-			</div>
+            <form action="/Professional-Login" method="post" autocomplete="off">
+                <div class="field-group">
+                    <label for="email">Email</label>
+                    <input id="email" name="email" type="email" required>
+                </div>
 
-			<div class="field-group">
-				<label for="password">Password</label>
-				<input id="password" name="password" type="password" required>
-			</div>
+                <div class="field-group">
+                    <label for="password">Password</label>
+                    <input id="password" name="password" type="password" required>
+                </div>
 
-			<div class="actions">
-				<button type="submit">Login</button>
-			</div>
-		</form>
+                <div class="actions">
+                    <button type="submit">Login</button>
+                </div>
+            </form>
 
-		<div class="signup-link">
-			Don't have an account? <a href="/Professional-Sign-Up">Sign up</a>
-		</div>
-	</div>
+            <div class="signup-link">
+                Don't have an account? <a href="/Professional-Sign-Up">Sign up</a>
+            </div>
+        </div>
+	</main>
 </body>
 </html>

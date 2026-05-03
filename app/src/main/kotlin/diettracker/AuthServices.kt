@@ -159,7 +159,7 @@ suspend fun ApplicationCall.logout() {
     val email = sessions.get<UserSession>()?.email.toString()
     application.log.info("User $email logged out")
     sessions.clear<UserSession>()
-    respondRedirect("/landing_page")
+    respondRedirect("/")
 }
 
 suspend fun ApplicationCall.getCredentials(): Pair<String, String> {

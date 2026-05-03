@@ -19,7 +19,7 @@
 <div class="log-food-page">
 
     <div class="page-header">
-        <h1>Log Food</h1>
+        <h2>Log Food</h2>
         <p>Search for a meal, ingredient, or saved meal to add to your diary.</p>
     </div>
 
