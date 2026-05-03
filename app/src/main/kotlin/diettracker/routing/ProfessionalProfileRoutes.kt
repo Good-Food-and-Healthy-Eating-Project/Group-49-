@@ -1,6 +1,7 @@
 package diettracker.routing
 
 import diettracker.UserSession
+import diettracker.buildNavbarContext
 import diettracker.db.tables.Professionals
 import diettracker.db.tables.Users
 import diettracker.getUserIdByEmail
@@ -67,12 +68,11 @@ private fun Route.configureProfessionalProfilePageRoute() {
 
         call.respondTemplate(
             "pages/professionals/professional_profile.peb",
-            mapOf(
-                "userinfo" to userinfo,
-                "showNavbar" to true,
-                "isProfessional" to true,
-                "email" to email,
-            ),
+            buildNavbarContext(userId, listOf("professional")) +
+                mapOf(
+                    "userinfo" to userinfo,
+                    "email" to email,
+                ),
         )
     }
 }

@@ -1,8 +1,10 @@
+import diettracker.db.tables.Chats
 import diettracker.db.tables.ClientProfessionalLink
 import diettracker.db.tables.Clients
 import diettracker.db.tables.FoodLogItems
 import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.Foods
+import diettracker.db.tables.Messages
 import diettracker.db.tables.Professionals
 import diettracker.db.tables.RecipeIngredients
 import diettracker.db.tables.Recipes
@@ -21,6 +23,8 @@ object TestDatabaseFactory {
 
         transaction {
             SchemaUtils.drop(
+                Messages,
+                Chats,
                 ClientProfessionalLink,
                 FoodLogItems,
                 RecipeIngredients,
@@ -46,8 +50,10 @@ object TestDatabaseFactory {
                 UserRoles,
                 FoodLogs,
                 ClientProfessionalLink,
+                Chats,
                 FoodLogItems,
                 RecipeIngredients,
+                Messages,
                 SavedMeals,
                 SavedMealFoods,
             )

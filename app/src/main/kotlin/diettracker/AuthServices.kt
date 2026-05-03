@@ -153,7 +153,7 @@ suspend fun ApplicationCall.dashboardPage() {
     val userRoles = userId?.let { getUserRoles(it) } ?: emptyList()
     respondTemplate(
         "client_dash/client_dash.peb",
-        mapOf("username" to username, "showNavbar" to true, "userRoles" to userRoles),
+        buildNavbarContext(userId, userRoles) + mapOf("username" to username, "userRoles" to userRoles),
     )
 }
 

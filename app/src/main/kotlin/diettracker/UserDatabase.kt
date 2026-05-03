@@ -76,19 +76,23 @@ fun linkClientToProfessional(
     professionalId: Int,
 ) {
     transaction {
-        val alreadyLinked =
-            ClientProfessionalLink
+        val clientExists =
+            Clients
                 .selectAll()
-                .where {
-                    (ClientProfessionalLink.client_id eq clientId) and
-                        (ClientProfessionalLink.professional_id eq professionalId)
-                }
+                .where { Clients.client_id eq clientId }
                 .count() > 0
-        if (!alreadyLinked) {
-            ClientProfessionalLink.insert {
-                it[ClientProfessionalLink.client_id] = clientId
-                it[ClientProfessionalLink.professional_id] = professionalId
+
+        if (!clientExists) {
+            Clients.insert {
+                it[Clients.client_id] = clientId
             }
+        }
+        ClientProfessionalLink.deleteWhere {
+            ClientProfessionalLink.client_id eq clientId
+        }
+        ClientProfessionalLink.insert {
+            it[ClientProfessionalLink.client_id] = clientId
+            it[ClientProfessionalLink.professional_id] = professionalId
         }
     }
 }

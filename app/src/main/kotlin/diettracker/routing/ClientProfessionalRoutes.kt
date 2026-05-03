@@ -11,6 +11,7 @@
 package diettracker.routing
 
 import diettracker.UserSession
+import diettracker.buildNavbarContext
 import diettracker.getAllProfessionals
 import diettracker.getClientCalorieGoal
 import diettracker.getLinkedProfessionalIdsForClient
@@ -53,15 +54,14 @@ private suspend fun ApplicationCall.handleGetProfessionals() {
     val justLinked = request.queryParameters["linked"] == "true"
     respondTemplate(
         "pages/professionals/professionals.peb",
-        mapOf(
-            "professionals" to professionals,
-            "isProfessional" to userRoles.contains("professional"),
-            "showNavbar" to true,
-            "hasCompletedQuiz" to hasCompletedQuiz,
-            "userId" to (userId ?: ""),
-            "linkedProfessionalIds" to linkedProfessionalIds,
-            "justLinked" to justLinked,
-        ),
+        buildNavbarContext(userId, userRoles) +
+            mapOf(
+                "professionals" to professionals,
+                "hasCompletedQuiz" to hasCompletedQuiz,
+                "userId" to (userId ?: ""),
+                "linkedProfessionalIds" to linkedProfessionalIds,
+                "justLinked" to justLinked,
+            ),
     )
 }
 
