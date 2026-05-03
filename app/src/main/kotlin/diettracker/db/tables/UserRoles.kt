@@ -1,5 +1,9 @@
 package diettracker.db.tables
 
+/**
+ * This table links users to their roles and stores it in the database
+ **/
+
 import org.jetbrains.exposed.v1.core.Table
 
 object UserRoles : Table("user_roles") {

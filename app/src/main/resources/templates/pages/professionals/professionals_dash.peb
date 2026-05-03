@@ -21,7 +21,7 @@
                         {% if client.firstName is not empty %}{{ client.firstName | slice(0, 1) }}{% endif %}{% if client.lastName is not empty %}{{ client.lastName | slice(0, 1) }}{% endif %}
                     </div>
                     <div class="client-info">
-                        <h3 class="client-name">{{ client.firstName }} {{ client.lastName }}</h3>
+                        <h2 class="client-name">{{ client.firstName }} {{ client.lastName }}</h2>
                         <p class="client-email">{{ client.email }}</p>
                         <div class="client-meta">
                             {% if client.goal %}
@@ -34,7 +34,13 @@
                                 <span class="badge badge-sage">{{ client.weightKg }} kg</span>
                             {% endif %}
                         </div>
-                        <a href="/professional/client/{{ client.id }}" class="btn-view-details">View Details</a>
+                        <div class="client-actions">
+                            <a href="/professional/client/{{ client.id }}" class="btn-view-details">View Details</a>
+                            <form method="post" action="/messages/start">
+                                <input type="hidden" name="client_id" value="{{ client.id }}">
+                                <button type="submit" class="btn-view-details btn-start-chat">Open Chat</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             {% endfor %}
@@ -82,7 +88,7 @@
 
     .client-email {
         font-size: 0.85rem;
-        color: var(--text-muted);
+        color: var(--text-secondary);
         margin-bottom: 0.65rem;
         white-space: nowrap;
         overflow: hidden;
@@ -109,7 +115,33 @@
     }
 
     .btn-view-details:hover {
-        background: var(--terracotta-dark, #b85c38);
+        background: #7A3518;
+    }
+
+    .btn-view-details:focus {
+        outline: 3px solid #2C1E10;
+        outline-offset: 2px;
+    }
+
+    .client-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-top: 0.65rem;
+    }
+
+    .client-actions form {
+        margin: 0;
+    }
+
+    .client-actions .btn-view-details {
+        margin-top: 0;
+    }
+
+    .btn-start-chat {
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
     }
 </style>
 {% endblock %}

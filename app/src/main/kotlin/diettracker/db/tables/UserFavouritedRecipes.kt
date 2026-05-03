@@ -1,5 +1,9 @@
 package diettracker.db.tables
 
+/**
+ * This table links users to their favourited recipes and stores it in the database
+ **/
+
 import org.jetbrains.exposed.v1.core.Table
 
 object UserFavouritedRecipes : Table("user_favourite_recipes") {

@@ -12,6 +12,17 @@ suspend fun ApplicationCall.profSignUpPage() {
     respondTemplate("pages/professionals/profsignup.peb", model = emptyMap())
 }
 
+/**
+ * Handles sign-up for professional users.
+ *
+ * This is used by the professional sign-up POST route when a professional
+ * submits their email and password. It gets submitted credentials, attempts
+ * to create a professional account using addProfessional() in ProfDatabase, then
+ * finds the new user's ID and redirects them to the professional quiz page.
+ *
+ * This is needed so professional users can create an account before completing
+ * their professional profile setup.
+ */
 suspend fun ApplicationCall.signUpProfessional() {
     val credentials = getCredentials()
     val email = credentials.first
@@ -116,6 +127,18 @@ suspend fun ApplicationCall.profLoginPage() {
     respondTemplate("pages/professionals/proflogin.peb", model = emptyMap())
 }
 
+/**
+ * Handles login for professional users.
+ *
+ * This is used by the professional login POST route when a professional submits
+ * their email and password. It gets the submitted credentials, checks them
+ * against the database, gets the user's roles, and only logs them in if they
+ * have the "professional" role.
+ *
+ * This is needed so only registered professional users can access the
+ * professional dashboard. Without this, normal clients could log in through
+ * the professional login page and access professional only pages on dashboard.
+ */
 suspend fun ApplicationCall.loginProfessional() {
     val credentials = getCredentials()
     val email = credentials.first

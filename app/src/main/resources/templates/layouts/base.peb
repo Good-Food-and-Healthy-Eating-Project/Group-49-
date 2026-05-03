@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:replace="${title}">NourishLog</title>
+    <title th:replace="${title}">DietTracker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
     {% include "components/navbar.peb" %}
 {% endif %}
 
-    <main class="main-content">
+    <main id="main-content" class="main-content">
         <div class="page-wrapper">
             {% block content %}{% endblock %}
         </div>
@@ -23,8 +23,8 @@
 
     <footer class="site-footer">
         <div class="footer-inner">
-            <span class="footer-brand">SiteName</span>
-            <span class="footer-tagline">Some sort of motto</span>
+            <span class="footer-brand">Diet Tracker</span>
+            <span class="footer-tagline">Track smarter eat healthier</span>
             <span class="footer-copy">&copy; 2026</span>
         </div>
     </footer>
