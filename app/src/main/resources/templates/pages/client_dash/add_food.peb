@@ -1,187 +1,283 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Food</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-    <style>
-        .add-food-container {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 20px;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+{% extends "layouts/base.peb" %}
 
-        .calorie-section {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+{% block title %}Log Food{% endblock %}
 
-        .section-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #333;
-        }
+{% block content %}
 
-        .info-box {
-            border: 2px solid #bdbdbd;
-            padding: 20px;
-            min-height: 300px;
-            background: #ffffff;
-        }
+{% if success is defined%}
+<div id="success-banner" class="success-banner">
+    {% if success == "saved" %}Meal Saved!{% else %}Added!{% endif %}
+</div>
+{% endif %}
+{# Used Claude AI here to explain how to implement a confirmation feature which times out using javascript #}
+<script>
+  setTimeout(() => {
+    const b = document.getElementById('success-banner');
+    if (b) b.remove();
+  }, 3000);
+</script>
+<div class="log-food-page">
 
-        .meals {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+    <div class="page-header">
+        <h2>Log Food</h2>
+        <p>Search for a meal, ingredient, or saved meal to add to your diary.</p>
+    </div>
 
-        .mode-section {
-            border: 2px solid #bdbdbd;
-            padding: 15px;
-            background: #ffffff;
-        }
+    <div class="log-food-layout">
 
-        .mode-content {
-            margin-bottom: 10px;
-        }
+        <!-- LEFT: Calorie summary -->
+        <aside class="card log-summary-card">
+            <h3>Today's Total</h3>
 
-        .mode-label {
-            font-size: 14px;
-            color: #666;
-            padding: 8px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            display: inline-block;
-        }
-    </style>
-</head>
-<body>
-    {% include "components/navbar.peb" %}
+            <div class="summary-stat">
+                <span class="summary-label">Calories</span>
+                <span class="summary-value">
+                    {% if calories is defined %}{{ calories }}{% else %}0{% endif %} kcal
+                </span>
+            </div>
+            {% if protein is defined %}
+            <div class="summary-stat">
+                <span class="summary-label">Protein</span>
+                <span class="summary-value">{{ protein }} g</span>
+            </div>
+            {% endif %}
+            {% if carbs is defined %}
+            <div class="summary-stat">
+                <span class="summary-label">Carbs</span>
+                <span class="summary-value">{{ carbs }} g</span>
+            </div>
+            {% endif %}
+            {% if fat is defined %}
+            <div class="summary-stat">
+                <span class="summary-label">Fat</span>
+                <span class="summary-value">{{ fat }} g</span>
+            </div>
+            {% endif %}
 
-    <main class="main-content">
-        <div class="add-food-container">
-
-            <div class="calorie-section">
-                <h2 class="section-title">Calorie Info</h2>
-                <div class="info-box">
-                    {% if calories is defined %}
-                        <p>Total Calories: {{ calories }}</p>
-                    {% else %}
-                        <p>No calories calculated yet.</p>
-                    {% endif %}
-                    {% if protein is defined %}
-                        <p>Total Protein: {{ protein }} g</p>
-                    {% endif %}
-                    {% if carbs is defined %}
-                        <p>Total Carbs: {{ carbs }} g</p>
-                    {% endif %}
-                    {% if fat is defined %}
-                        <p>Total Fat: {{ fat }} g</p>
-                    {% endif %}
-                </div>
-                <form method="post" action="/food_log_reset">
-                    <button type="submit">Reset</button>
-                </form>
-
-                <form method="post" action="/save_meal">
-                    <input type="text" name="mealName" placeholder="Meal name" required>
-                    <button type="submit">Save meal</button>
-                </form>
+            <div class="summary-actions">
                 <form method="post" action="/save_food_log">
-                    <button type="submit">Add to diary</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Add to diary</button>
+                </form>
+                <form method="post" action="/save_meal" style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                    <input type="text" name="mealName" placeholder="Meal name" required class="form-input">
+                    <button type="submit" class="btn btn-secondary" style="white-space: nowrap;">Save meal</button>
+                </form>
+                <form method="post" action="/food_log_reset" style="margin-top: 0.75rem;">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Reset</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- RIGHT: Search panels -->
+        <div class="log-panels">
+
+            <!-- MEALS -->
+            <div class="card log-panel">
+                <h3>Meals</h3>
+                <form method="get" action="/food_log" class="search-row">
+                    <input type="text" name="query" placeholder="Search recipes…" class="form-input">
+                    <button type="submit" class="btn btn-secondary">Search</button>
+                </form>
+                <form method="post" action="/food_log_recipe">
+                    {% if recipes is not empty %}
+                        <div class="radio-list">
+                            {% for r in recipes %}
+                                <label class="radio-item">
+                                    <input type="radio" name="recipeId" value="{{ r.id }}">
+                                    <span>{{ r.name }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="empty-hint">No recipes found — try a search above.</p>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Add</button>
                 </form>
             </div>
 
-            <!-- RIGHT: Recipes + Custom -->
-            <div class="meals">
-
-                <!-- RECIPES SECTION -->
-                <div class="mode-section">
-                    <h3 class="section-title">Meals</h3>
-
-                    <!-- SEARCH -->
-                    <div class="mode-content">
-                        <form method="get" action="/food_log">
-                            <input type="text" name="query" placeholder="Search recipes">
-                            <button type="submit">Search</button>
-                        </form>
-                    </div>
-
-                    
-                    <form method="post" action="/food_log_recipe">
-                        <div class="mode-content">
-                            {% if recipes is not empty %}
-                                {% for r in recipes %}
-                                    <label>
-                                        <input type="radio" name="recipeId" value="{{ r.id }}">
-                                        {{ r.name }}
-                                    </label><br>
-                                {% endfor %}
-                            {% else %}
-                                <p>No recipes found</p>
-                            {% endif %}
+            <!-- CUSTOM INGREDIENT -->
+            <div class="card log-panel">
+                <h3>Custom Ingredient</h3>
+                <form method="get" action="/food_log" class="search-row">
+                    <input type="text" name="foodquery" placeholder="Search foods…" class="form-input">
+                    <button type="submit" class="btn btn-secondary">Search</button>
+                </form>
+                <form method="post" action="/food_log_custom">
+                    {% if foods is not empty %}
+                        <div class="radio-list">
+                            {% for f in foods %}
+                                <label class="radio-item">
+                                    <input type="radio" name="foodId" value="{{ f.id }}" required>
+                                    <span>{{ f.name }}</span>
+                                </label>
+                            {% endfor %}
                         </div>
-
-                        <button type="submit">Add</button>
-                    </form>
-                </div>
-
-                <!-- CUSTOM SECTION -->
-                <div class="mode-section">
-                    <h3 class="section-title">Custom</h3>
-
-                    <div class="mode-content">
-                        <form method="get" action="/food_log">
-                            <input type="text" name="foodquery" placeholder="Food name">
-                            <button type="submit">Search</button>
-                        </form>
-                    </div>
-                    <form method="post" action="/food_log_custom">
-                        <div class="mode-content">
-                            {% if foods is not empty %}
-                                {% for f in foods %}
-                                    <label>
-                                        <input type="radio" name="foodId" value="{{ f.id }}" required>
-                                            {{ f.name }}
-                                    </label><br>
-                                {% endfor %}
-                                <input type="number" name="grams" placeholder="Grams" min="1" required>
-                            {% else %}
-                                <p>No foods found</p>
-                            {% endif %}
+                        <div class="form-group" style="margin-top: 1rem;">
+                            <label class="form-label">Grams</label>
+                            <input type="number" name="grams" placeholder="e.g. 150" min="1" required class="form-input">
                         </div>
-                        <button type="submit">Add</button>
-                    </form>
-                </div>
-                <!-- SAVED MEALS SECTION -->
-                <div class="mode-section">
-                    <h3 class="section-title">Saved Meals</h3>
-
-                    <form method="post" action="/add_saved_meal_to_log">
-                        <div class="mode-content">
-                            {% if savedMeals is not empty %}
-                                {% for meal in savedMeals %}
-                                    <label>
-                                        <input type="radio" name="mealId" value="{{ meal.id }}" required>
-                                        {{ meal.name }}
-                                    </label><br>
-                                {% endfor %}
-                            {% else %}
-                                <p>No saved meals found</p>
-                            {% endif %}
-                        </div>
-
-                        <button type="submit">Add saved meal</button>
-                    </form>
-                </div>
+                    {% else %}
+                        <p class="empty-hint">No foods found — try a search above.</p>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </form>
             </div>
-        </div>
-    </main>
 
-</body>
-</html>
+            <!-- SAVED MEALS -->
+            <div class="card log-panel">
+                <h3>Saved Meals</h3>
+                <form method="post" action="/add_saved_meal_to_log">
+                    {% if savedMeals is not empty %}
+                        <div class="radio-list">
+                            {% for meal in savedMeals %}
+                                <label class="radio-item">
+                                    <input type="radio" name="mealId" value="{{ meal.id }}" required>
+                                    <span>{{ meal.name }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="empty-hint">No saved meals yet.</p>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Add saved meal</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .success-banner {
+        background: var(--sage-light);
+        color: var(--brown);
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .log-food-page {
+        padding: 2rem 0;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .log-food-layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    .log-summary-card {
+        position: sticky;
+        top: calc(var(--nav-height) + 1rem);
+    }
+
+    .log-summary-card h3 {
+        margin-bottom: 1.25rem;
+    }
+
+    .summary-stat {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 0.55rem 0;
+        border-bottom: 1px solid var(--cream-dark);
+    }
+
+    .summary-stat:last-of-type {
+        border-bottom: none;
+    }
+
+    .summary-label {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .summary-value {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--brown);
+    }
+
+    .summary-actions {
+        margin-top: 1.5rem;
+    }
+
+    .log-panels {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .log-panel h3 {
+        margin-bottom: 1rem;
+    }
+
+    .search-row {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .search-row .form-input {
+        flex: 1;
+    }
+
+    .radio-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        max-height: 220px;
+        overflow-y: auto;
+        padding-right: 0.25rem;
+    }
+
+    .radio-item {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.55rem 0.75rem;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: background var(--transition);
+        font-size: 0.95rem;
+        color: var(--text-primary);
+    }
+
+    .radio-item:hover {
+        background: var(--cream);
+    }
+
+    .radio-item input[type="radio"] {
+        accent-color: var(--terracotta);
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+    }
+
+    .empty-hint {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        padding: 0.5rem 0;
+    }
+
+    @media (max-width: 768px) {
+        .log-food-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .log-summary-card {
+            position: static;
+        }
+    }
+</style>
+{% endblock %}

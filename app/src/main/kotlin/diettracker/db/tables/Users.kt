@@ -1,5 +1,9 @@
 package diettracker.db.tables
 
+/**
+ * This table stores core user account information for all users and saves it in the database
+ **/
+
 import diettracker.db.MAX_LEN
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.javatime.timestamp

@@ -13,6 +13,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 private const val GARMS100 = 100.00
+private const val GUIDANCE_MESSAGE_LIMIT = 4
 
 data class DailyDietTrend(
     val totalCalorie: Double,
@@ -134,26 +135,100 @@ private fun getColour(
         }
     }
 
-private const val MIN_PROTEIN_PERCENT = 0.1
-private const val MAX_FAT_PERCENT = 0.35
-private const val MIN_CARBS_PERCENT = 0.4
+/**
+* Created a data class containing all parameters
+* Parameters needed to be passed into buildGuidanceMessages
+* Avoids having a parameter list that's too long
+* */
 
-fun buildGuidanceMessages(
-    calorieGoal: Int?,
-    totalCaloriesInt: Int,
-    proteinPercent: Double,
-    fatPercent: Double,
-    carbsPercent: Double,
-): List<String> {
-    val messages = mutableListOf<String>()
-    if (calorieGoal != null && totalCaloriesInt > calorieGoal) {
-        messages.add("You are over your daily calorie target")
+data class NutritionInput(
+    val calorieGoal: Int?,
+    val totalCalories: Int,
+    val proteinGrams: Double,
+    val proteinTarget: Int?,
+    val fatGrams: Double,
+    val fatTarget: Int?,
+    val carbsGrams: Double,
+    val carbsTarget: Int?,
+    val goal: String?,
+)
+
+private fun calorieMessage(input: NutritionInput): String? {
+    val calorieGoal = input.calorieGoal ?: return null
+    val diff = input.totalCalories - calorieGoal
+
+    return if (diff > 0) {
+        when (input.goal) {
+            "lose" ->
+                "You are $diff kcal over your target - this may slow weight loss."
+
+            "maintain" ->
+                "You are $diff kcal over your target - try to stay closer to your goal."
+
+            "gain" ->
+                "You are $diff kcal above your target - supports muscle gain " +
+                    "but avoid excessive surplus."
+
+            else ->
+                "You are $diff kcal over your target."
+        }
     } else {
-        messages.add("You are within your calorie target")
+        "You are within your target."
     }
-    if (proteinPercent < MIN_PROTEIN_PERCENT) messages.add("Protein intake is low")
-    if (fatPercent > MAX_FAT_PERCENT) messages.add("Fat intake is high")
-    if (carbsPercent < MIN_CARBS_PERCENT) messages.add("Carbohydrate intake is low")
-    messages.add("Aim for a balanced diet with a mix of protein, carbs, and fats")
+}
+
+private fun proteinMessages(input: NutritionInput): List<String> {
+    val messages = mutableListOf<String>()
+
+    if (input.proteinTarget != null) {
+        if (input.proteinGrams < input.proteinTarget) {
+            messages.add(
+                if (input.goal == "gain") {
+                    "Protein intake is low — increasing protein supports muscle growth."
+                } else {
+                    "Protein intake is low — consider eggs, chicken, or beans."
+                },
+            )
+        } else {
+            messages.add("Protein intake is on track - well done.")
+        }
+    }
+
     return messages
+}
+
+private fun fatMessages(input: NutritionInput): List<String> {
+    val messages = mutableListOf<String>()
+
+    if (input.fatTarget != null && input.fatGrams > input.fatTarget) {
+        messages.add(
+            "Fat intake is high (${input.fatGrams.toInt()}g / ${input.fatTarget}g) " +
+                "- reduce fried or processed foods.",
+        )
+    }
+
+    return messages
+}
+
+private fun carbMessages(input: NutritionInput): List<String> {
+    val messages = mutableListOf<String>()
+
+    if (input.carbsTarget != null && input.carbsGrams < input.carbsTarget) {
+        messages.add(
+            "Carbohydrate intake is low — consider whole grains or fruits.",
+        )
+    }
+
+    return messages
+}
+
+fun buildGuidanceMessages(input: NutritionInput): List<String> {
+    val messages = mutableListOf<String>()
+
+    calorieMessage(input)?.let { messages.add(it) }
+    messages.addAll(proteinMessages(input))
+    messages.addAll(fatMessages(input))
+    messages.addAll(carbMessages(input))
+
+    return messages.take(GUIDANCE_MESSAGE_LIMIT)
 }

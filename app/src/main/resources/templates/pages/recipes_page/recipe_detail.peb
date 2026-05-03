@@ -174,7 +174,7 @@
                     </span>
                 </div>
                 <p style="margin:0;">{{ review.comment }}</p>
-                <small style="color:var(--text-muted);">{{ review.createdAt }}</small>
+                <small style="color:var(--text-secondary);">{{ review.createdAt }}</small>
             </div>
         {% endfor %}
     {% endif %}
@@ -184,8 +184,8 @@
     <h2>Leave a Review</h2>
     <form method="post" action="/recipes/{{ recipe.id }}/review">
         <div class="form-group">
-            <label class="form-label">Rating</label>
-            <select name="rating" class="form-select">
+            <label for="rating" class="form-label">Rating</label>
+            <select id="rating" name="rating" class="form-select">
                 <option value="5">★★★★★ (5)</option>
                 <option value="4">★★★★☆ (4)</option>
                 <option value="3">★★★☆☆ (3)</option>

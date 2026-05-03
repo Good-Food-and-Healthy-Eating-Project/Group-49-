@@ -1,5 +1,9 @@
 package diettracker.db.tables
 
+/**
+ * This table stores professional-specific details and links them to the users table in the database
+ **/
+
 import diettracker.db.MAX_LEN
 import org.jetbrains.exposed.v1.core.Table
 

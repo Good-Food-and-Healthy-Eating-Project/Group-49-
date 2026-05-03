@@ -72,6 +72,9 @@ object ProfDatabase {
             true
         }
 
+    /**
+     * This function is used to  update the  professional database entries
+     **/
     fun updateProfessionalProfile(
         userId: Int,
         profile: ProfessionalProfile,

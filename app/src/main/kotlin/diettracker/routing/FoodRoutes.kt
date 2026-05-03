@@ -42,64 +42,79 @@ fun Route.configureFoodRoutes() {
  * gets the current calorie session totals and displays recipe or food
  * search results when a search query is provided.
  */
+private data class NutritionSessionData(
+    val calories: Int,
+    val protein: Int,
+    val fat: Int,
+    val carbs: Int,
+)
+
+private fun getNutritionSession(call: io.ktor.server.application.ApplicationCall): NutritionSessionData {
+    val session = call.sessions.get<CaloriesSession>()
+
+    return NutritionSessionData(
+        calories = session?.calories ?: 0,
+        protein = session?.protein ?: 0,
+        fat = session?.fat ?: 0,
+        carbs = session?.carbs ?: 0,
+    )
+}
+
+private fun getSavedMealsForUser(call: io.ktor.server.application.ApplicationCall): List<Any> {
+    val email = call.sessions.get<UserSession>()?.email
+    val clientId = email?.let { getUserIdByEmail(it) }
+    return clientId?.let { getSavedMeals(it) } ?: emptyList()
+}
+
+private suspend fun respondAddFoodPage(
+    call: io.ktor.server.application.ApplicationCall,
+    extra: Map<String, Any> = emptyMap(),
+) {
+    val nutrition = getNutritionSession(call)
+    val savedMeals = getSavedMealsForUser(call)
+
+    val baseModel =
+        mutableMapOf<String, Any>(
+            "calories" to nutrition.calories,
+            "protein" to nutrition.protein,
+            "fat" to nutrition.fat,
+            "carbs" to nutrition.carbs,
+            "savedMeals" to savedMeals,
+        )
+
+    baseModel.putAll(extra)
+
+    call.respondTemplate("pages/client_dash/add_food.peb", baseModel)
+}
+
 private fun Route.configureFoodLogRoute() {
     get("/food_log") {
         call.sessions.get<UserSession>() ?: return@get call.respondRedirect("/Login")
 
         val recipeQuery = call.request.queryParameters["query"]
         val foodQuery = call.request.queryParameters["foodquery"]
-        val email = call.sessions.get<UserSession>()?.email
-        val clientId = email?.let { getUserIdByEmail(it) }
-        val savedMeals = clientId?.let { getSavedMeals(it) } ?: emptyList()
-
-        val session = call.sessions.get<CaloriesSession>()
-        val calories = session?.calories ?: 0
-        val protein = session?.protein ?: 0
-        val fat = session?.fat ?: 0
-        val carbs = session?.carbs ?: 0
+        val success = call.request.queryParameters["success"]
 
         when {
-            recipeQuery != null && recipeQuery.isNotBlank() -> {
+            !recipeQuery.isNullOrBlank() -> {
                 val recipes = searchRecipes(recipeQuery)
-                call.respondTemplate(
-                    "pages/client_dash/add_food.peb",
-                    mapOf(
-                        "recipes" to recipes,
-                        "calories" to calories,
-                        "protein" to protein,
-                        "fat" to fat,
-                        "carbs" to carbs,
-                        "savedMeals" to savedMeals,
-                    ),
-                )
+                respondAddFoodPage(call, mapOf("recipes" to recipes))
             }
 
-            foodQuery != null && foodQuery.isNotBlank() -> {
+            !foodQuery.isNullOrBlank() -> {
                 val foods = searchFoods(foodQuery)
-                call.respondTemplate(
-                    "pages/client_dash/add_food.peb",
-                    mapOf(
-                        "foods" to foods,
-                        "calories" to calories,
-                        "protein" to protein,
-                        "fat" to fat,
-                        "carbs" to carbs,
-                        "savedMeals" to savedMeals,
-                    ),
-                )
+                respondAddFoodPage(call, mapOf("foods" to foods))
             }
 
             else -> {
-                call.respondTemplate(
-                    "pages/client_dash/add_food.peb",
-                    mapOf(
-                        "calories" to calories,
-                        "protein" to protein,
-                        "fat" to fat,
-                        "carbs" to carbs,
-                        "savedMeals" to savedMeals,
-                    ),
-                )
+                val extra =
+                    if (success != null) {
+                        mapOf("success" to success)
+                    } else {
+                        emptyMap()
+                    }
+
+                respondAddFoodPage(call, extra)
             }
         }
     }
@@ -178,6 +193,7 @@ private fun Route.configureFoodSearchRoute() {
         val fat = session?.fat ?: 0
         val carbs = session?.carbs ?: 0
 
+        val success = call.request.queryParameters["success"]
         call.respondTemplate(
             "pages/client_dash/add_food.peb",
             mapOf(
@@ -188,6 +204,8 @@ private fun Route.configureFoodSearchRoute() {
                 "carbs" to carbs,
                 "grams" to grams,
                 "savedMeals" to savedMeals,
+                // Non nullable default here
+                "success" to (success ?: ""),
             ),
         )
     }
