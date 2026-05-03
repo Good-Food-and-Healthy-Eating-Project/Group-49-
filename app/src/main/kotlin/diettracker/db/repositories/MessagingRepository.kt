@@ -46,10 +46,13 @@ data class ChatSummary(
     val createdAt: Instant,
 )
 
-object MessagingRepository {
-    internal val displayFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy")
-    internal val displayZone: ZoneId = ZoneId.systemDefault()
+private val displayFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy")
+private val displayZone: ZoneId = ZoneId.systemDefault()
 
+private fun Instant.toDisplayTimestamp(): String = atZone(displayZone).format(displayFormatter)
+
+@Suppress("TooManyFunctions")
+object MessagingRepository {
     fun findChatById(chatId: Int): ChatRecord? =
         transaction {
             Chats
@@ -118,6 +121,7 @@ object MessagingRepository {
                             .where { Users.user_id eq otherUserId }
                             .single()
                     val latestMessage = findLatestMessageRow(chatId)
+                    val latestMessageAt = latestMessage?.get(Messages.created_at)
 
                     ChatSummary(
                         chatId = chatId,
@@ -127,8 +131,8 @@ object MessagingRepository {
                         otherUserFirstName = otherUser[Users.first_name],
                         otherUserLastName = otherUser[Users.second_name],
                         lastMessageBody = latestMessage?.get(Messages.body),
-                        lastMessageAt = latestMessage?.get(Messages.created_at),
-                        lastMessageAtDisplay = latestMessage?.get(Messages.created_at)?.toDisplayTimestamp(),
+                        lastMessageAt = latestMessageAt,
+                        lastMessageAtDisplay = latestMessageAt?.toDisplayTimestamp(),
                         createdAt = row[Chats.created_at],
                     )
                 }.sortedByDescending { summary -> summary.lastMessageAt ?: summary.createdAt }
@@ -142,7 +146,8 @@ object MessagingRepository {
                     ((Chats.client_id eq userId) or (Chats.professional_id eq userId)) and
                         not(Messages.senders_user_id eq userId) and
                         (Messages.read_at eq null)
-                }.count()
+                }
+                .count()
                 .toInt()
         }
 
@@ -227,8 +232,6 @@ object MessagingRepository {
             .orderBy(Messages.created_at to SortOrder.DESC)
             .firstOrNull()
 }
-
-private fun Instant.toDisplayTimestamp(): String = atZone(MessagingRepository.displayZone).format(MessagingRepository.displayFormatter)
 
 private fun org.jetbrains.exposed.v1.core.ResultRow.toChatRecord(): ChatRecord =
     ChatRecord(

@@ -68,10 +68,11 @@ private fun Route.configureProfessionalProfilePageRoute() {
 
         call.respondTemplate(
             "pages/professionals/professional_profile.peb",
-            buildNavbarContext(userId, listOf("professional")) + mapOf(
-                "userinfo" to userinfo,
-                "email" to email,
-            ),
+            buildNavbarContext(userId, listOf("professional")) +
+                mapOf(
+                    "userinfo" to userinfo,
+                    "email" to email,
+                ),
         )
     }
 }

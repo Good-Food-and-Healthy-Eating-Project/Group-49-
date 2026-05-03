@@ -13,7 +13,6 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.insertIgnore
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
@@ -77,8 +76,16 @@ fun linkClientToProfessional(
     professionalId: Int,
 ) {
     transaction {
-        Clients.insertIgnore {
-            it[Clients.client_id] = clientId
+        val clientExists =
+            Clients
+                .selectAll()
+                .where { Clients.client_id eq clientId }
+                .count() > 0
+
+        if (!clientExists) {
+            Clients.insert {
+                it[Clients.client_id] = clientId
+            }
         }
         ClientProfessionalLink.deleteWhere {
             ClientProfessionalLink.client_id eq clientId

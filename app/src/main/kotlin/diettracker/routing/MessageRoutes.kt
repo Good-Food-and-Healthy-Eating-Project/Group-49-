@@ -20,6 +20,7 @@ import io.ktor.server.sessions.sessions
 
 private const val EMPTY_MESSAGE_ERROR = "Message cannot be empty."
 
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 fun Route.configureMessageRoutes() {
     get("/messages") {
         val email = call.sessions.get<UserSession>()?.email ?: return@get call.respondRedirect("/Login")
@@ -29,14 +30,15 @@ fun Route.configureMessageRoutes() {
 
         call.respondTemplate(
             "pages/messages/messages.peb",
-            buildNavbarContext(userId, userRoles, "messages") + mapOf(
-                "chats" to chats,
-                "hasSelectedChat" to false,
-                "selectedChat" to emptyMap<String, Any>(),
-                "messages" to emptyList<Any>(),
-                "currentUserId" to userId,
-                "messageError" to "",
-            ),
+            buildNavbarContext(userId, userRoles, "messages") +
+                mapOf(
+                    "chats" to chats,
+                    "hasSelectedChat" to false,
+                    "selectedChat" to emptyMap<String, Any>(),
+                    "messages" to emptyList<Any>(),
+                    "currentUserId" to userId,
+                    "messageError" to "",
+                ),
         )
     }
 
@@ -103,14 +105,15 @@ fun Route.configureMessageRoutes() {
 
         call.respondTemplate(
             "pages/messages/messages.peb",
-            buildNavbarContext(userId, userRoles, "messages") + mapOf(
-                "chats" to chats,
-                "hasSelectedChat" to true,
-                "selectedChat" to selectedChat,
-                "messages" to messages,
-                "currentUserId" to userId,
-                "messageError" to messageError,
-            ),
+            buildNavbarContext(userId, userRoles, "messages") +
+                mapOf(
+                    "chats" to chats,
+                    "hasSelectedChat" to true,
+                    "selectedChat" to selectedChat,
+                    "messages" to messages,
+                    "currentUserId" to userId,
+                    "messageError" to messageError,
+                ),
         )
     }
 

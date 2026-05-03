@@ -10,5 +10,4 @@ object Chats : Table("chats") {
     val created_at = timestamp("created_at")
 
     override val primaryKey = PrimaryKey(chat_id)
-
 }

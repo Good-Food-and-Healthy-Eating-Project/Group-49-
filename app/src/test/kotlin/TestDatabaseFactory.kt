@@ -1,5 +1,5 @@
-import diettracker.db.tables.ClientProfessionalLink
 import diettracker.db.tables.Chats
+import diettracker.db.tables.ClientProfessionalLink
 import diettracker.db.tables.Clients
 import diettracker.db.tables.FoodLogItems
 import diettracker.db.tables.FoodLogs

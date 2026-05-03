@@ -54,13 +54,14 @@ private suspend fun ApplicationCall.handleGetProfessionals() {
     val justLinked = request.queryParameters["linked"] == "true"
     respondTemplate(
         "pages/professionals/professionals.peb",
-        buildNavbarContext(userId, userRoles) + mapOf(
-            "professionals" to professionals,
-            "hasCompletedQuiz" to hasCompletedQuiz,
-            "userId" to (userId ?: ""),
-            "linkedProfessionalIds" to linkedProfessionalIds,
-            "justLinked" to justLinked,
-        ),
+        buildNavbarContext(userId, userRoles) +
+            mapOf(
+                "professionals" to professionals,
+                "hasCompletedQuiz" to hasCompletedQuiz,
+                "userId" to (userId ?: ""),
+                "linkedProfessionalIds" to linkedProfessionalIds,
+                "justLinked" to justLinked,
+            ),
     )
 }
 

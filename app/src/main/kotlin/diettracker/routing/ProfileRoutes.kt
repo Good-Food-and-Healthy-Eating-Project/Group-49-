@@ -68,10 +68,11 @@ private fun Route.configureProfilePageRoute() {
                     }
                 call.respondTemplate(
                     "pages/client_dash/profile.peb",
-                    buildNavbarContext(userId) + mapOf(
-                        "userinfo" to userinfo,
-                        "email" to email,
-                    ),
+                    buildNavbarContext(userId) +
+                        mapOf(
+                            "userinfo" to userinfo,
+                            "email" to email,
+                        ),
                 )
             }
         }

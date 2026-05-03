@@ -36,14 +36,15 @@ fun Route.foodDiaryRoutes() {
             call.respond(
                 PebbleContent(
                     "pages/client_dash/food_diary.peb",
-                    buildNavbarContext(userId) + mapOf(
-                        "selectedWeekLabel" to diaryView.selectedWeekLabel,
-                        "weekStart" to diaryView.weekStart,
-                        "weekEnd" to diaryView.weekEnd,
-                        "availableWeeks" to diaryView.availableWeeks,
-                        "days" to diaryView.days,
-                        "weekHasEntries" to diaryView.weekHasEntries,
-                    ),
+                    buildNavbarContext(userId) +
+                        mapOf(
+                            "selectedWeekLabel" to diaryView.selectedWeekLabel,
+                            "weekStart" to diaryView.weekStart,
+                            "weekEnd" to diaryView.weekEnd,
+                            "availableWeeks" to diaryView.availableWeeks,
+                            "days" to diaryView.days,
+                            "weekHasEntries" to diaryView.weekHasEntries,
+                        ),
                 ),
             )
         }
@@ -67,14 +68,15 @@ fun Route.foodDiaryRoutes() {
             call.respond(
                 PebbleContent(
                     "pages/client_dash/food_diary_day.peb",
-                    buildNavbarContext(userId) + mapOf(
-                        "dateLabel" to detailView.dateLabel,
-                        "totalCalories" to detailView.totalCalories,
-                        "protein" to detailView.protein,
-                        "carbs" to detailView.carbs,
-                        "fats" to detailView.fats,
-                        "meals" to detailView.meals,
-                    ),
+                    buildNavbarContext(userId) +
+                        mapOf(
+                            "dateLabel" to detailView.dateLabel,
+                            "totalCalories" to detailView.totalCalories,
+                            "protein" to detailView.protein,
+                            "carbs" to detailView.carbs,
+                            "fats" to detailView.fats,
+                            "meals" to detailView.meals,
+                        ),
                 ),
             )
         }

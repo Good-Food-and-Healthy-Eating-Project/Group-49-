@@ -157,9 +157,10 @@ private fun Route.configureProfessionalAccountRoutes() {
         val clients = getClientsForProfessional(professionalId)
         call.respondTemplate(
             "pages/professionals/professionals_dash.peb",
-            buildNavbarContext(professionalId, userRoles) + mapOf(
-                "clients" to clients,
-            ),
+            buildNavbarContext(professionalId, userRoles) +
+                mapOf(
+                    "clients" to clients,
+                ),
         )
     }
 
@@ -256,22 +257,23 @@ fun Route.configureViewClientDetailsRoutes() {
 
         call.respondTemplate(
             "pages/professionals/view_client_details.peb",
-            buildNavbarContext(professionalId, userRoles) + mapOf(
-                "clients" to clients,
-                "client" to (clientData ?: emptyMap<String, Any?>()),
-                "trends" to trends,
-                "currentYear" to currentYear,
-                "currentMonth" to currentMonth,
-                "daysInMonth" to daysInMonth,
-                "leadingEmptyDays" to leadingEmptyDays,
-                "previousYear" to previousMonthDate.year,
-                "previousMonth" to previousMonthDate.monthValue,
-                "nextYear" to nextMonthDate.year,
-                "nextMonth" to nextMonthDate.monthValue,
-                "todayCalories" to todayCalories,
-                "onTrackDays" to onTrackDays,
-                "totalTrackedDays" to trends.size,
-            ),
+            buildNavbarContext(professionalId, userRoles) +
+                mapOf(
+                    "clients" to clients,
+                    "client" to (clientData ?: emptyMap<String, Any?>()),
+                    "trends" to trends,
+                    "currentYear" to currentYear,
+                    "currentMonth" to currentMonth,
+                    "daysInMonth" to daysInMonth,
+                    "leadingEmptyDays" to leadingEmptyDays,
+                    "previousYear" to previousMonthDate.year,
+                    "previousMonth" to previousMonthDate.monthValue,
+                    "nextYear" to nextMonthDate.year,
+                    "nextMonth" to nextMonthDate.monthValue,
+                    "todayCalories" to todayCalories,
+                    "onTrackDays" to onTrackDays,
+                    "totalTrackedDays" to trends.size,
+                ),
         )
     }
 }
@@ -317,14 +319,15 @@ fun Route.configureRecipeRoutes() {
 
         call.respondTemplate(
             "pages/recipes_page/recipes.peb",
-            buildNavbarContext(userId) + mapOf(
-                "recipes" to recipes,
-                "query" to query,
-                "favouriteRecipes" to favouriteRecipes,
-                "category" to category,
-                "categories" to categories,
-                "ingredient" to ingredient,
-            ),
+            buildNavbarContext(userId) +
+                mapOf(
+                    "recipes" to recipes,
+                    "query" to query,
+                    "favouriteRecipes" to favouriteRecipes,
+                    "category" to category,
+                    "categories" to categories,
+                    "ingredient" to ingredient,
+                ),
         )
     }
 
@@ -347,11 +350,12 @@ fun Route.configureRecipeRoutes() {
 
         call.respondTemplate(
             "pages/recipes_page/recipe_detail.peb",
-            buildNavbarContext(email?.let(::getUserIdByEmail)) + mapOf(
-                "recipe" to recipe,
-                "reviews" to reviews,
-                "averageRating" to (averageRating ?: 0.0),
-            ),
+            buildNavbarContext(email?.let(::getUserIdByEmail)) +
+                mapOf(
+                    "recipe" to recipe,
+                    "reviews" to reviews,
+                    "averageRating" to (averageRating ?: 0.0),
+                ),
         )
     }
 
