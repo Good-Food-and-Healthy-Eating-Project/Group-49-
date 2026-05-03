@@ -28,7 +28,7 @@ object DatabaseFactory {
             password = System.getenv("DB_PASSWORD"),
         )
         transaction {
-            SchemaUtils.create(
+            SchemaUtils.createMissingTablesAndColumns(
                 Users,
                 Roles,
                 UserRoles,

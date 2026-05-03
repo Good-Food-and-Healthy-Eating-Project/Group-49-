@@ -235,7 +235,7 @@ class ProfessionalRoutingTest {
                 createClient {
                     install(HttpCookies)
                 }
-            client.post("/Professional-Login") {
+            client.post("/Login") {
                 contentType(ContentType.Application.FormUrlEncoded)
                 setBody(
                     listOf("email" to "test@test.com", "password" to "test@test.com")
@@ -289,9 +289,10 @@ class ProfessionalRoutingTest {
             val body = result.bodyAsText()
             assertEquals(200, result.status.value)
             assertTrue(body.contains("Client Overview"))
-            assertTrue(body.contains("Client ID"))
+            assertTrue(body.contains("cilent test"))
+            assertTrue(body.contains("test@test.com"))
             assertTrue(body.contains("Goal"))
-            assertTrue(body.contains("Daily Calories"))
+            assertTrue(body.contains("Daily Calorie Target"))
             assertTrue(body.contains("Age"))
             assertTrue(body.contains("Gender"))
         }
@@ -319,6 +320,7 @@ class ProfessionalRoutingTest {
             val client =
                 createClient {
                     install(HttpCookies)
+                    followRedirects = false
                 }
             client.post("/Login") {
                 contentType(ContentType.Application.FormUrlEncoded)
@@ -344,7 +346,7 @@ class ProfessionalRoutingTest {
                         .size
                 }
             assertEquals(302, result.status.value)
-            assertEquals("/client_dash", result.headers[HttpHeaders.Location])
+            assertEquals("/professionals?linked=true", result.headers[HttpHeaders.Location])
             assertEquals(1, linkCount)
         }
 }

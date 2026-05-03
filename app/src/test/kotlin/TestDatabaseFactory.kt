@@ -9,6 +9,8 @@ import diettracker.db.tables.Professionals
 import diettracker.db.tables.RecipeIngredients
 import diettracker.db.tables.Recipes
 import diettracker.db.tables.Roles
+import diettracker.db.tables.SavedMealFoods
+import diettracker.db.tables.SavedMeals
 import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -30,6 +32,8 @@ object TestDatabaseFactory {
                 UserRoles,
                 Recipes,
                 Professionals,
+                SavedMealFoods,
+                SavedMeals,
                 Clients,
                 Foods,
                 Users,
@@ -50,6 +54,8 @@ object TestDatabaseFactory {
                 FoodLogItems,
                 RecipeIngredients,
                 Messages,
+                SavedMeals,
+                SavedMealFoods,
             )
         }
     }

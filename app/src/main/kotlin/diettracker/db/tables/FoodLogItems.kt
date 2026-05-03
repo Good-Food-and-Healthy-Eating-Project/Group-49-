@@ -1,5 +1,9 @@
 package diettracker.db.tables
 
+/**
+ * This table stores individual food items within a food log entry and links them to the food and log tables
+ **/
+
 import org.jetbrains.exposed.v1.core.Table
 
 private const val QUANTITY_PRECISION = 6

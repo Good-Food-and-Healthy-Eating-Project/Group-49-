@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="26563dcb-6ccb-4d65-9621-0ea5f1364be7" name="Changes" comment="">
+    <list default="true" id="3e8b2f3c-ea88-445f-8f8a-aedd969d0c66" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -46,9 +46,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
@@ -62,6 +60,11 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Dev\Group-49-\app\src\main\resources\static\css\Images" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="EngineMain" type="KtorApplicationConfigurationType" factoryName="Ktor" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="io.ktor.server.netty.EngineMain" />
@@ -74,7 +77,7 @@
       <option name="programParameters" />
       <option name="shortenCommandLine" />
       <option name="vmParameters" />
-      <option name="workingDirectory" value="C:\Users\lewis\Documents\Project\Group-49-" />
+      <option name="workingDirectory" value="C:\Dev\Group-49-" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -89,7 +92,7 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="26563dcb-6ccb-4d65-9621-0ea5f1364be7" name="Changes" comment="" />
+      <changelist id="3e8b2f3c-ea88-445f-8f8a-aedd969d0c66" name="Changes" comment="" />
       <created>1776693178881</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
