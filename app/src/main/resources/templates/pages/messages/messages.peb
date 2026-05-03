@@ -55,6 +55,23 @@
                                 {% endfor %}
                             </div>
                         {% endif %}
+
+                        <form method="post" action="/messages/{{ selectedChat.chatId }}" class="message-compose-form">
+                            <label for="message-body" class="form-label">Reply</label>
+                            <textarea
+                                id="message-body"
+                                name="body"
+                                class="form-input message-compose-input"
+                                rows="4"
+                                placeholder="Write your message"
+                            ></textarea>
+                            {% if messageError %}
+                                <p class="message-compose-error">{{ messageError }}</p>
+                            {% endif %}
+                            <div class="message-compose-actions">
+                                <button type="submit" class="btn btn-primary">Send message</button>
+                            </div>
+                        </form>
                     {% else %}
                         <div class="thread-empty-state">
                             <h2>Select a conversation</h2>

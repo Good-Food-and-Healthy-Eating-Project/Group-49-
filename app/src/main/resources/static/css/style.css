@@ -883,6 +883,7 @@ a:hover { color: var(--brown); }
 .thread-messages {
     display: grid;
     gap: 0.85rem;
+    margin-bottom: 1.25rem;
 }
 
 .message-bubble {
@@ -915,6 +916,28 @@ a:hover { color: var(--brown); }
     place-content: center;
     gap: 0.5rem;
     text-align: center;
+}
+
+.message-compose-form {
+    display: grid;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(59, 42, 26, 0.08);
+}
+
+.message-compose-input {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.message-compose-error {
+    color: #b2432f;
+    font-size: 0.9rem;
+}
+
+.message-compose-actions {
+    display: flex;
+    justify-content: flex-end;
 }
 
 @media (max-width: 900px) {
