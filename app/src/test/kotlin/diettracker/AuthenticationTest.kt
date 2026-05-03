@@ -330,4 +330,25 @@ class AuthenticationTest {
 
         assertEquals(200, response.status.value)
     }
+
+    @Test
+    fun `sign up with duplicate email shows error`() = testApplication {
+        application { module(testing = true) }
+
+        val client = createClient {
+            install(HttpCookies)
+        }
+
+        client.post("/Sign-Up") {
+            header(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+            setBody("email=duplicate@test.com&password=password123")
+        }
+
+        val response = client.post("/Sign-Up") {
+            header(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+            setBody("email=duplicate@test.com&password=password123")
+        }
+
+        assertEquals(400, response.status.value) // stays on page with error
+    }
 }
