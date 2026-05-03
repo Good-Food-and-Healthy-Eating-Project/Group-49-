@@ -5,10 +5,12 @@ import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.Foods
 import diettracker.db.tables.Professionals
 import diettracker.db.tables.RecipeIngredients
+import diettracker.db.tables.RecipeReviews
 import diettracker.db.tables.Recipes
 import diettracker.db.tables.Roles
 import diettracker.db.tables.SavedMealFoods
 import diettracker.db.tables.SavedMeals
+import diettracker.db.tables.UserFavouritedRecipes
 import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -34,6 +36,8 @@ object TestDatabaseFactory {
                 Foods,
                 Users,
                 Roles,
+                RecipeReviews,
+                UserFavouritedRecipes,
             )
 
             SchemaUtils.create(
@@ -50,6 +54,8 @@ object TestDatabaseFactory {
                 RecipeIngredients,
                 SavedMeals,
                 SavedMealFoods,
+                RecipeReviews,
+                UserFavouritedRecipes,
             )
         }
     }

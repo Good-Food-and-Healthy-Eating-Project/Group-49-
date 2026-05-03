@@ -5,26 +5,25 @@ import diettracker.db.tables.FoodLogItems
 import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.Foods
 import diettracker.db.tables.Users
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.update
 import org.junit.jupiter.api.BeforeEach
 import org.mindrot.jbcrypt.BCrypt
 import java.math.BigDecimal
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.Instant
-import io.ktor.client.request.setBody
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-
 class ClientDietTrendTest {
     private var userId: Int = 0
     private var foodId: Int = 0
+
     private fun insertFoodLog(
         userId: Int,
         foodId: Int,
@@ -33,7 +32,7 @@ class ClientDietTrendTest {
     ) {
         val logInstant = date.atStartOfDay(ZoneId.systemDefault()).toInstant()
         transaction {
-            val logId = 
+            val logId =
                 FoodLogs.insert {
                     it[FoodLogs.user_id] = userId
                     it[log_date] = logInstant
@@ -47,10 +46,11 @@ class ClientDietTrendTest {
             }
         }
     }
+
     @BeforeEach
     fun setUp() {
         TestDatabaseFactory.init()
-        transaction{
+        transaction {
             FoodLogItems.deleteAll()
             FoodLogs.deleteAll()
             Foods.deleteAll()
@@ -67,7 +67,7 @@ class ClientDietTrendTest {
                     it[password_hash] = BCrypt.hashpw("foodlog@test.com", BCrypt.gensalt())
                     it[created_at] = time
                 } get Users.user_id
-            
+
             Clients.insert {
                 it[client_id] = userId
                 it[height_cm] = 180
@@ -88,7 +88,7 @@ class ClientDietTrendTest {
                 } get Foods.food_id
         }
     }
-    
+
     @Test
     fun should_return_grenn_when_lose_goal_and_calorie_under_target() {
         val date = LocalDate.of(2026, 5, 1)
@@ -96,7 +96,7 @@ class ClientDietTrendTest {
             userId = userId,
             foodId = foodId,
             date = date,
-            //200 / 100 * 65 = 130 kcal
+            // 200 / 100 * 65 = 130 kcal
             quantity = BigDecimal("200.00"),
         )
         val trends = ClientDietTrend.getDietTrend(userId)
@@ -114,13 +114,14 @@ class ClientDietTrendTest {
             userId = userId,
             foodId = foodId,
             date = date,
-            //4000 / 100  * 65 = 2600 kcal
+            // 4000 / 100  * 65 = 2600 kcal
             quantity = BigDecimal("4000.00"),
         )
         val trends = ClientDietTrend.getDietTrend(userId)
         assertEquals(2600.00, trends.first().totalCalorie)
         assertEquals("red", trends.first().colourClass)
     }
+
     @Test
     fun should_reyurn_red_when_gain_goal_and_calorie_under_target() {
         transaction {
@@ -133,7 +134,7 @@ class ClientDietTrendTest {
             userId = userId,
             foodId = foodId,
             date = date,
-            //200 / 100  * 65 = 130 kcal
+            // 200 / 100  * 65 = 130 kcal
             quantity = BigDecimal("200.00"),
         )
         val trends = ClientDietTrend.getDietTrend(userId)
@@ -153,13 +154,14 @@ class ClientDietTrendTest {
             userId = userId,
             foodId = foodId,
             date = date,
-            //4000 / 100  * 65 = 2600 kcal
+            // 4000 / 100  * 65 = 2600 kcal
             quantity = BigDecimal("4000.00"),
         )
         val trends = ClientDietTrend.getDietTrend(userId)
         assertEquals(2600.00, trends.first().totalCalorie)
         assertEquals("green", trends.first().colourClass)
     }
+
     @Test
     fun should_return_empty_list_when_user_has_no_food_log() {
         val trends = ClientDietTrend.getDietTrend(userId)

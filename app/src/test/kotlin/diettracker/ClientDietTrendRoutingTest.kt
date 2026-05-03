@@ -1,15 +1,15 @@
 package diettracker
 
-import diettracker.db.tables.Users
 import diettracker.db.tables.Clients
+import diettracker.db.tables.Users
 import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.formUrlEncode
-import io.ktor.client.statement.bodyAsText
 import io.ktor.server.testing.testApplication
 import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -21,7 +21,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-
 class ClientDietTrendRoutingTest {
     @BeforeEach
     fun setUP() {
@@ -32,13 +31,13 @@ class ClientDietTrendRoutingTest {
             val time = Instant.now()
             val salt = BCrypt.gensalt()
             val userId =
-            Users.insert {
-                it[first_name] = "Sponge"
-                it[second_name] = "Bob"
-                it[email] = "test@test.com"
-                it[password_hash] = BCrypt.hashpw("test@test.com", salt)
-                it[created_at] = time
-            }get Users.user_id
+                Users.insert {
+                    it[first_name] = "Sponge"
+                    it[second_name] = "Bob"
+                    it[email] = "test@test.com"
+                    it[password_hash] = BCrypt.hashpw("test@test.com", salt)
+                    it[created_at] = time
+                } get Users.user_id
             Clients.insert {
                 it[client_id] = userId
                 it[height_cm] = 180
@@ -50,17 +49,18 @@ class ClientDietTrendRoutingTest {
             }
         }
     }
+
     @Test
     fun should_change_month_when_url_query_parameters() =
         testApplication {
             application { module(testing = true) }
-        val client = 
-            createClient {
-                followRedirects = false
-                install(HttpCookies)
-            }
+            val client =
+                createClient {
+                    followRedirects = false
+                    install(HttpCookies)
+                }
 
-             client.post("/Login") {
+            client.post("/Login") {
                 contentType(ContentType.Application.FormUrlEncoded)
                 setBody(
                     listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode(),
@@ -75,27 +75,28 @@ class ClientDietTrendRoutingTest {
             assertTrue(mayBody.contains("2026 / 5"))
             assertTrue(juneBody.contains("2026 / 6"))
         }
+
     @Test
     fun should_link_to_last_year_december_when_current_month_is_january() =
-    testApplication {
-        application{ module(testing = true) }
-            val client = 
-            createClient {
-                followRedirects = false
-                install(HttpCookies)
-            }
+        testApplication {
+            application { module(testing = true) }
+            val client =
+                createClient {
+                    followRedirects = false
+                    install(HttpCookies)
+                }
 
-             client.post("/Login") {
+            client.post("/Login") {
                 contentType(ContentType.Application.FormUrlEncoded)
                 setBody(
                     listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode(),
                 )
             }
-        val result = client.get("/client_dash?year=2026&month=1")
-        val body = result.bodyAsText()
-        //now page should show january
-        assertEquals(200, result.status.value)
-        assertTrue(body.contains("year=2025&month=12"))
-        assertTrue(body.contains("year=2026&month=2"))
-    }
+            val result = client.get("/client_dash?year=2026&month=1")
+            val body = result.bodyAsText()
+            // now page should show january
+            assertEquals(200, result.status.value)
+            assertTrue(body.contains("year=2025&month=12"))
+            assertTrue(body.contains("year=2026&month=2"))
+        }
 }
