@@ -11,6 +11,7 @@ import diettracker.models.Food
 import diettracker.models.Recipe
 import diettracker.services.DiaryService.getMealTypeByTime
 import diettracker.services.DiaryService.saveFoodLog
+import diettracker.routing.hasRole
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.pebble.respondTemplate
 import io.ktor.server.request.receiveParameters
@@ -128,6 +129,7 @@ private fun logRecipeIngredients(recipeid: Int): RecipeLogResult {
  * food log page.
  */
 suspend fun ApplicationCall.foodLogRecipe() {
+    if (!hasRole("client")) return respondRedirect("/Login")
     val params = receiveParameters()
     val recipeIdStr = params["recipeId"]
     val recipeid = recipeIdStr?.toIntOrNull()
@@ -202,6 +204,7 @@ private fun calcAndLogCustomFood(
  * session, and displays the updated food log page.
  */
 suspend fun ApplicationCall.foodLogCustom() {
+    if (!hasRole("client")) return respondRedirect("/Login")
     val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession(0, 0, 0, 0)
     val params = receiveParameters()
     val foodIdStr = params["foodId"]
@@ -356,6 +359,7 @@ fun calcNutrients(
  * the food log page with zero values.
  */
 suspend fun ApplicationCall.foodLogReset() {
+    if (!hasRole("client")) return respondRedirect("/Login")
     sessions.set(CaloriesSession(0, 0, 0, 0))
     sessions.set(CurrentMealSession(emptyList()))
     respondRedirect("/food_log")
@@ -370,6 +374,7 @@ suspend fun ApplicationCall.foodLogReset() {
  * foods to the diary using saveFoodLog(), then clears the current session.
  */
 suspend fun ApplicationCall.saveCurrentFoodLog() {
+    if (!hasRole("client")) return respondRedirect("/Login")
     val mealType = getMealTypeByTime()
     val notes = ""
     val userSession = sessions.get<UserSession>()

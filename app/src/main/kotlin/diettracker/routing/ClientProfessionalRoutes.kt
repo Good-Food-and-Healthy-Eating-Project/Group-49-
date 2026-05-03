@@ -66,6 +66,7 @@ private suspend fun ApplicationCall.handleGetProfessionals() {
 }
 
 private suspend fun ApplicationCall.handleSelectProfessional() {
+    if (!hasRole("client")) return respondRedirect("/Login")
     val email = sessions.get<UserSession>()?.email
     // Convert the client ID to an integer for database use.
     // If conversion fails, return an error to prevent invalid data being stored.
@@ -89,6 +90,7 @@ private suspend fun ApplicationCall.handleSelectProfessional() {
 }
 
 private suspend fun ApplicationCall.handleUnlinkProfessional() {
+    if (!hasRole("client")) return respondRedirect("/Login")
     val email = sessions.get<UserSession>()?.email
     val clientId = email?.let { getUserIdByEmail(it)?.toString()?.toIntOrNull() }
 

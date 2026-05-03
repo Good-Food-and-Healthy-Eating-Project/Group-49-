@@ -49,6 +49,7 @@ private fun Route.configureProfilePageRoute() {
                 call.respondRedirect("/Login")
                 return@get
             } else {
+                if (!call.hasRole("client")) return@get call.respondRedirect("/Login")
                 val userinfo =
                     transaction {
                         Clients.selectAll()
@@ -111,6 +112,8 @@ private fun Route.configureProfileUpdateRoute() {
             call.respondRedirect("/Login")
             return@post
         }
+
+        if (!call.hasRole("client")) return@post call.respondRedirect("/Login")
 
         val params = call.receiveParameters()
 

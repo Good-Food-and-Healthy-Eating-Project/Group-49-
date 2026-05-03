@@ -46,6 +46,8 @@ private fun Route.configureProfessionalProfilePageRoute() {
             return@get
         }
 
+        if (!call.hasRole("professional")) return@get call.respondRedirect("/Login")
+
         // Fetch professional and user details in a single joined query
         // Single used because only one record in the database is expected
         val userinfo =
@@ -100,6 +102,8 @@ private fun Route.configureProfessionalProfileUpdateRoute() {
             call.respondRedirect("/Professional-Login")
             return@post
         }
+
+        if (!call.hasRole("professional")) return@post call.respondRedirect("/Login")
 
         val params = call.receiveParameters()
 

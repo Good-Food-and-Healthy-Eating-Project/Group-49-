@@ -2,6 +2,7 @@ package diettracker
 
 import diettracker.db.tables.Clients
 import diettracker.db.tables.SavedMealFoods
+import diettracker.routing.hasRole
 import diettracker.db.tables.SavedMeals
 import diettracker.models.CurrentMealFood
 import diettracker.models.CurrentMealSession
@@ -140,6 +141,7 @@ fun getSavedMealFoods(mealId: Int): List<CurrentMealFood> =
  * session and would be lost after the session is cleared or changed.
  */
 suspend fun ApplicationCall.saveCurrentMeal() {
+    if (!hasRole("client")) return respondRedirect("/Login")
     val params = receiveParameters()
     val mealName = params["mealName"] ?: "Unnamed Meal"
     val email = sessions.get<UserSession>()?.email
@@ -179,6 +181,7 @@ suspend fun ApplicationCall.saveCurrentMeal() {
  * food log.
  */
 suspend fun ApplicationCall.addSavedMealToLog() {
+    if (!hasRole("client")) return respondRedirect("/Login")
     val params = receiveParameters()
     val mealId = params["mealId"]?.toIntOrNull()
     var addCalories = 0

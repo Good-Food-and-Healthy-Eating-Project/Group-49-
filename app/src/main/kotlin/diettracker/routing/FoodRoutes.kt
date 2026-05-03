@@ -89,7 +89,7 @@ private suspend fun respondAddFoodPage(
 
 private fun Route.configureFoodLogRoute() {
     get("/food_log") {
-        call.sessions.get<UserSession>() ?: return@get call.respondRedirect("/Login")
+        if (!call.hasRole("client")) return@get call.respondRedirect("/Login")
 
         val recipeQuery = call.request.queryParameters["query"]
         val foodQuery = call.request.queryParameters["foodquery"]
@@ -145,6 +145,7 @@ private fun Route.configureFoodPostRoutes() {
  */
 private fun Route.configureRecipeSearchRoute() {
     get("/recipe_search") {
+        if (!call.hasRole("client")) return@get call.respondRedirect("/Login")
         val query = call.request.queryParameters["query"] ?: ""
         val recipes = searchRecipes(query)
         val email = call.sessions.get<UserSession>()?.email
@@ -180,6 +181,7 @@ private fun Route.configureRecipeSearchRoute() {
  */
 private fun Route.configureFoodSearchRoute() {
     get("/food_search") {
+        if (!call.hasRole("client")) return@get call.respondRedirect("/Login")
         val query = call.request.queryParameters["foodquery"] ?: ""
         val foods = searchFoods(query)
         val grams = call.request.queryParameters["grams"]?.toIntOrNull() ?: DEFAULT_GRAMS

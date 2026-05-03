@@ -25,6 +25,8 @@ fun Route.foodDiaryRoutes() {
                 getUserIdByEmail(sessionEmail)
                     ?: return@get call.respondRedirect("/Login")
 
+            if (!call.hasRole("client")) return@get call.respondRedirect("/Login")
+
             val selectedWeek =
                 call.request.queryParameters["week"]?.let {
                     runCatching { LocalDate.parse(it) }.getOrNull()
@@ -56,6 +58,8 @@ fun Route.foodDiaryRoutes() {
             val userId =
                 getUserIdByEmail(sessionEmail)
                     ?: return@get call.respondRedirect("/Login")
+
+            if (!call.hasRole("client")) return@get call.respondRedirect("/Login")
 
             val selectedDate =
                 call.request.queryParameters["date"]?.let {

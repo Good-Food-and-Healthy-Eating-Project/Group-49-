@@ -4,6 +4,7 @@ import diettracker.db.tables.Clients
 import diettracker.db.tables.Users
 import diettracker.routes.quizRoutes
 import diettracker.routing.configureClientDashRoute
+import diettracker.routing.hasRole
 import diettracker.routing.configureClientProfessionalRoutes
 import diettracker.routing.configureFoodRoutes
 import diettracker.routing.configureRecipeRoutes
@@ -91,6 +92,7 @@ fun Route.configureClientRoutes() {
     profileRoutes()
 
     get("/diary") {
+        if (!call.hasRole("client")) return@get call.respondRedirect("/Login")
         call.respond(PebbleContent("pages/client_dash/food_diary.peb", mapOf("showNavbar" to true)))
     }
 }
@@ -148,14 +150,14 @@ private fun Route.configureProfessionalAccountRoutes() {
         val professionalId =
             getUserIdByEmail(email)
                 ?: return@get call.respondText("User not found")
-        val userRoles = getUserRoles(professionalId)
+        if (!call.hasRole("professional")) return@get call.respondRedirect("/Login")
         // Get all clients linked to this professional for display on the dashboard
         val clients = getClientsForProfessional(professionalId)
         call.respondTemplate(
             "pages/professionals/professionals_dash.peb",
             mapOf(
                 "showNavbar" to true,
-                "isProfessional" to userRoles.contains("professional"),
+                "isProfessional" to true,
                 "clients" to clients,
             ),
         )
@@ -212,7 +214,7 @@ fun Route.configureViewClientDetailsRoutes() {
         val session = call.sessions.get<UserSession>()
         val email = session?.email ?: return@get call.respondRedirect("/Login")
         val professionalId = getUserIdByEmail(email) ?: return@get call.respondText("User not found")
-        val userRoles = getUserRoles(professionalId)
+        if (!call.hasRole("professional")) return@get call.respondRedirect("/Login")
         val clients = getClientsForProfessional(professionalId)
         val clientId = call.parameters["clientId"]?.toIntOrNull()
 
@@ -256,7 +258,7 @@ fun Route.configureViewClientDetailsRoutes() {
             "pages/professionals/view_client_details.peb",
             mapOf(
                 "showNavbar" to true,
-                "isProfessional" to userRoles.contains("professional"),
+                "isProfessional" to true,
                 "clients" to clients,
                 "client" to (clientData ?: emptyMap<String, Any?>()),
                 "trends" to trends,
