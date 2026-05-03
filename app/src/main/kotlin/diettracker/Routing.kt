@@ -269,8 +269,13 @@ fun Route.configureProtectedRoutes() {
     }
 }
 
-@Suppress("LongMethod", "CyclomaticComplexMethod")
 fun Route.configureRecipeRoutes() {
+    configureRecipeListRoutes()
+    configureRecipeFavouriteRoutes()
+    configureRecipeReviewRoutes()
+}
+
+fun Route.configureRecipeListRoutes() {
     get("/recipes") {
         val query = call.request.queryParameters["query"]?.trim() ?: ""
         val category = call.request.queryParameters["category"]?.trim() ?: ""
@@ -313,47 +318,9 @@ fun Route.configureRecipeRoutes() {
             ),
         )
     }
+}
 
-    get("/recipes/{id}") {
-        val recipeId = call.parameters["id"]?.toIntOrNull()
-        if (recipeId == null) {
-            call.respond(HttpStatusCode.BadRequest)
-            return@get
-        }
-        val recipe = RecipeDatabaseQuery.getRecipeById(recipeId)
-        if (recipe == null) {
-            call.respond(HttpStatusCode.NotFound)
-            return@get
-        }
-        val reviews = RecipeDatabaseQuery.getReviewsForRecipe(recipeId)
-        val averageRating = RecipeDatabaseQuery.getAverageRating(recipeId)
-        call.respondTemplate(
-            "pages/recipes_page/recipe_detail.peb",
-            mapOf(
-                "recipe" to recipe,
-                "reviews" to reviews,
-                "averageRating" to (averageRating ?: 0.0),
-            ),
-        )
-    }
-
-    post("/recipes/{id}/review") {
-        val recipeId = call.parameters["id"]?.toIntOrNull()
-        val email = call.sessions.get<UserSession>()?.email
-        if (recipeId != null && email != null) {
-            val userId = getUserIdByEmail(email)
-            if (userId != null) {
-                val parameters = call.receiveParameters()
-                val rating = parameters["rating"]?.toIntOrNull()
-                val comment = parameters["comment"]?.trim() ?: ""
-                if (rating != null && rating in 1..MAX_REVIEW_RATING && comment.isNotBlank()) {
-                    RecipeDatabaseQuery.addReview(userId, recipeId, rating, comment)
-                }
-            }
-        }
-        call.respondRedirect("/recipes/$recipeId")
-    }
-
+fun Route.configureRecipeFavouriteRoutes() {
     post("/recipes/favourite/{recipeId}") {
         val recipeId = call.parameters["recipeId"]?.toIntOrNull()
         val email = call.sessions.get<UserSession>()?.email
@@ -376,5 +343,24 @@ fun Route.configureRecipeRoutes() {
             }
         }
         call.respond(HttpStatusCode.OK)
+    }
+}
+
+fun Route.configureRecipeReviewRoutes() {
+    post("/recipes/{id}/review") {
+        val recipeId = call.parameters["id"]?.toIntOrNull()
+        val email = call.sessions.get<UserSession>()?.email
+        if (recipeId != null && email != null) {
+            val userId = getUserIdByEmail(email)
+            if (userId != null) {
+                val parameters = call.receiveParameters()
+                val rating = parameters["rating"]?.toIntOrNull()
+                val comment = parameters["comment"]?.trim() ?: ""
+                if (rating != null && rating in 1..MAX_REVIEW_RATING && comment.isNotBlank()) {
+                    RecipeDatabaseQuery.addReview(userId, recipeId, rating, comment)
+                }
+            }
+        }
+        call.respondRedirect("/recipes/$recipeId")
     }
 }
