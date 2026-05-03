@@ -51,6 +51,7 @@ private suspend fun ApplicationCall.handleGetProfessionals() {
         }
 
     val justLinked = request.queryParameters["linked"] == "true"
+    val consentError = request.queryParameters["error"] == "consent"
     respondTemplate(
         "pages/professionals/professionals.peb",
         mapOf(
@@ -61,6 +62,7 @@ private suspend fun ApplicationCall.handleGetProfessionals() {
             "userId" to (userId ?: ""),
             "linkedProfessionalIds" to linkedProfessionalIds,
             "justLinked" to justLinked,
+            "consentError" to consentError,
         ),
     )
 }
@@ -78,12 +80,16 @@ private suspend fun ApplicationCall.handleSelectProfessional() {
         // Redirection to fill in the quiz as its required for professional use
         getClientCalorieGoal(clientId) == null -> respondRedirect("/quiz?userId=$clientId")
         else -> {
-            val professionalId = receiveParameters()["professional_id"]?.toIntOrNull()
-            if (professionalId == null) {
-                respondText("Invalid professional", status = HttpStatusCode.BadRequest)
-            } else {
-                linkClientToProfessional(clientId, professionalId)
-                respondRedirect("/professionals?linked=true")
+            val params = receiveParameters()
+            val consent = params["consent"]
+            val professionalId = params["professional_id"]?.toIntOrNull()
+            when {
+                consent != "true" -> respondRedirect("/professionals?error=consent")
+                professionalId == null -> respondText("Invalid professional", status = HttpStatusCode.BadRequest)
+                else -> {
+                    linkClientToProfessional(clientId, professionalId, consentGiven = true)
+                    respondRedirect("/professionals?linked=true")
+                }
             }
         }
     }

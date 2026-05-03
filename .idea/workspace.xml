@@ -6,14 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="3e8b2f3c-ea88-445f-8f8a-aedd969d0c66" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/Routing.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/Routing.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ClientDashRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ClientDashRoutes.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/UserDatabase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/UserDatabase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/db/tables/ClientProfessionalLink.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/db/tables/ClientProfessionalLink.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ClientProfessionalRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ClientProfessionalRoutes.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/FoodDiaryRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/FoodDiaryRoutes.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/FoodRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/FoodRoutes.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ProfessionalProfileRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ProfessionalProfileRoutes.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ProfileRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ProfileRoutes.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/AuthenticationTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/AuthenticationTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/auth/signup_quiz.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/auth/signup_quiz.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/professionals.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/professionals.peb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

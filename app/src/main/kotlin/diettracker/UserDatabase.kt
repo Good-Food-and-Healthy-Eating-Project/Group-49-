@@ -52,7 +52,8 @@ fun getAllRecipes(): List<Map<String, Any?>> =
             )
         }
     }
-
+/**
+ * This function gets the list of all users who have signed up as a professional **/
 fun getAllProfessionals(): List<Professional> =
     transaction {
         (Professionals innerJoin Users)
@@ -70,10 +71,18 @@ fun getAllProfessionals(): List<Professional> =
                 )
             }
     }
-
+/**
+ * This function handles linking a client to a professional
+ * Checks if the client is already linked to the selected professional
+ * If not linked, adds professional + client link ONLY IF consent is given
+ *
+ * alreadyLinked only checks if the client is linking to the SAME professional
+ * For the condition where the clients already has a professional and is linking to another
+ * This is handled in the .peb file by hiding the button when a professional has already been selected**/
 fun linkClientToProfessional(
     clientId: Int,
     professionalId: Int,
+    consentGiven: Boolean,
 ) {
     transaction {
         val alreadyLinked =
@@ -88,11 +97,15 @@ fun linkClientToProfessional(
             ClientProfessionalLink.insert {
                 it[ClientProfessionalLink.client_id] = clientId
                 it[ClientProfessionalLink.professional_id] = professionalId
+                it[ClientProfessionalLink.consent_given] = consentGiven
             }
         }
     }
 }
-
+/**
+ * This function gets the professional that the client is linked to so they can be displayed
+ * On the professionals page for clients
+ * **/
 fun getLinkedProfessionalIdsForClient(clientId: Int): List<Int> =
     transaction {
         ClientProfessionalLink
@@ -101,6 +114,9 @@ fun getLinkedProfessionalIdsForClient(clientId: Int): List<Int> =
             .map { it[ClientProfessionalLink.professional_id] }
     }
 
+/**
+ * The function gives clients the opportunity to choose a different professional and unlink from their current one
+ * **/
 fun unlinkClientFromProfessional(
     clientId: Int,
     professionalId: Int,
@@ -112,6 +128,11 @@ fun unlinkClientFromProfessional(
         }
     }
 }
+/**
+ * This function handles getting client data for a professional who the client has linked to
+ * Combines three tables in the database to make it easier to access all info needed
+ * It filters the query to only include clients linked to the professional
+ * Then selects relevant info from that query which the professional will be able to see **/
 
 fun getClientsForProfessional(professionalId: Int): List<ClientInfo> =
     transaction {

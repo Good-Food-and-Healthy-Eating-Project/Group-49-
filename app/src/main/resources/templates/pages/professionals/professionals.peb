@@ -16,6 +16,13 @@
         </div>
     {% endif %}
 
+    {% if consentError %}
+        <div class="consent-error-banner">
+            <span>&#9888;</span>
+            You must agree to share your data before linking to a professional.
+        </div>
+    {% endif %}
+
     {% if not isProfessional and not hasCompletedQuiz %}
         <div class="quiz-prompt-banner">
             <span>&#9888;</span>
@@ -99,10 +106,15 @@
                                 <div class="already-linked-indicator">
                                     <span class="linked-badge">&#10003; Currently Selected</span>
                                 </div>
+                            {% elseif linkedProfessionalIds is not empty %}
+                                <p class="already-has-pro-note">Unlink your current professional first to select a new one.</p>
                             {% else %}
-                                <form method="post" action="/select-professional"
-                                      onsubmit="return confirm('Are you sure you want to select {{ pro.firstName }} {{ pro.lastName }} as your professional?');">
+                                <form method="post" action="/select-professional">
                                     <input type="hidden" name="professional_id" value="{{ pro.id }}">
+                                    <div class="consent-check">
+                                        <input type="checkbox" id="consent-{{ pro.id }}" name="consent" value="true">
+                                        <label for="consent-{{ pro.id }}">I agree to share my dietary data with this professional</label>
+                                    </div>
                                     <button type="submit" class="btn btn-primary" style="width: 100%;">
                                         Select Professional
                                     </button>
@@ -294,6 +306,51 @@
     .btn-primary:focus {
         outline: 3px solid #2C1E10;
         outline-offset: 2px;
+    }
+
+    .consent-error-banner {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        border-radius: var(--radius-lg);
+        padding: 0.85rem 1.25rem;
+        margin-bottom: 1.25rem;
+        font-size: 0.95rem;
+        color: #991b1b;
+        font-weight: 500;
+    }
+
+    .consent-check {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 10px;
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+    }
+
+    .consent-check input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        min-width: 15px;
+        margin-top: 2px;
+        cursor: pointer;
+        accent-color: #A94F24;
+    }
+
+    .consent-check label {
+        cursor: pointer;
+    }
+
+    .already-has-pro-note {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        text-align: center;
+        margin: 0;
+        padding: 0.5rem 0;
     }
 </style>
 {% endblock %}
