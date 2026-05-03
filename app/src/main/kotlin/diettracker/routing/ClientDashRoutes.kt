@@ -2,6 +2,7 @@ package diettracker.routing
 
 import diettracker.UserSession
 import diettracker.getUserIdByEmail
+import diettracker.getUserRoles
 import diettracker.services.buildClientDashModel
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.response.respond
@@ -26,6 +27,12 @@ fun Route.configureClientDashRoute() {
             call.respondRedirect("/Login")
             return@get
         }
+        // Enforcing client role to ensure role based auth
+        val roles = getUserRoles(userId)
+        if(!roles.contains("client")) {
+            return@get call.respondRedirect("/Login")
+        }
+
 
         // Dashboard data is built in DashboardServices to keep routing logic separate
         call.respond(
