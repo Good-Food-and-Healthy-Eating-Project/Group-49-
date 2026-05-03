@@ -358,4 +358,45 @@ class FoodDiaryTest {
         assertEquals("Breakfast", result.meals.first().mealType)
         assertEquals("Testselected", result.meals.first().notes)
     }
+
+    /**
+     * Testing  multiple items within the same meal
+     */
+
+    @Test
+    fun should_sum_multiple_items_within_the_same_meal() {
+        val zone = ZoneId.systemDefault()
+        val today = LocalDate.now(zone)
+        val logInstant = today.atStartOfDay(zone).toInstant()
+
+        val logId = transaction {
+            FoodLogs.insert {
+                it[FoodLogs.user_id] = userId
+                it[log_date] = logInstant
+                it[meal_type] = "Breakfast"
+                it[notes] = "Test note"
+            } get FoodLogs.food_log_id
+        }
+
+        transaction {
+            FoodLogItems.insert {
+                it[FoodLogItems.food_log_id] = logId
+                it[FoodLogItems.food_id] = appleId
+                it[quantity_g] = BigDecimal("100.00")
+            }
+            FoodLogItems.insert {
+                it[FoodLogItems.food_log_id] = logId
+                it[FoodLogItems.food_id] = appleId
+                it[quantity_g] = BigDecimal("100.00")
+            }
+        }
+
+        val result = DiaryService.getDailyDiaryDetail(userId, today)
+        val meal = result.meals.first()
+
+        assertEquals(1, result.meals.size)
+        assertEquals(2, meal.items.size)
+        assertEquals(130, meal.totalCalories)
+        assertEquals(130, result.totalCalories)
+    }
 }
