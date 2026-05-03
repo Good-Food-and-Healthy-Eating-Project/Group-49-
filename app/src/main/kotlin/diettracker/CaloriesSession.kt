@@ -9,9 +9,9 @@ import diettracker.models.CurrentMealFood
 import diettracker.models.CurrentMealSession
 import diettracker.models.Food
 import diettracker.models.Recipe
+import diettracker.routing.hasRole
 import diettracker.services.DiaryService.getMealTypeByTime
 import diettracker.services.DiaryService.saveFoodLog
-import diettracker.routing.hasRole
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.pebble.respondTemplate
 import io.ktor.server.request.receiveParameters

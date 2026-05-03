@@ -6,8 +6,19 @@
   <component name="ChangeListManager">
     <list default="true" id="3e8b2f3c-ea88-445f-8f8a-aedd969d0c66" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/CaloriesSession.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/CaloriesSession.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/Routing.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/Routing.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/SaveMealServices.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/SaveMealServices.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/UserDatabase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/UserDatabase.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ClientDashRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ClientDashRoutes.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/RoleCheck.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/RoleCheck.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/services/DashboardServices.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/services/DashboardServices.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/AuthenticationTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/AuthenticationTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodDiaryRoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodDiaryRoutingTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodDiaryTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodDiaryTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodLogRoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodLogRoutingTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/ProfessionalRoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/ProfessionalRoutingTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/RoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/RoutingTest.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -197,7 +208,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodDiaryRoutingTest.kt</url>
-          <line>100</line>
+          <line>110</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>

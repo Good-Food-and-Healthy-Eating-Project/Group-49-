@@ -4,11 +4,11 @@ import diettracker.db.tables.Clients
 import diettracker.db.tables.Users
 import diettracker.routes.quizRoutes
 import diettracker.routing.configureClientDashRoute
-import diettracker.routing.hasRole
 import diettracker.routing.configureClientProfessionalRoutes
 import diettracker.routing.configureFoodRoutes
 import diettracker.routing.configureRecipeRoutes
 import diettracker.routing.foodDiaryRoutes
+import diettracker.routing.hasRole
 import diettracker.routing.professionalProfileRoutes
 import diettracker.routing.profileRoutes
 import io.ktor.http.HttpStatusCode

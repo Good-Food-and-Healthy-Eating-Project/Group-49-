@@ -40,7 +40,8 @@ private const val MAX_MONTH = 12
 private data class MacroTargets(
     val proteinG: Int?,
     val carbsG: Int?,
-    val fatG: Int?)
+    val fatG: Int?,
+)
 
 private data class CalendarMonthModel(
     val currentYear: Int,

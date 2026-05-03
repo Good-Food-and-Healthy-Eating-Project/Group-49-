@@ -57,7 +57,6 @@ fun backfillClientRoles() {
     }
 }
 
-
 /**
  * This function is used to retrieve a user ID from the database using their email
  * Email addresses are treated as unique identifiers within the system
@@ -69,6 +68,7 @@ fun getUserIdByEmail(email: String): Int? =
             .map { it[Users.user_id] }
             .singleOrNull()
     }
+
 /**
  * This function gets the daily calorie goal of a client
  *
@@ -132,6 +132,7 @@ fun getAllProfessionals(): List<Professional> =
                 )
             }
     }
+
 /**
  * This function handles linking a client to a professional
  * Checks if the client is already linked to the selected professional
@@ -163,6 +164,7 @@ fun linkClientToProfessional(
         }
     }
 }
+
 /**
  * This function gets the professional that the client is linked to so they can be displayed
  * On the professionals page for clients
@@ -190,6 +192,7 @@ fun unlinkClientFromProfessional(
         }
     }
 }
+
 /**
  * This function handles getting client data for a professional who the client has linked to
  * Combines three tables in the database to make it easier to access all info needed

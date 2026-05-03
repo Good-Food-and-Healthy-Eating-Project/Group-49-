@@ -369,14 +369,15 @@ class FoodDiaryTest {
         val today = LocalDate.now(zone)
         val logInstant = today.atStartOfDay(zone).toInstant()
 
-        val logId = transaction {
-            FoodLogs.insert {
-                it[FoodLogs.user_id] = userId
-                it[log_date] = logInstant
-                it[meal_type] = "Breakfast"
-                it[notes] = "Test note"
-            } get FoodLogs.food_log_id
-        }
+        val logId =
+            transaction {
+                FoodLogs.insert {
+                    it[FoodLogs.user_id] = userId
+                    it[log_date] = logInstant
+                    it[meal_type] = "Breakfast"
+                    it[notes] = "Test note"
+                } get FoodLogs.food_log_id
+            }
 
         transaction {
             FoodLogItems.insert {

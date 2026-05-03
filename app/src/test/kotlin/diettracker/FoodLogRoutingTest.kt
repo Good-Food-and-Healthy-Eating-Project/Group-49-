@@ -8,7 +8,7 @@ import diettracker.db.tables.Recipes
 import diettracker.db.tables.Roles
 import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
-import org.jetbrains.exposed.v1.core.eq
+import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -17,6 +17,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.formUrlEncode
 import io.ktor.server.testing.testApplication
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -359,4 +360,43 @@ class FoodLogRoutingTest {
             assertEquals(200, result.status.value)
             assertTrue(body.contains("0 kcal"))
         }
+
+    /**
+     * This test should fail now as there is an error in the code
+     * Normally, clicking the add or save meal button should not
+     * add the food to food diary in case of errors so users can reset to delete
+     *
+     */
+    @Test
+    fun should_not_save_food_when_only_added_to_session() = testApplication {
+        application { module(testing = true) }
+
+        val client = createClient {
+            install(HttpCookies)
+        }
+
+        // login
+        client.post("/Login") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode()
+            )
+        }
+
+        // add food (session only)
+        client.post("/food_log_custom") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf("food_id" to "1", "grams" to "100").formUrlEncode()
+            )
+        }
+
+        // ensure DB is still empty
+        val count = transaction {
+            FoodLogs.selectAll().count()
+        }
+
+        assertEquals(0, count)
+    }
+
 }

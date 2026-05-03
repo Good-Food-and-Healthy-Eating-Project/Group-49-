@@ -5,7 +5,6 @@ import diettracker.db.tables.Roles
 import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
 import io.ktor.client.HttpClient
-import org.jetbrains.exposed.v1.core.eq
 import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -16,6 +15,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.formUrlEncode
 import io.ktor.server.testing.testApplication
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll

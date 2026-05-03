@@ -2,11 +2,11 @@ package diettracker
 
 import diettracker.db.tables.Clients
 import diettracker.db.tables.SavedMealFoods
-import diettracker.routing.hasRole
 import diettracker.db.tables.SavedMeals
 import diettracker.models.CurrentMealFood
 import diettracker.models.CurrentMealSession
 import diettracker.models.SavedMeal
+import diettracker.routing.hasRole
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.respondRedirect

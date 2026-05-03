@@ -1,11 +1,8 @@
 package diettracker
 
-import diettracker.db.tables.FoodLogItems
-import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.Roles
 import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
-import diettracker.services.DiaryService
 import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -122,43 +119,46 @@ class FoodDiaryRoutingTest {
         }
 
     @Test
-    fun should_access_food_diary_day_when_authenticated() = testApplication {
-        application { module(testing = true) }
+    fun should_access_food_diary_day_when_authenticated() =
+        testApplication {
+            application { module(testing = true) }
 
-        val client = createClient {
-            install(HttpCookies)
+            val client =
+                createClient {
+                    install(HttpCookies)
+                }
+
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode(),
+                )
+            }
+
+            val response = client.get("/food_diary_day")
+
+            assertEquals(200, response.status.value)
         }
-
-        client.post("/Login") {
-            contentType(ContentType.Application.FormUrlEncoded)
-            setBody(
-                listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode()
-            )
-        }
-
-        val response = client.get("/food_diary_day")
-
-        assertEquals(200, response.status.value)
-    }
 
     @Test
-    fun should_handle_invalid_date_parameter_for_food_diary_day() = testApplication {
-        application { module(testing = true) }
+    fun should_handle_invalid_date_parameter_for_food_diary_day() =
+        testApplication {
+            application { module(testing = true) }
 
-        val client = createClient {
-            install(HttpCookies)
+            val client =
+                createClient {
+                    install(HttpCookies)
+                }
+
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode(),
+                )
+            }
+
+            val response = client.get("/food_diary_day?date=invalid")
+
+            assertEquals(200, response.status.value)
         }
-
-        client.post("/Login") {
-            contentType(ContentType.Application.FormUrlEncoded)
-            setBody(
-                listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode()
-            )
-        }
-
-        val response = client.get("/food_diary_day?date=invalid")
-
-        assertEquals(200, response.status.value)
-    }
-
 }

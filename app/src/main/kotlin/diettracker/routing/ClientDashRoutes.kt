@@ -28,7 +28,6 @@ fun Route.configureClientDashRoute() {
         }
         if (!call.hasRole("client")) return@get call.respondRedirect("/Login")
 
-
         // Dashboard data is built in DashboardServices to keep routing logic separate
         call.respond(
             PebbleContent(
