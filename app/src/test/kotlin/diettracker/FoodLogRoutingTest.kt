@@ -391,12 +391,23 @@ class FoodLogRoutingTest {
             )
         }
 
+        //check UI updated
+        val response = client.get("/food_log")
+        val body = response.bodyAsText()
+
+        assertTrue(body.contains("kcal"))
+
         // ensure DB is still empty
-        val count = transaction {
+        val logCount = transaction {
+            FoodLogs.selectAll().count()
+        }
+        val itemCount = transaction {
             FoodLogs.selectAll().count()
         }
 
-        assertEquals(0, count)
+        assertEquals(0, logCount)
+        assertEquals(0, itemCount)
+
     }
 
 }
