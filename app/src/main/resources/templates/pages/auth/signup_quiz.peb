@@ -139,6 +139,7 @@
 		<p class="subtitle">Optional — helps us tailor your recommendations</p>
 
 		<form action="/quiz" method="post">
+		    {# Hidden user ID passed from backend to associate quiz data with logged-in user #}
 			<input type="hidden" name="userId" value="{{ userId }}">
 
 			<div class="field-group">
@@ -172,6 +173,8 @@
 					<button type="button" class="goal-btn" onclick="selectGender(this, 'male')">Male</button>
 					<button type="button" class="goal-btn" onclick="selectGender(this, 'female')">Female</button>
 				</div>
+                {# Stores selected gender value from button UI for form submission
+                    - Used Claude AI to explain how to associate a button click with values#}
 				<input type="hidden" name="gender" id="genderInput">
 			</div>
 
@@ -182,6 +185,7 @@
 					<button type="button" class="goal-btn" onclick="selectGoal(this, 'maintain')">Maintain</button>
 					<button type="button" class="goal-btn" onclick="selectGoal(this, 'gain')">Gain Muscle</button>
 				</div>
+				{# Stores selected goal from button UI #}
 				<input type="hidden" name="goal" id="goalInput">
 			</div>
 
@@ -195,7 +199,13 @@
 		</div>
 	</div>
 
+
 	<script>
+	    {#
+          Claude AI was used to explain how to implement interactive button selection
+          and store values in hidden inputs for form submission.
+          The logic was adapted and used throughout this project to improve UI
+        #}
 		function selectGender(button, value) {
 			button.closest('.goal-options').querySelectorAll('.goal-btn').forEach(btn => btn.classList.remove('active'));
 			button.classList.add('active');

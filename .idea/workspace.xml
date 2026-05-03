@@ -6,11 +6,21 @@
   <component name="ChangeListManager">
     <list default="true" id="3e8b2f3c-ea88-445f-8f8a-aedd969d0c66" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/Application.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/Application.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/AuthServices.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/AuthServices.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/UserDatabase.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/UserDatabase.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/db/tables/ClientProfessionalLink.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/db/tables/ClientProfessionalLink.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/models/Professional.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/models/Professional.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ClientProfessionalRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ClientProfessionalRoutes.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/FoodRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/FoodRoutes.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/RoleCheck.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/RoleCheck.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/services/DashboardServices.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/services/DashboardServices.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/services/UserPreferencesService.kt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/auth/signup_quiz.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/auth/signup_quiz.peb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/professionals.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/professionals.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/TestDatabaseFactory.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/TestDatabaseFactory.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/AuthenticationTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/AuthenticationTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodLogRoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodLogRoutingTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/ProfessionalRoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/ProfessionalRoutingTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/RoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/RoutingTest.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,12 +54,16 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Gradle.AuthenticationTest.client_can_access_client_feature.executor": "Run",
+    "Gradle.Download Sources.executor": "Run",
+    "Gradle.FoodLogRoutingTest.executor": "Run",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "Testing/ensuring__coverage",
     "kotlin-language-version-configured": "true",
-    "run.code.analysis.last.selected.profile": "pProject Default"
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -57,7 +71,61 @@
       <recent name="C:\Dev\Group-49-\app\src\main\resources\static\css\Images" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Gradle.FoodLogRoutingTest">
+    <configuration name="AuthenticationTest.client_can_access_client_feature" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":app:test" />
+            <option value="--tests" />
+            <option value="&quot;diettracker.AuthenticationTest.client_can_access_client_feature&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <GradleProfilingDisabled>false</GradleProfilingDisabled>
+      <GradleCoverageDisabled>false</GradleCoverageDisabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="FoodLogRoutingTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":app:test" />
+            <option value="--tests" />
+            <option value="&quot;diettracker.FoodLogRoutingTest&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>true</RunAsTest>
+      <GradleProfilingDisabled>false</GradleProfilingDisabled>
+      <GradleCoverageDisabled>false</GradleCoverageDisabled>
+      <method v="2" />
+    </configuration>
     <configuration name="EngineMain" type="KtorApplicationConfigurationType" factoryName="Ktor" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="io.ktor.server.netty.EngineMain" />
       <module name="DietTracker.app.main" />
@@ -74,6 +142,12 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.FoodLogRoutingTest" />
+        <item itemvalue="Gradle.AuthenticationTest.client_can_access_client_feature" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>

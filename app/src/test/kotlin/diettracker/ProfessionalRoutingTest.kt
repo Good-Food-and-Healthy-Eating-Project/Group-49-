@@ -11,13 +11,13 @@ import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import org.jetbrains.exposed.v1.core.eq
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.formUrlEncode
 import io.ktor.server.testing.testApplication
-import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -59,6 +59,24 @@ class ProfessionalRoutingTest {
                 it[organistation] = "tester"
                 it[bio] = "for test"
             }
+            val userId =
+                Users.insert {
+                    it[first_name] = "Sponge"
+                    it[second_name] = "Bob"
+                    it[email] = "foodlog@test.com"
+                    it[password_hash] = BCrypt.hashpw("foodlog@test.com", BCrypt.gensalt())
+                    it[created_at] = time
+                } get Users.user_id
+
+            val clientRoleId =
+                Roles.insert {
+                    it[role_name] = "client"
+                } get Roles.role_id
+
+            UserRoles.insert {
+                it[UserRoles.user_id] = userId
+                it[UserRoles.role_id] = clientRoleId
+            }
 
             val professionalRoleId =
                 Roles.insert {
@@ -77,14 +95,7 @@ class ProfessionalRoutingTest {
                     it[password_hash] = BCrypt.hashpw("test@test.com", salt)
                     it[created_at] = time
                 } get Users.user_id
-            val clientRoleId =
-                Roles.insert {
-                    it[role_name] = "client"
-                } get Roles.role_id
-            UserRoles.insert {
-                it[user_id] = clientId
-                it[role_id] = clientRoleId
-            }
+
             Clients.insert {
                 it[client_id] = clientId
                 it[height_cm] = 180
@@ -93,6 +104,11 @@ class ProfessionalRoutingTest {
                 it[goal] = "Lose weight"
                 it[age] = 20
                 it[gender] = "Male"
+            }
+
+            UserRoles.insert {
+                it[user_id] = clientId
+                it[role_id] = clientRoleId
             }
         }
     }
@@ -333,8 +349,10 @@ class ProfessionalRoutingTest {
                 client.post("/select-professional") {
                     contentType(ContentType.Application.FormUrlEncoded)
                     setBody(
-                        listOf("professional_id" to professionalId.toString())
-                            .formUrlEncode(),
+                        listOf(
+                            "professional_id" to professionalId.toString(),
+                            "consent" to "true",
+                        ).formUrlEncode(),
                     )
                 }
             val linkCount =

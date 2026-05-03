@@ -25,7 +25,6 @@ import java.time.LocalDate
  * Carbohydrates and Protein: 4 cals per gram
  * Fats: 9 cals per gram
  */
-
 private const val PROTEIN_KCAL_PROPORTION = 0.15
 private const val CARBS_KCAL_PROPORTION = 0.50
 private const val FAT_KCAL_PROPORTION = 0.35
@@ -38,7 +37,10 @@ private const val MAX_YEAR = 2100
 private const val MIN_MONTH = 1
 private const val MAX_MONTH = 12
 
-private data class MacroTargets(val proteinG: Int?, val carbsG: Int?, val fatG: Int?)
+private data class MacroTargets(
+    val proteinG: Int?,
+    val carbsG: Int?,
+    val fatG: Int?)
 
 private data class CalendarMonthModel(
     val currentYear: Int,
@@ -97,9 +99,9 @@ private fun calculateMacroTargets(calorieGoal: Int?): MacroTargets {
     )
 }
 
-// Converts actual and target values for dashboard display on a scale of 0-100
-// Used claude AI to help me understand how to implement a progress bar tool
-// Which I display on UI using this function
+/** Converts actual and target values for dashboard display on a scale of 0-100
+ * Used claude AI to help me understand how to implement a progress bar tool
+ * Which I display on UI using this function */
 private fun barPct(
     actual: Double,
     target: Int?,

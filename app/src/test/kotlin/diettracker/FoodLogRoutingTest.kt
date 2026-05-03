@@ -5,7 +5,10 @@ import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.Foods
 import diettracker.db.tables.RecipeIngredients
 import diettracker.db.tables.Recipes
+import diettracker.db.tables.Roles
+import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
+import org.jetbrains.exposed.v1.core.eq
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -48,6 +51,18 @@ class FoodLogRoutingTest {
                     it[password_hash] = BCrypt.hashpw("foodlog@test.com", BCrypt.gensalt())
                     it[created_at] = time
                 } get Users.user_id
+
+            val clientRoleId =
+                Roles.selectAll()
+                    .where { Roles.role_name eq "client" }
+                    .map { it[Roles.role_id] }
+                    .singleOrNull()
+            if (clientRoleId != null) {
+                UserRoles.insert {
+                    it[UserRoles.user_id] = userId
+                    it[UserRoles.role_id] = clientRoleId
+                }
+            }
 
             val appleId =
                 Foods.insert {
@@ -200,12 +215,25 @@ class FoodLogRoutingTest {
                 }
 
             transaction {
-                Users.insert {
-                    it[email] = "test@test.com"
-                    it[password_hash] = BCrypt.hashpw("test", BCrypt.gensalt())
-                    it[first_name] = "Test"
-                    it[second_name] = "User"
-                    it[created_at] = java.time.Instant.now()
+                val testUserId =
+                    Users.insert {
+                        it[email] = "test@test.com"
+                        it[password_hash] = BCrypt.hashpw("test", BCrypt.gensalt())
+                        it[first_name] = "Test"
+                        it[second_name] = "User"
+                        it[created_at] = java.time.Instant.now()
+                    } get Users.user_id
+
+                val clientRoleId =
+                    Roles.selectAll()
+                        .where { Roles.role_name eq "client" }
+                        .map { it[Roles.role_id] }
+                        .singleOrNull()
+                if (clientRoleId != null) {
+                    UserRoles.insert {
+                        it[UserRoles.user_id] = testUserId
+                        it[UserRoles.role_id] = clientRoleId
+                    }
                 }
             }
             client.post("/Login") {
@@ -281,6 +309,15 @@ class FoodLogRoutingTest {
     fun should_fail_when_food_id_missing() =
         testApplication {
             application { module(testing = true) }
+            val client =
+                createClient {
+                    install(io.ktor.client.plugins.cookies.HttpCookies)
+                    followRedirects = false
+                }
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(listOf("email" to "foodlog@test.com", "password" to "foodlog@test.com").formUrlEncode())
+            }
             val result =
                 client.post("/food_log_custom") {
                     contentType(ContentType.Application.FormUrlEncoded)
@@ -300,7 +337,15 @@ class FoodLogRoutingTest {
     fun should_fail_when_recipe_id_missing() =
         testApplication {
             application { module(testing = true) }
-
+            val client =
+                createClient {
+                    install(io.ktor.client.plugins.cookies.HttpCookies)
+                    followRedirects = false
+                }
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(listOf("email" to "foodlog@test.com", "password" to "foodlog@test.com").formUrlEncode())
+            }
             val result =
                 client.post("/food_log_recipe") {
                     contentType(ContentType.Application.FormUrlEncoded)

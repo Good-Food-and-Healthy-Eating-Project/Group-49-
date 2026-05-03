@@ -49,6 +49,12 @@ private data class NutritionSessionData(
     val carbs: Int,
 )
 
+/**
+ * Retrieves the user's current nutritional data from the current session
+ *
+ * Stores the session so it can be used across requests and
+ * provided default values to session is non exists to avoid null errors
+ */
 private fun getNutritionSession(call: io.ktor.server.application.ApplicationCall): NutritionSessionData {
     val session = call.sessions.get<CaloriesSession>()
 
@@ -60,12 +66,23 @@ private fun getNutritionSession(call: io.ktor.server.application.ApplicationCall
     )
 }
 
+/**
+ * Gets saved meals for the current authenticated user
+ *
+ * Uses the session to identify the user and fetch their associated data
+ * If no user is found, it returns an empty list which prevents unauthorised access
+ */
 private fun getSavedMealsForUser(call: io.ktor.server.application.ApplicationCall): List<Any> {
     val email = call.sessions.get<UserSession>()?.email
     val clientId = email?.let { getUserIdByEmail(it) }
     return clientId?.let { getSavedMeals(it) } ?: emptyList()
 }
 
+/**
+ * Builds and sends the add food page response
+ * using extra allows more data like recipes
+ * or foods to be added to the page in queries
+ */
 private suspend fun respondAddFoodPage(
     call: io.ktor.server.application.ApplicationCall,
     extra: Map<String, Any> = emptyMap(),
@@ -87,6 +104,13 @@ private suspend fun respondAddFoodPage(
     call.respondTemplate("pages/client_dash/add_food.peb", baseModel)
 }
 
+/**
+ * Configures the food log route.
+ *
+ * Only allows users with role=client to prevent unauthorised access
+ *
+ * Uses the function above to render the template to avoid the function getting too long
+ * and to improve maintainability*/
 private fun Route.configureFoodLogRoute() {
     get("/food_log") {
         if (!call.hasRole("client")) return@get call.respondRedirect("/Login")

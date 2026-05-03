@@ -1,8 +1,11 @@
 package diettracker
 
 import TestDatabaseFactory
+import diettracker.db.tables.Roles
+import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
 import io.ktor.client.HttpClient
+import org.jetbrains.exposed.v1.core.eq
 import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -44,12 +47,25 @@ class RoutingTest {
             Users.deleteAll()
             val time = Instant.now()
             val salt = BCrypt.gensalt()
-            Users.insert {
-                it[first_name] = "Sponge"
-                it[second_name] = "Bob"
-                it[email] = "test@test.com"
-                it[password_hash] = BCrypt.hashpw("test@test.com", salt)
-                it[created_at] = time
+            val userId =
+                Users.insert {
+                    it[first_name] = "Sponge"
+                    it[second_name] = "Bob"
+                    it[email] = "test@test.com"
+                    it[password_hash] = BCrypt.hashpw("test@test.com", salt)
+                    it[created_at] = time
+                } get Users.user_id
+
+            val clientRoleId =
+                Roles.selectAll()
+                    .where { Roles.role_name eq "client" }
+                    .map { it[Roles.role_id] }
+                    .singleOrNull()
+            if (clientRoleId != null) {
+                UserRoles.insert {
+                    it[UserRoles.user_id] = userId
+                    it[UserRoles.role_id] = clientRoleId
+                }
             }
         }
     }

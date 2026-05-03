@@ -2,8 +2,10 @@ package diettracker
 
 import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.server.testing.testApplication
 import org.junit.jupiter.api.BeforeEach
@@ -29,6 +31,7 @@ class AuthenticationTest {
         UserDatabase.addUser("test@test.com", "password123")
 
         val response = client.post("/Login") {
+            header(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
             setBody("email=test@test.com&password=password123")
         }
 
@@ -45,6 +48,7 @@ class AuthenticationTest {
         }
 
         val response = client.post("/Login") {
+            header(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
             setBody("email=wrong@test.com&password=wrong")
         }
 
@@ -62,6 +66,7 @@ class AuthenticationTest {
         UserDatabase.addUser("test@test.com", "password123")
 
         client.post("/Login") {
+            header(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
             setBody("email=test@test.com&password=password123")
         }
 
@@ -96,6 +101,7 @@ class AuthenticationTest {
         UserDatabase.addUser("test@test.com", "password123")
 
         client.post("/Login") {
+            header(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
             setBody("email=test@test.com&password=password123")
         }
 
@@ -204,5 +210,120 @@ class AuthenticationTest {
         }
 
     @Test
-    fun
+    fun protected_routes_must_require_Authentication() =
+        testApplication {
+            application {module(testing = true) }
+
+            val client = createClient {
+                followRedirects = false
+            }
+
+            val routes = listOf(
+                "/client_dash",
+                "/food_log",
+                "/professionals_dash",
+                "/professionals",
+                "/food_diary",
+                "/food_diary_day",
+            )
+
+            routes.forEach {
+                route ->
+                val response = client.get(route)
+                assertEquals(302, response.status.value)
+                assertEquals("/Login", response.headers[HttpHeaders.Location])
+            }
+        }
+    /**
+     * Testing role based authentication:
+     * Professionals cant access client features
+     * It redirects to Login page
+     */
+    @Test
+    fun professional_cannot_access_client_role_features () = testApplication {
+        application { module(testing = true) }
+
+        val client = createClient {
+            install(HttpCookies)
+            followRedirects = false
+        }
+
+        // Create profession via route so role is assigned
+        client.post("/Professional-Sign-Up") {
+            header(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+            setBody("email=pro@test.com&password=password123")
+        }
+
+        // login the professional
+        client.post("/Login") {
+            header(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+            setBody("email=pro@test.com&password=password123")
+        }
+
+        val response = client.get("/client_dash")
+
+        assertEquals(302, response.status.value)
+        assertEquals("/Login", response.headers[HttpHeaders.Location])
+    }
+
+    /**
+     * Testing role based authentication:
+     * Clients cant access professional features
+     * It redirects to Login page
+     */
+
+    @Test
+    fun client_cannot_access_professional_features () = testApplication {
+        application { module(testing = true) }
+
+        val client = createClient {
+            install(HttpCookies)
+            followRedirects = false
+        }
+
+        // Create profession via route so role is assigned
+        client.post("/Sign-Up") {
+            header(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+            setBody("email=client@test.com&password=password123")
+        }
+
+        // login the professional
+        client.post("/Login") {
+            header(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+            setBody("email=client@test.com&password=password123")
+        }
+
+        val response = client.get("/professionals_dash")
+
+        assertEquals(302, response.status.value)
+        assertEquals("/Login", response.headers[HttpHeaders.Location])
+    }
+
+    /**
+     * Testing correct access using client:
+     * Authenticated clients with client role can access client dashboard
+     * Should return 200 for a successfully redirecting to client dashboard
+     */
+    @Test
+    fun client_can_access_client_feature () = testApplication {
+        application{module(testing = true) }
+
+        val client = createClient {
+            install(HttpCookies)
+            followRedirects = false
+        }
+        client.post("/Sign-Up") {
+            header(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+            setBody("email=client@test.com&password=password123")
+        }
+
+        client.post("/Login") {
+            header(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+            setBody("email=client@test.com&password=password123")
+        }
+
+        val response = client.get("/client_dash")
+
+        assertEquals(200, response.status.value)
+    }
 }

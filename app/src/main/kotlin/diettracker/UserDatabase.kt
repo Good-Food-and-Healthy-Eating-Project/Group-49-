@@ -1,3 +1,11 @@
+/**
+ * This file contains commonly used database access functions that are shared
+ * across multiple parts of the application.
+ *
+ * These functions act as a central layer for retrieving and
+ * managing data, helping to keep database logic consistent and reusable
+ * across different routes and features.
+ */
 package diettracker
 
 import diettracker.db.tables.ClientProfessionalLink
@@ -18,6 +26,42 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
 import java.time.Instant
 
+/**
+ * Assigns the "client" role to any existing users who have no role in user_roles.
+ * Fixes accounts created before role assignment was part of sign-up.
+ * It skips users who already have a role.
+ */
+fun backfillClientRoles() {
+    transaction {
+        val clientRoleId =
+            Roles.selectAll()
+                .where { Roles.role_name eq "client" }
+                .map { it[Roles.role_id] }
+                .singleOrNull() ?: return@transaction
+
+        val usersWithoutRoles =
+            Users.selectAll()
+                .map { it[Users.user_id] }
+                .filter { userId ->
+                    UserRoles.selectAll()
+                        .where { UserRoles.user_id eq userId }
+                        .empty()
+                }
+
+        for (userId in usersWithoutRoles) {
+            UserRoles.insert {
+                it[UserRoles.user_id] = userId
+                it[UserRoles.role_id] = clientRoleId
+            }
+        }
+    }
+}
+
+
+/**
+ * This function is used to retrieve a user ID from the database using their email
+ * Email addresses are treated as unique identifiers within the system
+ **/
 fun getUserIdByEmail(email: String): Int? =
     transaction {
         Users.selectAll()
@@ -25,7 +69,12 @@ fun getUserIdByEmail(email: String): Int? =
             .map { it[Users.user_id] }
             .singleOrNull()
     }
-
+/**
+ * This function gets the daily calorie goal of a client
+ *
+ * Used to personalise feedback and is provided to professionals,
+ * only after a client has agreed to share the data
+ **/
 fun getClientCalorieGoal(userId: Int): Int? =
     transaction {
         Clients.selectAll()
@@ -34,6 +83,13 @@ fun getClientCalorieGoal(userId: Int): Int? =
             .singleOrNull()
     }
 
+/**
+ * This functions gets the roles of users
+ * It is used to ensure role based authentication and
+ * ensures that users can only access features for their role
+ *
+ * This prevents unauthorised access to sensitive data
+ * **/
 fun getUserRoles(userId: Int): List<String> =
     transaction {
         (UserRoles innerJoin Roles)
@@ -42,6 +98,9 @@ fun getUserRoles(userId: Int): List<String> =
             .map { it[Roles.role_name] }
     }
 
+/**
+ * This function gets all recipes from the Recipe database and converts to objects
+ * **/
 fun getAllRecipes(): List<Map<String, Any?>> =
     transaction {
         Recipes.selectAll().map { row ->
@@ -52,8 +111,11 @@ fun getAllRecipes(): List<Map<String, Any?>> =
             )
         }
     }
+
 /**
- * This function gets the list of all users who have signed up as a professional **/
+ * This function gets the list of all users who have signed up as a professional
+ * So in can be displayed on the professionals page to potential clients
+ * **/
 fun getAllProfessionals(): List<Professional> =
     transaction {
         (Professionals innerJoin Users)
@@ -64,7 +126,6 @@ fun getAllProfessionals(): List<Professional> =
                     firstName = row[Users.first_name],
                     lastName = row[Users.second_name],
                     email = row[Users.email],
-                    passwordHash = row[Users.password_hash],
                     jobTitle = row[Professionals.job_title],
                     organization = row[Professionals.organistation],
                     bio = row[Professionals.bio],
@@ -116,6 +177,7 @@ fun getLinkedProfessionalIdsForClient(clientId: Int): List<Int> =
 
 /**
  * The function gives clients the opportunity to choose a different professional and unlink from their current one
+ * It deletes the entry from the Link table in the database
  * **/
 fun unlinkClientFromProfessional(
     clientId: Int,

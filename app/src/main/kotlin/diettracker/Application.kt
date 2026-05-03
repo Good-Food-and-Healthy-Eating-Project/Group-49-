@@ -23,12 +23,18 @@ fun main(args: Array<String>) {
  * logged-in user, the current nutrition totals, and the current meal foods etc
  * while the user is using the site.
  *
+ * Assigning roles logic was added after some users had already been added to the database
+ * So backfillClientRoles help to assign roles who have not been filled with client so these users
+ * can pass the role based authentication
+ * There is no risk with assigning professionals to client role because
+ * professionals have always been assigned to professional role
  * @param testing Whether the application is running in test mode.
  */
 
 fun Application.module(testing: Boolean = false) {
     if (!testing) {
         DatabaseFactory.init()
+        backfillClientRoles()
     }
     install(Sessions) {
         cookie<UserSession>("Session")

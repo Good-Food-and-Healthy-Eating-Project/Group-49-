@@ -116,7 +116,13 @@ suspend fun ApplicationCall.loginUser() {
 
         result.getOrDefault(false) -> {
             sessions.set(UserSession(email))
-            respondRedirect("/client_dash")
+            val userId = getUserIdByEmail(email)
+            val roles = userId?.let { getUserRoles(it) } ?: emptyList()
+            if (roles.contains("professional")) {
+                respondRedirect("/professionals_dash")
+            } else {
+                respondRedirect("/client_dash")
+            }
         }
 
         else -> respondTemplate("pages/auth/login.peb", model = mapOf("error" to "Invalid email or password"))

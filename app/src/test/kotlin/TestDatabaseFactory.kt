@@ -13,6 +13,7 @@ import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 object TestDatabaseFactory {
@@ -51,6 +52,9 @@ object TestDatabaseFactory {
                 SavedMeals,
                 SavedMealFoods,
             )
+            // Added for role based authentication testing
+            Roles.insert { it[role_name] = "client" }
+            Roles.insert { it[role_name] = "professional" }
         }
     }
 }
