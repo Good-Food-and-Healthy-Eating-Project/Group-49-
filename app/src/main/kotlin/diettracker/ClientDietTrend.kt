@@ -13,6 +13,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 private const val GARMS100 = 100.00
+private const val GUIDANCE_MESSAGE_LIMIT = 4
 
 data class DailyDietTrend(
     val totalCalorie: Double,
@@ -134,62 +135,100 @@ private fun getColour(
         }
     }
 
-private const val MIN_PROTEIN_PERCENT = 0.1
-private const val MAX_FAT_PERCENT = 0.35
-private const val MIN_CARBS_PERCENT = 0.4
+/**
+* Created a data class containing all parameters
+* Parameters needed to be passed into buildGuidanceMessages
+* Avoids having a parameter list that's too long
+* */
 
-fun buildGuidanceMessages(
-    calorieGoal: Int?,
-    totalCaloriesInt: Int,
+data class NutritionInput(
+    val calorieGoal: Int?,
+    val totalCalories: Int,
+    val proteinGrams: Double,
+    val proteinTarget: Int?,
+    val fatGrams: Double,
+    val fatTarget: Int?,
+    val carbsGrams: Double,
+    val carbsTarget: Int?,
+    val goal: String?,
+)
 
-    proteinGrams: Double,
-    proteinTarget: Int?,
+private fun calorieMessage(input: NutritionInput): String? {
+    val calorieGoal = input.calorieGoal ?: return null
+    val diff = input.totalCalories - calorieGoal
 
-    fatGrams: Double,
-    fatTarget: Int?,
+    return if (diff > 0) {
+        when (input.goal) {
+            "lose" ->
+                "You are $diff kcal over your target - this may slow weight loss."
 
-    carbsGrams: Double,
-    carbsTarget: Int?,
+            "maintain" ->
+                "You are $diff kcal over your target - try to stay closer to your goal."
 
-    goal: String?
-): List<String> {
+            "gain" ->
+                "You are $diff kcal above your target - supports muscle gain " +
+                    "but avoid excessive surplus."
+
+            else ->
+                "You are $diff kcal over your target."
+        }
+    } else {
+        "You are within your target."
+    }
+}
+
+private fun proteinMessages(input: NutritionInput): List<String> {
     val messages = mutableListOf<String>()
 
-    // Calories
-    if (calorieGoal != null) {
-        val diff = totalCaloriesInt - calorieGoal
-        if (diff > 0) {
-            when(goal) {
-                "lose" -> messages.add("You are $diff kcal over your target - this may slow weight loss. Consider a lighter next meal.")
-                "maintain" -> messages.add("You are $diff kcal over your target - try to stay closer to your goal.")
-                "gain" -> messages.add("You are $diff kcal above your target - this supports muscle gain but avoid excessive surplus")
-                else -> messages.add("You are $diff kcal over your target.")
-            }
+    if (input.proteinTarget != null) {
+        if (input.proteinGrams < input.proteinTarget) {
+            messages.add(
+                if (input.goal == "gain") {
+                    "Protein intake is low — increasing protein supports muscle growth."
+                } else {
+                    "Protein intake is low — consider eggs, chicken, or beans."
+                },
+            )
         } else {
-            messages.add("You are within your target.")
+            messages.add("Protein intake is on track - well done.")
         }
     }
 
-    // Protein
-    if (proteinTarget != null && proteinGrams < proteinTarget)
-        if (goal == "gain") {
-            messages.add("Protein intake is low — increasing protein is important for muscle growth.")
-        } else{
-            messages.add("Protein intake is low — consider foods like eggs, chicken, or beans.")
-        }
-    if (proteinTarget != null && proteinGrams >= proteinTarget) {
-        messages.add("Protein intake is on track - Well done")
+    return messages
+}
+
+private fun fatMessages(input: NutritionInput): List<String> {
+    val messages = mutableListOf<String>()
+
+    if (input.fatTarget != null && input.fatGrams > input.fatTarget) {
+        messages.add(
+            "Fat intake is high (${input.fatGrams.toInt()}g / ${input.fatTarget}g) " +
+                "- reduce fried or processed foods.",
+        )
     }
 
-    // Fat
-    if (fatTarget != null && fatGrams > fatTarget) {
-        messages.add("Fat intake is high (${fatGrams.toInt()}g / ${fatTarget}g) - reduce fried or processed foods.")
+    return messages
+}
+
+private fun carbMessages(input: NutritionInput): List<String> {
+    val messages = mutableListOf<String>()
+
+    if (input.carbsTarget != null && input.carbsGrams < input.carbsTarget) {
+        messages.add(
+            "Carbohydrate intake is low — consider whole grains or fruits.",
+        )
     }
 
-    //Carbohydrates
-    if (carbsTarget != null && carbsGrams < carbsTarget) {
-        messages.add("Carbohydrate intake is low — consider adding whole grains or fruits.")
+    return messages
+}
 
-    }
-    return messages.take(4)
+fun buildGuidanceMessages(input: NutritionInput): List<String> {
+    val messages = mutableListOf<String>()
+
+    calorieMessage(input)?.let { messages.add(it) }
+    messages.addAll(proteinMessages(input))
+    messages.addAll(fatMessages(input))
+    messages.addAll(carbMessages(input))
+
+    return messages.take(GUIDANCE_MESSAGE_LIMIT)
 }
