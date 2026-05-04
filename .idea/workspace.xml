@@ -6,9 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="3e8b2f3c-ea88-445f-8f8a-aedd969d0c66" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/TestDatabaseFactory.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/TestDatabaseFactory.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodLogRoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodLogRoutingTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/ProfessionalRoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/ProfessionalRoutingTest.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +37,9 @@
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="AISelfReview" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,

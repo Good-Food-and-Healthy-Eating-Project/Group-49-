@@ -13,29 +13,33 @@
         }
 
         .profile-header {
-            border: 2px solid #bdbdbd;
+            border: 1px solid #EDE6D8;
             padding: 20px;
-            background: #ffffff;
+            background: #FDFAF5;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(59, 42, 26, 0.08);
             margin-bottom: 20px;
         }
 
         .profile-title {
             font-size: 28px;
             font-weight: 700;
-            color: #333;
+            color: #2C1E10;
             margin-bottom: 10px;
         }
 
         .profile-info {
             font-size: 18px;
-            color: #333;
+            color: #4A3F35;
             margin: 6px 0;
         }
 
         .profile-form {
-            border: 2px solid #bdbdbd;
+            border: 1px solid #EDE6D8;
             padding: 20px;
-            background: #ffffff;
+            background: #FDFAF5;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(59, 42, 26, 0.08);
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -50,7 +54,7 @@
         .profile-label {
             font-size: 18px;
             font-weight: 600;
-            color: #333;
+            color: #2C1E10;
         }
 
         .profile-form input,
@@ -73,7 +77,13 @@
             font-weight: 600;
             cursor: pointer;
             background: #A94F24;
-            color: white;
+            color: #FDFAF5;
+            border: none;
+            border-radius: 999px;
+        }
+
+        .update-button:hover {
+            background: #3B2A1A;
         }
     </style>
 </head>
@@ -116,7 +126,7 @@
 
                 <div class="profile-section">
                     <label for="gender" class="profile-label">Gender</label>
-                    <select name="gender">
+                    <select id="gender" name="gender">
                         <option value="">Current: {{ userinfo.gender }}</option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
@@ -125,7 +135,7 @@
 
                 <div class="profile-section">
                     <label for="goal" class="profile-label">Goal</label>
-                    <select name="goal">
+                    <select id="goal" name="goal">
                         <option value="">Current: {{ userinfo.goal }}</option>
                         <option value="lose">Lose weight</option>
                         <option value="maintain">Maintain weight</option>
