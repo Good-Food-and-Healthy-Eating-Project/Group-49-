@@ -53,11 +53,11 @@ fun Route.configureRecipeSearchRoutes() {
         val category = call.request.queryParameters["category"]?.trim() ?: ""
         val ingredient = call.request.queryParameters["ingredient"]?.trim() ?: ""
         val email = call.sessions.get<UserSession>()?.email
+        val userId = email?.let(::getUserIdByEmail)
 
         val favouriteIds =
-            if (email != null) {
-                val userId = getUserIdByEmail(email)
-                if (userId != null) RecipeDatabaseQuery.getFavourites(userId) else emptyList()
+            if (userId != null) {
+                RecipeDatabaseQuery.getFavourites(userId)
             } else {
                 emptyList()
             }
@@ -116,6 +116,7 @@ fun Route.configureRecipeDetailRoutes() {
 
         val reviews = RecipeDatabaseQuery.getReviewsForRecipe(recipeId)
         val averageRating = RecipeDatabaseQuery.getAverageRating(recipeId)
+        val email = call.sessions.get<UserSession>()?.email
 
         call.respondTemplate(
             "pages/recipes_page/recipe_detail.peb",
