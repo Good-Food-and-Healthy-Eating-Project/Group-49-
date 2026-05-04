@@ -44,6 +44,15 @@ suspend fun ApplicationCall.signUpUser() {
     val email = credentials.first
     val password = credentials.second
 
+    if (password.length < MIN_PASSWORD_LENGTH) {
+        response.status(HttpStatusCode.BadRequest)
+        respondTemplate(
+            "pages/auth/signup.peb",
+            model = mapOf("error" to "Password needs to be greater than 8 characters long and contain no spaces"),
+        )
+        return
+    }
+
     val result =
         runCatching {
             UserDatabase.addUser(email, password)
@@ -150,7 +159,7 @@ suspend fun ApplicationCall.dashboardPage() {
     val userRoles = userId?.let { getUserRoles(it) } ?: emptyList()
     respondTemplate(
         "client_dash/client_dash.peb",
-        mapOf("username" to username, "showNavbar" to true, "userRoles" to userRoles),
+        buildNavbarContext(userId, userRoles) + mapOf("username" to username, "userRoles" to userRoles),
     )
 }
 

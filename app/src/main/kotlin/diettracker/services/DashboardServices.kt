@@ -5,6 +5,7 @@ import diettracker.DailyDietTrend
 import diettracker.DailyNutritionSummary
 import diettracker.NutritionInput
 import diettracker.buildGuidanceMessages
+import diettracker.buildNavbarContext
 import diettracker.db.tables.Clients
 import diettracker.getClientCalorieGoal
 import diettracker.getDailyNutritionSummary
@@ -193,38 +194,37 @@ private data class DashboardMapData(
 )
 
 private fun buildDashboardMap(data: DashboardMapData): Map<String, Any> =
-    mapOf(
-        "showNavbar" to true,
-        "userRoles" to data.userRoles,
-        "isProfessional" to data.userRoles.contains("professional"),
-        "userId" to (data.userId as Any? ?: ""),
-        "dailyCalorieGoal" to (data.dailyCalorieGoal ?: ""),
-        "trends" to data.trends,
-        "currentYear" to data.calendar.currentYear,
-        "currentMonth" to data.calendar.currentMonth,
-        "currentMonthValue" to data.calendar.currentMonthValue,
-        "daysInMonth" to data.calendar.daysInMonth,
-        "leadingEmptyDays" to data.calendar.leadingEmptyDays,
-        "previousYear" to data.calendar.previousYear,
-        "previousMonth" to data.calendar.previousMonth,
-        "nextYear" to data.calendar.nextYear,
-        "nextMonth" to data.calendar.nextMonth,
-        "totalCalories" to data.summary.totalCaloriesInt,
-        "totalProtein" to data.summary.nutrition.totalProtein.toInt(),
-        "totalCarbs" to data.summary.nutrition.totalCarbs.toInt(),
-        "totalFat" to data.summary.nutrition.totalFat.toInt(),
-        "calorieGoal" to (data.calorieGoal as Any? ?: ""),
-        "targetProtein" to (data.summary.macroTargets.proteinG as Any? ?: ""),
-        "targetCarbs" to (data.summary.macroTargets.carbsG as Any? ?: ""),
-        "targetFat" to (data.summary.macroTargets.fatG as Any? ?: ""),
-        "caloriePct" to barPct(data.summary.nutrition.totalCalories, data.calorieGoal),
-        "proteinPct" to barPct(data.summary.nutrition.totalProtein, data.summary.macroTargets.proteinG),
-        "carbsPct" to barPct(data.summary.nutrition.totalCarbs, data.summary.macroTargets.carbsG),
-        "fatPct" to barPct(data.summary.nutrition.totalFat, data.summary.macroTargets.fatG),
-        "goal" to (data.goal as Any? ?: ""),
-        "status" to data.summary.status,
-        "messages" to data.summary.guidanceMessages,
-    )
+    buildNavbarContext(data.userId, data.userRoles) +
+        mapOf(
+            "userRoles" to data.userRoles,
+            "userId" to (data.userId as Any? ?: ""),
+            "dailyCalorieGoal" to (data.dailyCalorieGoal ?: ""),
+            "trends" to data.trends,
+            "currentYear" to data.calendar.currentYear,
+            "currentMonth" to data.calendar.currentMonth,
+            "currentMonthValue" to data.calendar.currentMonthValue,
+            "daysInMonth" to data.calendar.daysInMonth,
+            "leadingEmptyDays" to data.calendar.leadingEmptyDays,
+            "previousYear" to data.calendar.previousYear,
+            "previousMonth" to data.calendar.previousMonth,
+            "nextYear" to data.calendar.nextYear,
+            "nextMonth" to data.calendar.nextMonth,
+            "totalCalories" to data.summary.totalCaloriesInt,
+            "totalProtein" to data.summary.nutrition.totalProtein.toInt(),
+            "totalCarbs" to data.summary.nutrition.totalCarbs.toInt(),
+            "totalFat" to data.summary.nutrition.totalFat.toInt(),
+            "calorieGoal" to (data.calorieGoal as Any? ?: ""),
+            "targetProtein" to (data.summary.macroTargets.proteinG as Any? ?: ""),
+            "targetCarbs" to (data.summary.macroTargets.carbsG as Any? ?: ""),
+            "targetFat" to (data.summary.macroTargets.fatG as Any? ?: ""),
+            "caloriePct" to barPct(data.summary.nutrition.totalCalories, data.calorieGoal),
+            "proteinPct" to barPct(data.summary.nutrition.totalProtein, data.summary.macroTargets.proteinG),
+            "carbsPct" to barPct(data.summary.nutrition.totalCarbs, data.summary.macroTargets.carbsG),
+            "fatPct" to barPct(data.summary.nutrition.totalFat, data.summary.macroTargets.fatG),
+            "goal" to (data.goal as Any? ?: ""),
+            "status" to data.summary.status,
+            "messages" to data.summary.guidanceMessages,
+        )
 
 fun buildClientDashModel(
     userId: Int,
