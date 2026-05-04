@@ -28,6 +28,8 @@ import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.text.get
+import kotlin.toString
 
 class ProfessionalRoutingTest {
     private var clientId: Int = 0
@@ -330,6 +332,30 @@ class ProfessionalRoutingTest {
         }
 
     @Test
+    fun should_redirect_with_error_when_no_consent_given() =
+        testApplication {
+
+        application {
+            module(testing = true)
+        }
+
+        val client = createClient {
+            install(HttpCookies)
+            followRedirects = false
+        }
+        client.post("/Login") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode())
+        }
+
+        val result = client.post("/select-professional") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(listOf("professional_id" to professionalId.toString(), "consent" to "false").formUrlEncode())
+        }
+        assertEquals("/professionals?error=consent", result.headers[HttpHeaders.Location])
+    }
+
+    @Test
     fun should_link_client_to_professional_after_select_professional() =
         testApplication {
             application { module(testing = true) }
@@ -367,4 +393,40 @@ class ProfessionalRoutingTest {
             assertEquals("/professionals?linked=true", result.headers[HttpHeaders.Location])
             assertEquals(1, linkCount)
         }
+
+    /**
+     * This functions tests that when a client is unlinked from a profession
+     * The Client-Professional link entry is deleted from the database*/
+    @Test
+    fun should_unlink_client_from_professional() = testApplication {
+        application { module(testing = true) }
+
+        transaction {
+            ClientProfessionalLink.insert {
+                it[ClientProfessionalLink.client_id] = clientId
+                it[ClientProfessionalLink.professional_id] = professionalId
+            }
+        }
+
+        val client = createClient {
+            install(HttpCookies)
+            followRedirects = false
+        }
+
+        client.post("/Login") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode())
+        }
+
+        client.post("/unlink-professional") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(listOf("professional_id" to professionalId.toString()).formUrlEncode())
+        }
+        val count = transaction {
+            ClientProfessionalLink.selectAll().count()
+        }
+        assertEquals(0, count)
+    }
+
+
 }

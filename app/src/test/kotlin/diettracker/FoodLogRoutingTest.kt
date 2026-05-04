@@ -6,6 +6,7 @@ import diettracker.db.tables.Foods
 import diettracker.db.tables.RecipeIngredients
 import diettracker.db.tables.Recipes
 import diettracker.db.tables.Roles
+import diettracker.db.tables.SavedMeals
 import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
 import io.ktor.client.plugins.cookies.HttpCookies
@@ -379,7 +380,7 @@ class FoodLogRoutingTest {
         client.post("/Login") {
             contentType(ContentType.Application.FormUrlEncoded)
             setBody(
-                listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode()
+                listOf("email" to "foodlog@test.com", "password" to "foodlog@test.com").formUrlEncode()
             )
         }
 
@@ -409,5 +410,104 @@ class FoodLogRoutingTest {
         assertEquals(0, itemCount)
 
     }
+    @Test
+    fun should_save_food_log_when_add_to_diary_button_pressed() = testApplication {
+        application { module(testing = true) }
+
+        val client = createClient {
+            install(HttpCookies)
+            followRedirects = false
+        }
+
+        client.post("/Login") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf("email" to "foodlog@test.com", "password" to "foodlog@test.com").formUrlEncode()
+            )
+        }
+
+        val foodId = transaction {
+            Foods.selectAll().first { it[Foods.food_name] == "apple" }[Foods.food_id]
+        }
+
+        client.post("/food_log_custom") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf("foodId" to foodId.toString(), "grams" to "100").formUrlEncode()
+            )
+        }
+
+        client.post("/save_food_log")
+
+        val count = transaction {
+            FoodLogs.selectAll().count()
+        }
+
+        assertEquals(1, count)
+    }
+
+    @Test
+    fun should_create_and_add_saved_meal_to_food_log_and_add_to_diary() = testApplication {
+        application { module(testing = true) }
+
+        val client = createClient {
+            install(HttpCookies)
+            followRedirects = false
+        }
+
+        client.post("/Login") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf("email" to "foodlog@test.com", "password" to "foodlog@test.com").formUrlEncode()
+            )
+        }
+
+        val foodId = transaction {
+            Foods.selectAll().first { it[Foods.food_name] == "apple" }[Foods.food_id]
+        }
+
+        // First add an ingredient for meal
+        client.post("/food_log_custom") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf("foodId" to foodId.toString(), "grams" to "100").formUrlEncode()
+            )
+        }
+
+        // Save as a meal
+        client.post("/save_meal") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf("mealName" to "Test Meal").formUrlEncode()
+            )
+        }
+
+        // session reset
+        client.post("/food_log_reset")
+
+        val mealId = transaction {
+            SavedMeals.selectAll().first { it[SavedMeals.meal_name] == "Test Meal" }[SavedMeals.meal_id]
+        }
+
+        // add saved meal
+        client.post("/add_saved_meal_to_log") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody(
+                listOf("mealId" to mealId.toString()).formUrlEncode()
+            )
+        }
+
+        // save the meal to diary
+        client.post("/save_food_log")
+
+        // checkign the entry has been created
+        val count = transaction {
+            FoodLogs.selectAll().count()
+        }
+
+        assertEquals(1, count)
+    }
+
+
 
 }

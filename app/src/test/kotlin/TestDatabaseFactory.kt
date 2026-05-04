@@ -20,7 +20,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 object TestDatabaseFactory {
     fun init() {
-        Database.connect(url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;", driver = "org.h2.Driver")
+        Database.connect(url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MODE=MySQL;", driver = "org.h2.Driver")
 
         transaction {
             SchemaUtils.drop(
