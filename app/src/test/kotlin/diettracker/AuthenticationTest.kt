@@ -375,4 +375,43 @@ class AuthenticationTest {
 
             assertEquals(400, response.status.value) // stays on page with error
         }
+
+    @Test
+    fun should_redirect_to_login_when_recipe_dash_not_Authentication() =
+        testApplication {
+            application { module(testing = true) }
+            val client =
+                createClient {
+                    followRedirects = false
+                }
+            val result = client.get("/recipes")
+            assertEquals(302, result.status.value)
+            assertEquals("/Login", result.headers[HttpHeaders.Location])
+        }
+
+    @Test
+    fun should_redirect_to_login_when_profile_dash_not_Authentication() =
+        testApplication {
+            application { module(testing = true) }
+            val client =
+                createClient {
+                    followRedirects = false
+                }
+            val result = client.get("/profile")
+            assertEquals(302, result.status.value)
+            assertEquals("/Login", result.headers[HttpHeaders.Location])
+        }
+
+    @Test
+    fun should_redirect_to_login_when_professional_profile_dash_not_Authentication() =
+        testApplication {
+            application { module(testing = true) }
+            val client =
+                createClient {
+                    followRedirects = false
+                }
+            val result = client.get("/professional-profile")
+            assertEquals(302, result.status.value)
+            assertEquals("/Professional-Login", result.headers[HttpHeaders.Location])
+        }
 }

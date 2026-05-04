@@ -510,4 +510,45 @@ class FoodLogRoutingTest {
 
 
 
+
+    @Test
+    fun should_not_crash_when_grams_is_too_large() =
+        testApplication {
+            application { module(testing = true) }
+
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    listOf(
+                        "email" to "foodlog@test.com",
+                        "password" to "foodlog@test.com",
+                    ).formUrlEncode(),
+                )
+            }
+            val foodId =
+                transaction {
+                    Foods
+                        .selectAll()
+                        .first { it[Foods.food_name] == "apple" }[Foods.food_id]
+                }
+
+            val result =
+                client.post("/food_log_custom") {
+                    contentType(ContentType.Application.FormUrlEncoded)
+                    setBody(
+                        listOf(
+                            "foodId" to foodId.toString(),
+                            // It crashes now if the value is more than 6 digits, including the decimal places.
+                            "grams" to "10000",
+                        ).formUrlEncode(),
+                    )
+                }
+            assertTrue(result.status.value != 500)
+        }
 }

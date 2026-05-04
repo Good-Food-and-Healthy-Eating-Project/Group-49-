@@ -168,6 +168,22 @@ class RoutingTest {
         }
 
     @Test
+    fun should_load_food_recipe_page() =
+        testApplication {
+            application { module(testing = true) }
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+
+            client.loginTestUser()
+
+            val result = client.get("/recipes")
+            assertEquals(200, result.status.value)
+        }
+
+    @Test
     fun should_signup_user() =
         testApplication {
             application { module(testing = true) }

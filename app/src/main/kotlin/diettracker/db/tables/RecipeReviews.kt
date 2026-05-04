@@ -1,12 +1,11 @@
 package diettracker.db.tables
 
-/**
- * This table stores user reviews for recipes and saves them in the database
- **/
-
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.javatime.timestamp
 
+/**
+ * This table stores user reviews for recipes and saves them in the database
+ **/
 object RecipeReviews : Table("recipe_reviews") {
     val review_id = integer("review_id").autoIncrement()
     val recipe_id = integer("recipe_id").references(Recipes.recipes_id)

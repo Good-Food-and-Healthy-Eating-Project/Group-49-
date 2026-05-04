@@ -12,12 +12,10 @@ import diettracker.routing.foodDiaryRoutes
 import diettracker.routing.hasRole
 import diettracker.routing.professionalProfileRoutes
 import diettracker.routing.profileRoutes
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.pebble.respondTemplate
-import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondRedirect
 import io.ktor.server.response.respondText
@@ -33,7 +31,6 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDate
 import kotlin.math.abs
 
-private const val MAX_REVIEW_RATING = 5
 private const val ON_TRACK_TOLERANCE = 100
 private const val MIN_YEAR = 1900
 private const val MAX_YEAR = 2100
@@ -286,128 +283,5 @@ fun Route.configureProtectedRoutes() {
     authenticate("group49-client_auth") {
         get("/") { call.dashboardPage() }
         get("/logout") { call.logout() }
-    }
-}
-
-@Suppress("LongMethod", "CyclomaticComplexMethod")
-fun Route.configureRecipeRoutes() {
-    get("/recipes") {
-        val query = call.request.queryParameters["query"]?.trim() ?: ""
-        val category = call.request.queryParameters["category"]?.trim() ?: ""
-        val ingredient = call.request.queryParameters["ingredient"]?.trim() ?: ""
-        val email = call.sessions.get<UserSession>()?.email
-        val userId = email?.let(::getUserIdByEmail)
-
-        val favouriteIds =
-            if (email != null) {
-                if (userId != null) RecipeDatabaseQuery.getFavourites(userId) else emptyList()
-            } else {
-                emptyList()
-            }
-
-        val recipes =
-            if (ingredient.isNotBlank()) {
-                RecipeDatabaseQuery.searchByIngredient(ingredient)
-            } else {
-                RecipeDatabaseQuery.searchRecipes(query, favouriteIds, category)
-            }
-
-        val favouriteRecipes =
-            if (favouriteIds.isNotEmpty()) {
-                RecipeDatabaseQuery.getFavouriteRecipes(favouriteIds)
-            } else {
-                emptyList()
-            }
-
-        val categories = RecipeDatabaseQuery.getCategories()
-
-        call.respondTemplate(
-            "pages/recipes_page/recipes.peb",
-            buildNavbarContext(userId) +
-                mapOf(
-                    "recipes" to recipes,
-                    "query" to query,
-                    "favouriteRecipes" to favouriteRecipes,
-                    "category" to category,
-                    "categories" to categories,
-                    "ingredient" to ingredient,
-                ),
-        )
-    }
-
-    get("/recipes/{id}") {
-        val recipeId = call.parameters["id"]?.toIntOrNull()
-        val email = call.sessions.get<UserSession>()?.email
-        if (recipeId == null) {
-            call.respond(HttpStatusCode.BadRequest)
-            return@get
-        }
-
-        val recipe = RecipeDatabaseQuery.getRecipeById(recipeId)
-        if (recipe == null) {
-            call.respond(HttpStatusCode.NotFound)
-            return@get
-        }
-
-        val reviews = RecipeDatabaseQuery.getReviewsForRecipe(recipeId)
-        val averageRating = RecipeDatabaseQuery.getAverageRating(recipeId)
-
-        call.respondTemplate(
-            "pages/recipes_page/recipe_detail.peb",
-            buildNavbarContext(email?.let(::getUserIdByEmail)) +
-                mapOf(
-                    "recipe" to recipe,
-                    "reviews" to reviews,
-                    "averageRating" to (averageRating ?: 0.0),
-                ),
-        )
-    }
-
-    post("/recipes/{id}/review") {
-        val recipeId = call.parameters["id"]?.toIntOrNull()
-        val email = call.sessions.get<UserSession>()?.email
-
-        if (recipeId != null && email != null) {
-            val userId = getUserIdByEmail(email)
-            if (userId != null) {
-                val parameters = call.receiveParameters()
-                val rating = parameters["rating"]?.toIntOrNull()
-                val comment = parameters["comment"]?.trim() ?: ""
-
-                if (rating != null && rating in 1..MAX_REVIEW_RATING && comment.isNotBlank()) {
-                    RecipeDatabaseQuery.addReview(userId, recipeId, rating, comment)
-                }
-            }
-        }
-
-        call.respondRedirect("/recipes/$recipeId")
-    }
-
-    post("/recipes/favourite/{recipeId}") {
-        val recipeId = call.parameters["recipeId"]?.toIntOrNull()
-        val email = call.sessions.get<UserSession>()?.email
-
-        if (recipeId != null && email != null) {
-            val userId = getUserIdByEmail(email)
-            if (userId != null) {
-                RecipeDatabaseQuery.addFavourite(userId, recipeId)
-            }
-        }
-
-        call.respond(HttpStatusCode.OK)
-    }
-
-    post("/recipes/unfavourite/{recipeId}") {
-        val recipeId = call.parameters["recipeId"]?.toIntOrNull()
-        val email = call.sessions.get<UserSession>()?.email
-
-        if (recipeId != null && email != null) {
-            val userId = getUserIdByEmail(email)
-            if (userId != null) {
-                RecipeDatabaseQuery.removeFavourite(userId, recipeId)
-            }
-        }
-
-        call.respond(HttpStatusCode.OK)
     }
 }
