@@ -44,6 +44,8 @@ object DatabaseFactory {
                 RecipeReviews,
                 Chats,
                 Messages,
+                SavedMeals,
+                SavedMealFoods,
             )
         }
     }
