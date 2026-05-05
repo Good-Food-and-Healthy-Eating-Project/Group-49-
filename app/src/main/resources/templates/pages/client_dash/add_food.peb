@@ -31,6 +31,7 @@
     <div class="log-food-layout">
 
         <!-- LEFT: Calorie summary -->
+        {# Sticky so the calorie total stays visible while the user scrolls through food options #}
         <aside class="card log-summary-card">
             <h3>Today's Total</h3>
 
@@ -79,10 +80,12 @@
             <!-- MEALS -->
             <div class="card log-panel">
                 <h3>Meals</h3>
+                {# GET form — just updates the query param to filter the list, doesn't log anything #}
                 <form method="get" action="/food_log" class="search-row">
                     <input type="text" name="query" placeholder="Search recipes…" class="form-input">
                     <button type="submit" class="btn btn-secondary">Search</button>
                 </form>
+                {# POST form — actually adds the selected recipe to the session log #}
                 <form method="post" action="/food_log_recipe">
                     {% if recipes is not empty %}
                         <div class="radio-list">
@@ -103,10 +106,12 @@
             <!-- CUSTOM INGREDIENT -->
             <div class="card log-panel">
                 <h3>Custom Ingredient</h3>
+                {# GET form — filters the food list by name, different param (foodquery) to the recipe search above #}
                 <form method="get" action="/food_log" class="search-row">
                     <input type="text" name="foodquery" placeholder="Search foods…" class="form-input">
                     <button type="submit" class="btn btn-secondary">Search</button>
                 </form>
+                {# POST form — logs the selected food with a custom gram amount to the session #}
                 <form method="post" action="/food_log_custom">
                     {% if foods is not empty %}
                         <div class="radio-list">

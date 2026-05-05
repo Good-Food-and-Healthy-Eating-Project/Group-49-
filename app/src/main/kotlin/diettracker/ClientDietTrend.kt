@@ -139,6 +139,10 @@ private fun getColour(
 * Created a data class containing all parameters
 * Parameters needed to be passed into buildGuidanceMessages
 * Avoids having a parameter list that's too long
+ * @param calorieGoal stores the calculated calorie goal
+ * @param totalCalories stores the values of the total calorie input for food from that day
+ * @param proteinGrams stores the amount of protein the user has entered for the day
+ * @param proteinTarget stores the amount of protein the user should be aiming for
 * */
 
 data class NutritionInput(
@@ -153,6 +157,12 @@ data class NutritionInput(
     val goal: String?,
 )
 
+/**
+ * This function handles the guidance/feedback to be given to users
+ * based on their input throughout the day
+ * @param NutritionInput takes the values defined in the data class above
+ * to avoid having a long parameter list being passed into the function directly
+ */
 private fun calorieMessage(input: NutritionInput): String? {
     val calorieGoal = input.calorieGoal ?: return null
     val diff = input.totalCalories - calorieGoal
@@ -177,6 +187,15 @@ private fun calorieMessage(input: NutritionInput): String? {
     }
 }
 
+/**
+ * Each of the macro functions below are used to include more specific guidance based on
+ * macro target calculated earlier on
+ *
+ * This gives users more guidance and also gives a few suggestions regarding what foods
+ * they can include in their next meal.
+ *
+ * It also tells the user the benefit of meeting their macro target in relation to their goal
+ * Giving a more personalised feedback*/
 private fun proteinMessages(input: NutritionInput): List<String> {
     val messages = mutableListOf<String>()
 
@@ -222,6 +241,10 @@ private fun carbMessages(input: NutritionInput): List<String> {
     return messages
 }
 
+/**
+ * This function is used to collect all the values from the previous functions
+ * Then it can be called on from another file to be displayed on the client dashboard
+ */
 fun buildGuidanceMessages(input: NutritionInput): List<String> {
     val messages = mutableListOf<String>()
 

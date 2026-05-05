@@ -23,6 +23,7 @@
         </div>
     {% endif %}
 
+    {# Clients who haven't done the quiz can't link — professionals need that data to help them #}
     {% if not isProfessional and not hasCompletedQuiz %}
         <div class="quiz-prompt-banner">
             <span>&#9888;</span>
@@ -40,6 +41,7 @@
                         <div class="card pro-card linked-card">
                             <div class="pro-card-top">
                                 <div class="pro-avatar">
+                                    {# slice(0,1) grabs just the first character to make initials for the avatar circle #}
                                     {% if pro.firstName is not empty %}{{ pro.firstName | slice(0, 1) }}{% endif %}{% if pro.lastName is not empty %}{{ pro.lastName | slice(0, 1) }}{% endif %}
                                 </div>
                                 <div class="pro-header-info">
@@ -89,6 +91,7 @@
                 <div class="card pro-card">
                     <div class="pro-card-top">
                         <div class="pro-avatar">
+                            {# slice(0,1) grabs just the first character to make initials for the avatar circle #}
                             {% if pro.firstName is not empty %}{{ pro.firstName | slice(0, 1) }}{% endif %}{% if pro.lastName is not empty %}{{ pro.lastName | slice(0, 1) }}{% endif %}
                         </div>
                         <div class="pro-header-info">
@@ -106,17 +109,21 @@
                         <p class="pro-bio">{{ pro.bio }}</p>
                     {% endif %}
 
+                    {# Professionals don't see select buttons — they shouldn't be linking to each other #}
                     {% if not isProfessional %}
                         <div class="pro-card-footer">
+                            {# Three states: already linked to this pro, linked to a different pro, or free to link #}
                             {% if linkedProfessionalIds contains pro.id %}
                                 <div class="already-linked-indicator">
                                     <span class="linked-badge">&#10003; Currently Selected</span>
                                 </div>
                             {% elseif linkedProfessionalIds is not empty %}
+                                {# Client already has a professional — must unlink first before picking another #}
                                 <p class="already-has-pro-note">Unlink your current professional first to select a new one.</p>
                             {% else %}
                                 <form method="post" action="/select-professional">
                                     <input type="hidden" name="professional_id" value="{{ pro.id }}">
+                                    {# consent-{{ pro.id }} makes the label/checkbox pair unique per card — needed for accessibility #}
                                     <div class="consent-check">
                                         <input type="checkbox" id="consent-{{ pro.id }}" name="consent" value="true">
                                         <label for="consent-{{ pro.id }}">I agree to share my dietary data with this professional</label>

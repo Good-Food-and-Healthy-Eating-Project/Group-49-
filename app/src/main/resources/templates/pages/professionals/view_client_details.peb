@@ -37,15 +37,19 @@
             <div>Sun</div>
         </div>
         <div class="calendar-grid">
+            {# Push day 1 to the right weekday column — leadingEmptyDays comes from backend (dayOfWeek - 1) #}
             {% for i in 1..leadingEmptyDays %}
                 <div class="day-cell empty-cell"></div>
             {% endfor %}
             {% for day in 1..daysInMonth %}
+                {# found tracks whether this day has diet data — used to show empty-day style if no log entry #}
                 {% set found = false %}
                 <div class="day-cell">
                     {% for trend in trends %}
                         {% if trend.dayOfMonth == day %}
                             {% set found = true %}
+                            {# numberformat("0") removes decimal places from the calorie value #}
+                            {# colourClass is set in the backend based on how close calories were to target #}
                             <div class="day-box {{ trend.colourClass }}">
                                 {{ day }}
                                 <div class="tooltip">
@@ -54,6 +58,7 @@
                             </div>
                         {% endif %}
                     {% endfor %}
+                    {# No log entry for this day — show it as untracked #}
                     {% if not found %}
                         <div class="day-box empty-day">
                             {{ day }}

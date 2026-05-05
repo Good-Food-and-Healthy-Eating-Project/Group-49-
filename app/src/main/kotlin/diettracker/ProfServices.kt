@@ -8,6 +8,10 @@ import io.ktor.server.response.respondRedirect
 import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
 
+/**
+ * Just renders the professional sign-up page
+ * No data needed so the model is empty
+ */
 suspend fun ApplicationCall.profSignUpPage() {
     respondTemplate("pages/professionals/profsignup.peb", model = emptyMap())
 }
@@ -65,6 +69,11 @@ suspend fun ApplicationCall.signUpProfessional() {
     }
 }
 
+/**
+ * Renders the professional profile quiz page
+ * Passes the userId through so the form knows which professional to update when submitted
+ * Empty strings are used as defaults so the template doesn't break if fields aren't pre-filled
+ */
 suspend fun ApplicationCall.profQuizPage(userId: String) {
     val model =
         mapOf(
@@ -78,6 +87,15 @@ suspend fun ApplicationCall.profQuizPage(userId: String) {
     respondTemplate("pages/professionals/prof_quiz.peb", model = model)
 }
 
+/**
+ * Handles submission of the professional profile quiz
+ * Validates that all fields are filled in — professionals need a complete profile
+ * so clients can see their details on the professionals page
+ *
+ * If anything is missing it re-renders the form with the values already entered
+ * so the user doesn't have to retype everything
+ * On success it updates the professional's profile in the database and sends them to login
+ */
 suspend fun ApplicationCall.submitProfQuiz() {
     val params = receiveParameters()
     val userId = params["userId"]?.toIntOrNull()
@@ -123,6 +141,10 @@ suspend fun ApplicationCall.submitProfQuiz() {
     respondRedirect("/Professional-Login")
 }
 
+/**
+ * Just renders the professional login page
+ * No data needed so the model is empty
+ */
 suspend fun ApplicationCall.profLoginPage() {
     respondTemplate("pages/professionals/proflogin.peb", model = emptyMap())
 }

@@ -1,15 +1,19 @@
-/* --- Reset & Base --- */
-/* AI was used for front end CSS development to help me understand how to achieve the intended look"
-/* The knowledge obtained was then used to further develop the individual CSS on other pages so they can be cohesive */
+/* --- Design Constants --- : I can easily see what the colours map to*/
+/*Colours generated using coolors*/
+/*
+AI Usage:
+Claude AI was used to assist with front-end CSS development for the base layout, particularly:
+- Structuring the CSS layout (variables, reset, components)
+- Choosing suitable colours to meet minimum WCAG contrast requirements
+- Understanding advanced styling techniques (e.g., gradients, shadows, tooltips)
+- The knowledge from the base css layout was then applied to other pages to ensure cohesion
+*/
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-/* --- Design Constants --- : I can easily see what the colours map to*/
-/*Colours generated using coolors*/
-/*AI used for contrast improvements to find colour which better satisfy WCAG requirements */
 :root {
     --cream:        #F3E4DD;
     --cream-dark:   #D9D0C5;
