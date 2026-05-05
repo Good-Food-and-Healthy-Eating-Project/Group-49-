@@ -169,6 +169,8 @@ class ProfileTest {
                     contentType(ContentType.Application.FormUrlEncoded)
                     setBody(
                         listOf(
+                            "firstName" to "testfirstName",
+                            "lastName" to "testlastName",
                             "height" to "190",
                             "weight" to "90",
                             "age" to "30",
@@ -185,7 +187,8 @@ class ProfileTest {
                         .selectAll()
                         .where { Clients.client_id eq userId }
                         .single()
-
+                assertEquals("testfirstName", updateClient[Clients.firstName])
+                assertEquals("testlastName", updateClient[Clients.lastName])
                 assertEquals(190, updateClient[Clients.height_cm])
                 assertEquals(90, updateClient[Clients.weight_kg])
                 assertEquals(30, updateClient[Clients.age])

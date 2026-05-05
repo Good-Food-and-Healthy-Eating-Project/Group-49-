@@ -382,17 +382,16 @@ class ProfessionalRoutingTest {
                         ).formUrlEncode(),
                     )
                 }
-            val linkCount =
+            val link =
                 transaction {
                     ClientProfessionalLink
                         .selectAll()
                         .where { ClientProfessionalLink.client_id eq clientId }
-                        .toList()
-                        .size
+                        .single()
                 }
             assertEquals(302, result.status.value)
             assertEquals("/professionals?linked=true", result.headers[HttpHeaders.Location])
-            assertEquals(1, linkCount)
+            assertEquals(true, link[ClientProfessionalLink.consent_given])
         }
 
     /**
