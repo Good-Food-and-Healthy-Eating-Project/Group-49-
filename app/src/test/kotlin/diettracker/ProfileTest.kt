@@ -71,6 +71,16 @@ class ProfileTest {
                     it[created_at] = time
                 } get Users.user_id
 
+            val clientRoleId =
+                Roles.insert {
+                    it[role_name] = "client"
+                } get Roles.role_id
+
+            UserRoles.insert {
+                it[user_id] = userId
+                it[role_id] = clientRoleId
+            }
+
             val roleId =
                 Roles.insert {
                     it[role_name] = "professional"

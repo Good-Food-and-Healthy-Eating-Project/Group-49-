@@ -8,7 +8,7 @@
 		body {
 			margin: 0;
 			font-family: 'DM Sans', Arial, sans-serif;
-			background: #F7F3EC;
+			background: #F3E4DD;
 			color: #2C1E10;
 			display: flex;
 			justify-content: center;

@@ -1,6 +1,8 @@
 package diettracker
 
 import diettracker.db.tables.Clients
+import diettracker.db.tables.Roles
+import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
 import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.get
@@ -26,6 +28,8 @@ class ClientDietTrendRoutingTest {
     fun setUP() {
         TestDatabaseFactory.init()
         transaction {
+            UserRoles.deleteAll()
+            Roles.deleteAll()
             Users.deleteAll()
             Clients.deleteAll()
             val time = Instant.now()
@@ -46,6 +50,14 @@ class ClientDietTrendRoutingTest {
                 it[goal] = "Lose weight"
                 it[age] = 20
                 it[gender] = "Male"
+            }
+            val clientRoleId =
+                Roles.insert {
+                    it[role_name] = "client"
+                } get Roles.role_id
+            UserRoles.insert {
+                it[UserRoles.user_id] = userId
+                it[UserRoles.role_id] = clientRoleId
             }
         }
     }
