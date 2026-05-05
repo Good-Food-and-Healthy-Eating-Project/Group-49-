@@ -334,26 +334,27 @@ class ProfessionalRoutingTest {
     @Test
     fun should_redirect_with_error_when_no_consent_given() =
         testApplication {
+            application {
+                module(testing = true)
+            }
 
-        application {
-            module(testing = true)
-        }
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode())
+            }
 
-        val client = createClient {
-            install(HttpCookies)
-            followRedirects = false
+            val result =
+                client.post("/select-professional") {
+                    contentType(ContentType.Application.FormUrlEncoded)
+                    setBody(listOf("professional_id" to professionalId.toString(), "consent" to "false").formUrlEncode())
+                }
+            assertEquals("/professionals?error=consent", result.headers[HttpHeaders.Location])
         }
-        client.post("/Login") {
-            contentType(ContentType.Application.FormUrlEncoded)
-            setBody(listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode())
-        }
-
-        val result = client.post("/select-professional") {
-            contentType(ContentType.Application.FormUrlEncoded)
-            setBody(listOf("professional_id" to professionalId.toString(), "consent" to "false").formUrlEncode())
-        }
-        assertEquals("/professionals?error=consent", result.headers[HttpHeaders.Location])
-    }
 
     @Test
     fun should_link_client_to_professional_after_select_professional() =
@@ -398,35 +399,36 @@ class ProfessionalRoutingTest {
      * This functions tests that when a client is unlinked from a profession
      * The Client-Professional link entry is deleted from the database*/
     @Test
-    fun should_unlink_client_from_professional() = testApplication {
-        application { module(testing = true) }
+    fun should_unlink_client_from_professional() =
+        testApplication {
+            application { module(testing = true) }
 
-        transaction {
-            ClientProfessionalLink.insert {
-                it[ClientProfessionalLink.client_id] = clientId
-                it[ClientProfessionalLink.professional_id] = professionalId
+            transaction {
+                ClientProfessionalLink.insert {
+                    it[ClientProfessionalLink.client_id] = clientId
+                    it[ClientProfessionalLink.professional_id] = professionalId
+                }
             }
-        }
 
-        val client = createClient {
-            install(HttpCookies)
-            followRedirects = false
-        }
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
 
-        client.post("/Login") {
-            contentType(ContentType.Application.FormUrlEncoded)
-            setBody(listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode())
-        }
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode())
+            }
 
-        client.post("/unlink-professional") {
-            contentType(ContentType.Application.FormUrlEncoded)
-            setBody(listOf("professional_id" to professionalId.toString()).formUrlEncode())
+            client.post("/unlink-professional") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(listOf("professional_id" to professionalId.toString()).formUrlEncode())
+            }
+            val count =
+                transaction {
+                    ClientProfessionalLink.selectAll().count()
+                }
+            assertEquals(0, count)
         }
-        val count = transaction {
-            ClientProfessionalLink.selectAll().count()
-        }
-        assertEquals(0, count)
-    }
-
-
 }

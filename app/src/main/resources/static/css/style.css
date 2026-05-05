@@ -1,4 +1,6 @@
 /* --- Reset & Base --- */
+/* AI was used for front end CSS development to help me understand how to achieve the intended look"
+/* The knowledge obtained was then used to further develop the individual CSS on other pages so they can be cohesive */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;

@@ -164,6 +164,7 @@ fun linkClientToProfessional(
         ClientProfessionalLink.insert {
             it[ClientProfessionalLink.client_id] = clientId
             it[ClientProfessionalLink.professional_id] = professionalId
+            it[ClientProfessionalLink.consent_given] = consentGiven
         }
     }
 }
