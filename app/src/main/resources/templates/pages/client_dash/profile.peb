@@ -97,7 +97,9 @@
                 <h1 class="profile-title">Profile</h1>
 
                 {% if userinfo is not null %}
-                    <p class="profile-info">Client ID: {{ userinfo.client_id }}</p>
+                    <p class="profile-info">First Name: {{ userinfo.firstName }}</p>
+                    <p class="profile-info">Last Name: {{ userinfo.lastName }}</p>
+
                     {% if email is defined %}
                         <p class="profile-info">Email: {{ email }}</p>
                     {% endif %}
@@ -108,6 +110,15 @@
             </div>
 
             <form method="post" action="/profileupdate" class="profile-form">
+                <div class="profile-section">
+                    <label for="firstName" class="profile-label">First Name</label>
+                    <input id="firstName" name="firstName" type="text" value="{{ userinfo.firstName }}">
+                </div>
+
+                <div class="profile-section">
+                    <label for="lastName" class="profile-label">Last Name</label>
+                    <input id="lastName" name="lastName" type="text" value="{{ userinfo.lastName }}">
+                </div>
 
                 <div class="profile-section">
                     <label for="height" class="profile-label">Height</label>
