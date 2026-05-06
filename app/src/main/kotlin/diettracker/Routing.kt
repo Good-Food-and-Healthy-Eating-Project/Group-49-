@@ -29,6 +29,8 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 import kotlin.math.abs
 
 private const val ON_TRACK_TOLERANCE = 100
@@ -256,6 +258,20 @@ fun Route.configureViewClientDetailsRoutes() {
         // Count days where calorie intake was within the tolerance of the target
         val onTrackDays = trends.count { abs(it.totalCalorie - it.targetCalorie) <= ON_TRACK_TOLERANCE }
 
+        // Last 7 days from today for the weekly chart — day numbers only for the x-axis labels
+        // last7days creates a list of 7 LocalDate objects from 6 days ago up to today so it shows a continuous trends
+        // minusDays(it) subtracts each day from the date today to get prev in puts vals in a list
+        val last7Days = (6 downTo 0).map { today.minusDays(it.toLong()) }
+        // map the calculations from above to dayofmonth to extract just a short month name followed by the date
+        // This avoids confusion as opposed to just having the date
+        val weekLabels = last7Days.map {
+            "${it.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())} ${it.dayOfMonth}"
+        }
+        // Checks allTrends to find the corresponding nutritional data for each day
+        val weekCalories = last7Days.map { day ->
+            allTrends.find { it.date == day }?.totalCalorie?.toInt() ?: 0
+        }
+
         call.respondTemplate(
             "pages/professionals/view_client_details.peb",
             buildNavbarContext(professionalId, userRoles) +
@@ -274,6 +290,8 @@ fun Route.configureViewClientDetailsRoutes() {
                     "todayCalories" to todayCalories,
                     "onTrackDays" to onTrackDays,
                     "totalTrackedDays" to trends.size,
+                    "weekLabels" to weekLabels,
+                    "weekCalories" to weekCalories,
                 ),
         )
     }

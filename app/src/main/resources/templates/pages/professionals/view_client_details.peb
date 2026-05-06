@@ -72,4 +72,63 @@
         {% endif %}
     </div>
 
+    <div style="max-width: 700px; margin: 20px 0; padding: 16px; border: 1px solid #EDE6D8; border-radius: 12px; background: #FDFAF5;">
+        <h2 style="margin-top: 0; font-size: 1.1rem;">Calorie Trend </h2>
+        <canvas id="calorieChart"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Chart.js library used because:
+        // Chosen because it is very simple to use due to limited time to learn other methods
+        // Works very well with JS and HTML
+        // Claude AI used to learn how to create simple line graph function
+        // Last 7 days — day numbers as labels (e.g. 29, 30, 1, 2, 3, 4, 5), calories pre-calculated in backend
+        // 0 means the client had no diary entry that day
+        const labels = [{% for d in weekLabels %}"{{ d }}"{% if not loop.last %},{% endif %}{% endfor %}];
+        const actual = [{% for c in weekCalories %}{{ c }}{% if not loop.last %},{% endif %}{% endfor %}];
+        // target is the same value every day (client's daily calorie goal) — shown as a flat dashed line
+        const target = [{% for d in weekLabels %}{{ client.calorieGoal }}{% if not loop.last %},{% endif %}{% endfor %}];
+
+        new Chart(document.getElementById('calorieChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Calories eaten',
+                        data: actual,
+                        borderColor: '#A94F24',
+                        backgroundColor: 'rgba(169, 79, 36, 0.08)', // light fill under the line
+                        fill: true,
+                        tension: 0.3, // slight curve so it doesn't look too jagged
+                        pointRadius: 4,
+                    },
+                    {
+                        label: 'Target',
+                        data: target,
+                        borderColor: '#7A8C72',
+                        borderDash: [6, 4], // dashed so it's visually distinct from the actual line
+                        pointRadius: 0, // no dots on the target line — it's a reference not data points
+                        fill: false,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false, // don't force 0 — calorie values are always in the hundreds
+                        title: { display: true, text: 'kcal' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Date' }
+                    }
+                }
+            }
+        });
+    </script>
+
 {% endblock %}
