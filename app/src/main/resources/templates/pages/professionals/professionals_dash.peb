@@ -21,8 +21,14 @@
                         {% if client.firstName is not empty %}{{ client.firstName | slice(0, 1) }}{% endif %}{% if client.lastName is not empty %}{{ client.lastName | slice(0, 1) }}{% endif %}
                     </div>
                     <div class="client-info">
-                        <h2 class="client-name">{{ client.firstName }} {{ client.lastName }}</h2>
-                        <p class="client-email">{{ client.email }}</p>
+                        {% set status = clientYesterdayStatus[client.id] %}
+                        <h2 class="client-name">
+                            {{ client.firstName }} {{ client.lastName }}
+                            {% if status.wasOnTrackYesterday %}✅
+                            {% elseif status.didNotLogYesterday %}⚠️
+                            {% else %}‼️
+                            {% endif %}
+                        </h2>
                         <div class="client-meta">
                             {% if client.goal %}
                                 <span class="badge badge-terracotta">{{ client.goal }}</span>
@@ -36,9 +42,9 @@
                         </div>
                         <div class="client-actions">
                             <a href="/professional/client/{{ client.id }}" class="btn-view-details">View Details</a>
-                            <form method="post" action="/messages/start">
+                            <form method="post" action="/messages/start" style="display: contents;">
                                 <input type="hidden" name="client_id" value="{{ client.id }}">
-                                <button type="submit" class="btn-view-details btn-start-chat">Open Chat</button>
+                                <button type="submit" class="btn-view-details btn-start-chat">Chat</button>
                             </form>
                         </div>
                     </div>
@@ -50,8 +56,8 @@
 
 <style>
     .client-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        display: flex;
+        flex-wrap: wrap;
         gap: 1.25rem;
     }
 
@@ -59,6 +65,8 @@
         display: flex;
         align-items: flex-start;
         gap: 1rem;
+        width: 320px;
+        min-height: 110px;
     }
 
     .client-avatar {
@@ -82,8 +90,9 @@
     }
 
     .client-name {
-        font-size: 1.05rem;
+        font-size: 1.25rem;
         margin-bottom: 0.2rem;
+        margin-top: -8px;
     }
 
     .client-email {
@@ -103,7 +112,8 @@
 
     .btn-view-details {
         display: inline-block;
-        margin-top: 0.65rem;
+        margin-top: 0;
+        white-space: nowrap;
         padding: 0.35rem 0.85rem;
         background: var(--terracotta);
         color: var(--warm-white);
@@ -125,17 +135,10 @@
 
     .client-actions {
         display: flex;
-        flex-wrap: wrap;
-        gap: 0.65rem;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
         margin-top: 0.65rem;
-    }
-
-    .client-actions form {
-        margin: 0;
-    }
-
-    .client-actions .btn-view-details {
-        margin-top: 0;
     }
 
     .btn-start-chat {

@@ -6,7 +6,7 @@
 
     <h1>Client Overview</h1>
 
-    <p>Name: {{ client.firstName }} {{ client.lastName }}</p>
+    <p>Name: {{ client.firstName }}  {{ client.lastName }}</p>
     <p>Email: {{ client.email }}</p>
     <p>Goal: {{ client.goal }}</p>
     <p>Daily Calorie Target: {{ client.calorieGoal }} kcal</p>
@@ -16,10 +16,27 @@
     <div class="client-summary" style="margin: 20px 0; padding: 16px; border: 2px solid #8C7B6A; border-radius: 12px; background: #FDFAF5; display: inline-block;">
         <h2 style="margin-top: 0;">Monthly Summary</h2>
         <p>On track: <strong>{{ onTrackDays }} / {{ totalTrackedDays }}</strong> days this month
-            <span style="font-size: 13px; color: #4A3F35;">(within 100 kcal of target)</span>
+            <span style="font-size: 13px; color: #4A3F35;">(within 200 kcal of target)</span>
         </p>
         <p>Today: <strong>{{ todayCalories }} kcal</strong> / {{ client.calorieGoal }} kcal target</p>
     </div>
+    {% if wasOnTrackYesterday %}
+        <div class="on-track-indicator" style="margin: 20px 0; padding: 16px; border: 2px solid #8C7B6A; border-radius: 12px; background: var(--sage); display: inline-block;">
+                <h2 style="margin-top: 0;">On Track</h2>
+                <p>Based on yesterday's log</p>
+        </div>
+    {% else %}
+        <div class="on-track-indicator" style="margin: 20px 0; padding: 16px; border: 2px solid #8C7B6A; border-radius: 12px; background: #B5574E; display: inline-block;">
+                <h3 style="margin-top: 0;">Off Track</h3>
+                <p>Based on yesterday's log</p>
+        </div>
+    {% endif %}
+    {% if didNotLogYesterday %}
+        <div class="missing-log-indicator" style="margin: 20px 0; padding: 16px; border: 2px solid #8C7B6A; border-radius: 12px; background: #C8874A; display: inline-block;">
+            <h3 style="margin-top: 0;">⚠️ Missing Log</h3>
+            <p>Based on yesterday</p>
+        </div>
+    {% endif%}
 
     <div class="calendar-widget" style="width: auto; min-width: 340px; margin-top: 20px;">
         <div class="calendar-navigation">
@@ -81,7 +98,7 @@
         // Chart.js library used because:
         // Chosen because it is very simple to use due to limited time to learn other methods
         // Works very well with JS and HTML
-        // Claude AI used to learn how to create simple line graph function
+        // Claude AI used to learn how to create simple line graph and then used to design to line graph and improve css mainly (lines 95-155)
         // Last 7 days — day numbers as labels (e.g. 29, 30, 1, 2, 3, 4, 5), calories pre-calculated in backend
         // 0 means the client had no diary entry that day
         const labels = [{% for d in weekLabels %}"{{ d }}"{% if not loop.last %},{% endif %}{% endfor %}];

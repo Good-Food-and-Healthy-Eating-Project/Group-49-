@@ -33,7 +33,7 @@ import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.math.abs
 
-private const val ON_TRACK_TOLERANCE = 100
+private const val ON_TRACK_TOLERANCE = 200
 private const val MIN_YEAR = 1900
 private const val MAX_YEAR = 2100
 private const val MIN_MONTH = 1
@@ -157,11 +157,20 @@ private fun Route.configureProfessionalAccountRoutes() {
         val userRoles = getUserRoles(professionalId)
         // Get all clients linked to this professional for display on the dashboard
         val clients = getClientsForProfessional(professionalId)
+        val yesterday = LocalDate.now().minusDays(1)
+        val clientYesterdayStatus = clients.associate { client ->
+            val trend = ClientDietTrend.getDietTrend(client.id).find { it.date == yesterday }
+            client.id to mapOf(
+                "wasOnTrackYesterday" to (trend?.colourClass == "green"),
+                "didNotLogYesterday" to (trend == null || trend.colourClass == "empty-day"),
+            )
+        }
         call.respondTemplate(
             "pages/professionals/professionals_dash.peb",
             buildNavbarContext(professionalId, userRoles) +
                 mapOf(
                     "clients" to clients,
+                    "clientYesterdayStatus" to clientYesterdayStatus,
                 ),
         )
     }
@@ -222,6 +231,7 @@ fun Route.configureViewClientDetailsRoutes() {
         val clients = getClientsForProfessional(professionalId)
         val clientId = call.parameters["clientId"]?.toIntOrNull()
 
+
         if (clientId == null) {
             call.respondText("Invalid client ID")
             return@get
@@ -252,11 +262,22 @@ fun Route.configureViewClientDetailsRoutes() {
 
         val allTrends = ClientDietTrend.getDietTrend(clientId)
         // Filter trends to only show the selected month
+
         val trends = allTrends.filter { it.date.year == currentYear && it.date.month == currentMonth }
+        val yesterday = today.minusDays(1)
+        val yesterdayTrend = allTrends.find {it.date == yesterday}
+        val didNotLogYesterday = yesterdayTrend?.colourClass == "empty-day" || yesterdayTrend == null
+        val wasOnTrackYesterday = yesterdayTrend?.colourClass == "green"
 
         val todayCalories = allTrends.find { it.date == today }?.totalCalorie?.toInt() ?: 0
-        // Count days where calorie intake was within the tolerance of the target
-        val onTrackDays = trends.count { abs(it.totalCalorie - it.targetCalorie) <= ON_TRACK_TOLERANCE }
+        val clientGoal = clientData?.get("goal") as? String
+        val onTrackDays = trends.count { trend ->
+            when (clientGoal) {
+                "lose" -> trend.totalCalorie <= trend.targetCalorie
+                "gain" -> trend.totalCalorie >= trend.targetCalorie
+                else -> kotlin.math.abs(trend.totalCalorie - trend.targetCalorie) <= ON_TRACK_TOLERANCE
+            }
+        }
 
         // Last 7 days from today for the weekly chart — day numbers only for the x-axis labels
         // last7days creates a list of 7 LocalDate objects from 6 days ago up to today so it shows a continuous trends
@@ -298,12 +319,14 @@ fun Route.configureViewClientDetailsRoutes() {
                     "nextMonth" to nextMonthDate.monthValue,
                     "todayCalories" to todayCalories,
                     "onTrackDays" to onTrackDays,
-                    "totalTrackedDays" to trends.size,
+                    "totalTrackedDays" to if (selectedDate.year == today.year && selectedDate.month == today.month) today.dayOfMonth else selectedDate.lengthOfMonth(),
                     "weekLabels" to weekLabels,
                     "weekCalories" to weekCalories,
                     "weekProtein" to weekProtein,
                     "weekCarbs" to weekCarbs,
                     "weekFat" to weekFat,
+                    "wasOnTrackYesterday" to wasOnTrackYesterday,
+                    "didNotLogYesterday" to didNotLogYesterday,
                 ),
         )
     }
