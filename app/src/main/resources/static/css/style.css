@@ -31,7 +31,7 @@ Claude AI was used to assist with front-end CSS development for the base layout,
     --font-display: 'Playfair Display', Georgia, serif;
     --font-body:    'DM Sans', sans-serif;
 
-    --nav-height:   68px;
+    --nav-height:   80px;
     --radius-sm:    6px;
     --radius-md:    12px;
     --radius-lg:    20px;
@@ -105,14 +105,14 @@ a:hover { color: var(--brown); }
 }
 
 .nav-inner {
-    max-width: 1200px;
+    max-width: 1600px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 2.5rem;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
 /* Brand */
@@ -147,7 +147,7 @@ a:hover { color: var(--brown); }
 
 .brand-text {
     font-family: var(--font-display);
-    font-size: 1.35rem;
+    font-size: 1.5rem;
     font-weight: 700;
     font-style: italic;
     color: var(--brown);
@@ -160,7 +160,7 @@ a:hover { color: var(--brown); }
     display: flex;
     margin: 0;
     padding: 0;
-    gap: 20px;
+    gap: 4px;
 }
 
 .nav-link {
@@ -429,14 +429,10 @@ a:hover { color: var(--brown); }
 .calendar-widget {
     width: 100%;
     max-width: 650px;
-    max-height: 380px;
     margin-top: -0.5rem;
     min-width: 280px;
-    padding: 12px;
-    transform-origin: top center;
     display: block;
     text-align: center;
-
     background: #FDFAF5;
     border: 1px solid #EDE6D8;
     border-radius: 12px;

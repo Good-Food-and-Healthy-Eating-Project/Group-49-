@@ -17,18 +17,19 @@
         <div class="client-grid">
             {% for client in clients %}
                 <div class="card client-card">
-                    <div class="client-avatar">
-                        {% if client.firstName is not empty %}{{ client.firstName | slice(0, 1) }}{% endif %}{% if client.lastName is not empty %}{{ client.lastName | slice(0, 1) }}{% endif %}
+                    {% set status = clientYesterdayStatus[client.id] %}
+                    <div class="card-top-row">
+                        <div class="client-avatar">
+                            {% if client.firstName is not empty %}{{ client.firstName | slice(0, 1) }}{% endif %}{% if client.lastName is not empty %}{{ client.lastName | slice(0, 1) }}{% endif %}
+                        </div>
+                        <span class="status-pill {% if status.wasOnTrackYesterday %}pill-green{% elseif status.didNotLogYesterday %}pill-amber{% else %}pill-red{% endif %}">
+                            {% if status.wasOnTrackYesterday %}On Track
+                            {% elseif status.didNotLogYesterday %}Missing Log
+                            {% else %}Off Track{% endif %}
+                        </span>
                     </div>
                     <div class="client-info">
-                        {% set status = clientYesterdayStatus[client.id] %}
-                        <h2 class="client-name">
-                            {{ client.firstName }} {{ client.lastName }}
-                            {% if status.wasOnTrackYesterday %}✅
-                            {% elseif status.didNotLogYesterday %}⚠️
-                            {% else %}‼️
-                            {% endif %}
-                        </h2>
+                        <h2 class="client-name">{{ client.firstName }} {{ client.lastName }}</h2>
                         <div class="client-meta">
                             {% if client.goal %}
                                 <span class="badge badge-terracotta">{{ client.goal }}</span>
@@ -56,17 +57,16 @@
 
 <style>
     .client-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1.25rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
     }
 
     .client-card {
         display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-        width: 320px;
-        min-height: 110px;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1.5rem;
     }
 
     .client-avatar {
@@ -85,14 +85,33 @@
         letter-spacing: 0.03em;
     }
 
+    .card-top-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .status-pill {
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+    }
+
+    .pill-green  { background: #d4edda; color: #2d6a3f; }
+    .pill-red    { background: #f5d0cc; color: #7a1f1a; }
+    .pill-amber  { background: #fde9b8; color: #7a5200; }
+
     .client-info {
         min-width: 0;
     }
 
     .client-name {
-        font-size: 1.25rem;
-        margin-bottom: 0.2rem;
-        margin-top: -8px;
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
     }
 
     .client-email {
@@ -138,13 +157,20 @@
         flex-direction: row;
         align-items: center;
         gap: 0.5rem;
-        margin-top: 0.65rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(59,42,26,0.07);
     }
 
     .btn-start-chat {
-        border: none;
+        background: transparent;
+        color: var(--terracotta);
+        border: 1.5px solid var(--terracotta);
         cursor: pointer;
         font-family: inherit;
+    }
+
+    .btn-start-chat:hover {
+        background: rgba(169,79,36,0.08);
     }
 </style>
 {% endblock %}
