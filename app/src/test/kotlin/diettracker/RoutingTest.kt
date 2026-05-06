@@ -1,3 +1,8 @@
+/*
+ * General routing tests using Ktor's testApplication.
+ * Each test starts the app with module(testing = true), uses the in-memory H2 test database
+ * when setup data is needed, and sends requests through Ktor's test HTTP client.
+ */
 package diettracker
 
 import TestDatabaseFactory

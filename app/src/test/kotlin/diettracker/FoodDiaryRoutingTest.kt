@@ -1,3 +1,9 @@
+/*
+ * Routing tests using Ktor's testApplication.
+ * Each test resets and seeds the in-memory H2 test database, starts module(testing = true),
+ * then uses a cookie-enabled test HTTP client to log in and request food diary routes.
+ * Acceptance criteria: P1-7, P4-2, P7-4.
+ */
 package diettracker
 
 import diettracker.db.tables.Users

@@ -1,3 +1,8 @@
+/*
+ * Database query tests using the TestDatabaseFactory.
+ * Each test resets and seeds the in-memory H2 test database, then calls recipe query
+ * functions directly and verifies the results from isolated test data.
+ */
 package diettracker
 
 import diettracker.db.tables.Foods
