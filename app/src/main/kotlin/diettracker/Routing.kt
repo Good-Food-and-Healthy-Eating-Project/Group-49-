@@ -271,6 +271,15 @@ fun Route.configureViewClientDetailsRoutes() {
         val weekCalories = last7Days.map { day ->
             allTrends.find { it.date == day }?.totalCalorie?.toInt() ?: 0
         }
+        val weekProtein = last7Days.map { day ->
+            allTrends.find { it.date == day }?.totalProtein?.toInt() ?: 0
+        }
+        val weekCarbs = last7Days.map { day ->
+            allTrends.find { it.date == day }?.totalCarbs?.toInt() ?: 0
+        }
+        val weekFat = last7Days.map { day ->
+            allTrends.find { it.date == day }?.totalFat?.toInt() ?: 0
+        }
 
         call.respondTemplate(
             "pages/professionals/view_client_details.peb",
@@ -292,6 +301,9 @@ fun Route.configureViewClientDetailsRoutes() {
                     "totalTrackedDays" to trends.size,
                     "weekLabels" to weekLabels,
                     "weekCalories" to weekCalories,
+                    "weekProtein" to weekProtein,
+                    "weekCarbs" to weekCarbs,
+                    "weekFat" to weekFat,
                 ),
         )
     }

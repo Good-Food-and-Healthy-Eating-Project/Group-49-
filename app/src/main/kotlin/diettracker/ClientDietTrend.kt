@@ -21,6 +21,9 @@ data class DailyDietTrend(
     val date: LocalDate,
     val dayOfMonth: Int,
     val colourClass: String,
+    val totalCarbs: Double,
+    val totalFat: Double,
+    val totalProtein: Double,
 )
 
 object ClientDietTrend {
@@ -73,13 +76,16 @@ object ClientDietTrend {
                 row.groupBy { it[FoodLogs.log_date].atZone(ZoneId.systemDefault()).toLocalDate() }
             group.map { (date, dayRows) ->
                 var total = 0.0
-                // calculate total calorie
+                var protein = 0.0
+                var carbs = 0.0
+                var fat = 0.0
                 for (row in dayRows) {
                     val quantity = row[FoodLogItems.quantity_g].toDouble()
-                    val calorie = row[Foods.calories_per_100g].toDouble()
-                    total += calorie * quantity / GARMS100
+                    total += row[Foods.calories_per_100g].toDouble() * quantity / GARMS100
+                    protein += row[Foods.protein_per_100g].toDouble() * quantity / GARMS100
+                    carbs += row[Foods.carbs_per_100g].toDouble() * quantity / GARMS100
+                    fat += row[Foods.fat_per_100g].toDouble() * quantity / GARMS100
                 }
-                // decide colour shown
                 val colourClass =
                     getColour(
                         totalCalorie = total.toInt().toDouble(),
@@ -92,6 +98,9 @@ object ClientDietTrend {
                     totalCalorie = total.toInt().toDouble(),
                     targetCalorie = target,
                     colourClass = colourClass,
+                    totalProtein = protein.toInt().toDouble(),
+                    totalCarbs = carbs.toInt().toDouble(),
+                    totalFat = fat.toInt().toDouble(),
                 )
             }
         }
