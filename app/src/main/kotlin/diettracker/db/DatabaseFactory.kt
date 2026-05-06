@@ -12,6 +12,8 @@ import diettracker.db.tables.RecipeIngredients
 import diettracker.db.tables.RecipeReviews
 import diettracker.db.tables.Recipes
 import diettracker.db.tables.Roles
+import diettracker.db.tables.SavedMealFoods
+import diettracker.db.tables.SavedMeals
 import diettracker.db.tables.UserFavouritedRecipes
 import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
@@ -44,6 +46,8 @@ object DatabaseFactory {
                 RecipeReviews,
                 Chats,
                 Messages,
+                SavedMeals,
+                SavedMealFoods,
             )
         }
     }
