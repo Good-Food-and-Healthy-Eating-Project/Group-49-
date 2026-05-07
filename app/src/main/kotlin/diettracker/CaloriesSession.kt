@@ -7,6 +7,7 @@ import diettracker.models.CurrentMealFood
 import diettracker.models.CurrentMealSession
 import diettracker.models.Food
 import diettracker.models.Recipe
+import diettracker.routing.hasRole
 import diettracker.services.DiaryService.getMealTypeByTime
 import diettracker.services.DiaryService.saveFoodLog
 import io.ktor.server.application.ApplicationCall
@@ -125,6 +126,7 @@ private fun logRecipeIngredients(recipeid: Int): RecipeLogResult {
  * food log page.
  */
 suspend fun ApplicationCall.foodLogRecipe() {
+    if (!hasRole("client")) return respondRedirect("/Login")
     val params = receiveParameters()
     val recipeIdStr = params["recipeId"]
     val recipeid = recipeIdStr?.toIntOrNull()
@@ -181,46 +183,45 @@ private fun calcAndLogCustomFood(
  * session, and displays the updated food log page.
  */
 suspend fun ApplicationCall.foodLogCustom() {
+    if (!hasRole("client")) {
+        respondRedirect("/Login")
+        return
+    }
     val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession(0, 0, 0, 0)
     val params = receiveParameters()
     val foodIdStr = params["foodId"]
     val foodId = foodIdStr?.toIntOrNull()
-    var grams = params["grams"]?.toIntOrNull() ?: GRAMS_PER_SERVING
+    val grams = params["grams"]?.toIntOrNull() ?: GRAMS_PER_SERVING
 
-    if (grams > MAX_GRAMS) {
-        respondTemplate(
-            "pages/client_dash/add_food.peb",
-            mapOf(
-                "calories" to caloriesSession.calories,
-                "protein" to caloriesSession.protein,
-                "fat" to caloriesSession.fat,
-                "carbs" to caloriesSession.carbs,
-                "error" to "Maximum is 5000g.",
-            ),
-        )
-        return
+    when {
+        grams > MAX_GRAMS ->
+            respondTemplate(
+                "pages/client_dash/add_food.peb",
+                mapOf(
+                    "calories" to caloriesSession.calories,
+                    "protein" to caloriesSession.protein,
+                    "fat" to caloriesSession.fat,
+                    "carbs" to caloriesSession.carbs,
+                    "error" to "Maximum is 5000g.",
+                ),
+            )
+        foodId == null ->
+            respondTemplate(
+                "pages/client_dash/add_food.peb",
+                mapOf("calories" to 0, "error" to "Invalid or missing foodId: $foodIdStr"),
+            )
+        else -> {
+            val nutrients = calcAndLogCustomFood(foodId, grams)
+            val newTotalCals = caloriesSession.calories + nutrients.calories
+            val newTotalProtein = caloriesSession.protein + nutrients.protein
+            val newTotalFat = caloriesSession.fat + nutrients.fat
+            val newTotalCarbs = caloriesSession.carbs + nutrients.carbs
+            sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
+            val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
+            sessions.set(CurrentMealSession(currentMeal.foods + CurrentMealFood(foodId = foodId, grams = grams)))
+            respondRedirect("/food_log?success=added")
+        }
     }
-
-    if (foodId == null) {
-        respondTemplate(
-            "pages/client_dash/add_food.peb",
-            mapOf("calories" to 0, "error" to "Invalid or missing foodId: $foodIdStr"),
-        )
-        return
-    }
-
-    val nutrients = calcAndLogCustomFood(foodId, grams)
-
-    val newTotalCals = caloriesSession.calories + nutrients.calories
-    val newTotalProtein = caloriesSession.protein + nutrients.protein
-    val newTotalFat = caloriesSession.fat + nutrients.fat
-    val newTotalCarbs = caloriesSession.carbs + nutrients.carbs
-
-    sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
-    val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
-    sessions.set(CurrentMealSession(currentMeal.foods + CurrentMealFood(foodId = foodId, grams = grams)))
-
-    respondRedirect("/food_log?success=added")
 }
 
 /**
@@ -348,6 +349,7 @@ fun calcNutrients(
  * the food log page with zero values.
  */
 suspend fun ApplicationCall.foodLogReset() {
+    if (!hasRole("client")) return respondRedirect("/Login")
     sessions.set(CaloriesSession(0, 0, 0, 0))
     sessions.set(CurrentMealSession(emptyList()))
     respondRedirect("/food_log")
@@ -362,6 +364,7 @@ suspend fun ApplicationCall.foodLogReset() {
  * foods to the diary using saveFoodLog(), then clears the current session.
  */
 suspend fun ApplicationCall.saveCurrentFoodLog() {
+    if (!hasRole("client")) return respondRedirect("/Login")
     val mealType = getMealTypeByTime()
     val notes = ""
     val userSession = sessions.get<UserSession>()

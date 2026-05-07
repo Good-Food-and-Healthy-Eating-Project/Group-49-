@@ -1,4 +1,4 @@
-/*
+/**
  * Database table tests using the TestDatabaseFactory.
  * Each test resets the in-memory H2 test database, then uses Exposed transactions
  * to insert, query, update, and delete rows directly against the schema.
@@ -36,6 +36,8 @@ class RecipeIngredientsTableTest {
         }
     }
 
+    // AC-DB-04
+    // AC-VEG-08
     @Test
     fun should_insert_recipe_ingredient_success() {
         transaction {
@@ -185,6 +187,7 @@ class RecipeIngredientsTableTest {
         }
     }
 
+    // AC-DB-04
     @Test
     fun should_get_recipe_ingredients_by_recipe_id() {
         transaction {
@@ -234,6 +237,7 @@ class RecipeIngredientsTableTest {
         }
     }
 
+    // AC-DB-05
     @Test
     fun should_fail_when_insert_same_recipe_ingredient() {
         transaction {
@@ -280,6 +284,7 @@ class RecipeIngredientsTableTest {
         }
     }
 
+    // AC-DB-05
     @Test
     fun should_fail_when_recipe_not_exist() {
         transaction {

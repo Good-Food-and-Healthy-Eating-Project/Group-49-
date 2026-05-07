@@ -1,3 +1,4 @@
+<!-- Add food page - lets clients log food by searching for items or entering custom amounts -->
 {% extends "layouts/base.peb" %}
 
 {% block title %}Log Food{% endblock %}
@@ -8,13 +9,13 @@
      If success is saved, it means a meal was saved.
      Otherwise, it shows "Added!", which is used after adding food,recipes or saved meals. -->
 {% if success is defined%}
-<div id="success-banner" class="success-banner">
+<div id="success-banner" class="success-banner" role="alert" aria-live="polite">
     {% if success == "saved" %}Meal Saved!{% else %}Added!{% endif %}
 </div>
 {% endif %}
 
 {% if error is defined %}
-<div class="error-banner">
+<div class="error-banner" role="alert" aria-live="assertive">
         {{ error }}
 </div>
 {% endif %}
@@ -41,6 +42,7 @@
     <div class="log-food-layout">
 
         <!-- LEFT: Calorie summary -->
+        {# Sticky so the calorie total stays visible while the user scrolls through food options #}
         <aside class="card log-summary-card">
             <h3>Today's Total</h3>
 
@@ -106,13 +108,16 @@
             <!-- MEALS -->
             <div class="card log-panel">
                 <h3>Meals</h3>
+                {# GET form — just updates the query param to filter the list, doesn't log anything #}
 
                 <!-- Searches for recipes using the text entered as "query".
                      GET is used because searching only requests results and does not save or change data. -->
                 <form method="get" action="/food_log" class="search-row">
-                    <input type="text" name="query" placeholder="Search recipes…" class="form-input">
+                    <label for="recipe-search" class="visually-hidden">Search recipes by name</label>
+                    <input id="recipe-search" type="text" name="query" placeholder="Search recipes…" class="form-input">
                     <button type="submit" class="btn btn-secondary">Search</button>
                 </form>
+                {# POST form — actually adds the selected recipe to the session log #}
 
                 <!-- Adds the selected recipe to the current temporary food log.
                      The selected radio button sends the recipe ID as "recipeId".
@@ -143,12 +148,15 @@
                 <h3>Custom Ingredient</h3>
 
                 <!-- Searches for individual foods/ingredients using the text entered as "foodquery". GET is used because this only fetches search results and does not save anything. -->
+                {# GET form — filters the food list by name, different param (foodquery) to the recipe search above #}
                 <form method="get" action="/food_log" class="search-row">
-                    <input type="text" name="foodquery" placeholder="Search foods…" class="form-input">
+                    <label for="food-search" class="visually-hidden">Search foods by name</label>
+                    <input id="food-search" type="text" name="foodquery" placeholder="Search foods…" class="form-input">
                     <button type="submit" class="btn btn-secondary">Search</button>
                 </form>
 
                 <!-- Adds the selected food/ingredient to the current temporary food log. The backend receives the selected food as "foodId" and the amount as "grams". POST is used because it changes the current food log by adding food data. -->
+                {# POST form — logs the selected food with a custom gram amount to the session #}
                 <form method="post" action="/food_log_custom">
 
                     <!-- If food results exist, show them as radio buttons and ask for grams. If there are no foods, show a fallback message instead. -->
@@ -162,8 +170,8 @@
                             {% endfor %}
                         </div>
                         <div class="form-group" style="margin-top: 1rem;">
-                            <label class="form-label">Grams</label>
-                            <input type="number" name="grams" placeholder="e.g. 150" min="1" max="5000" required class="form-input">
+                            <label for="grams-input" class="form-label">Grams</label>
+                            <input id="grams-input" type="number" name="grams" placeholder="e.g. 150" min="1" max="5000" required class="form-input">
                         </div>
                     {% else %}
                         <p class="empty-hint">No foods found — try a search above.</p>

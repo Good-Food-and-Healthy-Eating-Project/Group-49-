@@ -1,3 +1,4 @@
+<!-- Weekly food diary page - shows a summary of meal entries and nutrition across the selected week -->
 {% extends "layouts/base.peb" %}
 
 {% block title %}

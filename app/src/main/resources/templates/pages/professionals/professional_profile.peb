@@ -1,3 +1,4 @@
+<!-- Professional profile page - displays the professional's personal details and allows them to update their information -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,29 +14,33 @@
         }
 
         .profile-header {
-            border: 2px solid #8C7B6A;
+            border: 1px solid #EDE6D8;
             padding: 20px;
-            background: #ffffff;
+            background: #FDFAF5;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(59, 42, 26, 0.08);
             margin-bottom: 20px;
         }
 
         .profile-title {
             font-size: 28px;
             font-weight: 700;
-            color: #333;
+            color: #2C1E10;
             margin-bottom: 10px;
         }
 
         .profile-info {
             font-size: 18px;
-            color: #333;
+            color: #4A3F35;
             margin: 6px 0;
         }
 
         .profile-form {
-            border: 2px solid #8C7B6A;
+            border: 1px solid #EDE6D8;
             padding: 20px;
-            background: #ffffff;
+            background: #FDFAF5;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(59, 42, 26, 0.08);
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -50,7 +55,7 @@
         .profile-label {
             font-size: 18px;
             font-weight: 600;
-            color: #333;
+            color: #2C1E10;
         }
 
         .profile-form input,
@@ -78,12 +83,13 @@
             font-weight: 600;
             cursor: pointer;
             background: #A94F24;
-            color: white;
+            color: #FDFAF5;
             border: none;
+            border-radius: 999px;
         }
 
         .update-button:hover {
-            background: #A94E2E;
+            background: #3B2A1A;
         }
     </style>
 </head>
@@ -97,17 +103,31 @@
                 <h1 class="profile-title">Profile</h1>
 
                 {% if userinfo is not null %}
-                    <p class="profile-info">Professional ID: {{ userinfo.professional_id }}</p>
+                    <p class="profile-info">Name: {{ userinfo.first_name }} {{ userinfo.second_name }}</p>
                     {% if email is defined %}
                         <p class="profile-info">Email: {{ email }}</p>
                     {% endif %}
-                    <p class="profile-info">Name: {{ userinfo.first_name }} {{ userinfo.second_name }}</p>
                 {% else %}
                     <p class="profile-info">No profile information found.</p>
                 {% endif %}
             </div>
 
             <form method="post" action="/professional-profile-update" class="profile-form">
+
+                <div class="profile-section">
+                    <label for="first_name" class="profile-label">First Name</label>
+                    <input id="first_name" type="text" name="first_name" value="{{ userinfo.first_name }}">
+                </div>
+
+                <div class="profile-section">
+                    <label for="second_name" class="profile-label">Last Name</label>
+                    <input id="second_name" type="text" name="second_name" value="{{ userinfo.second_name }}">
+                </div>
+
+                <div class="profile-section">
+                    <label for="email" class="profile-label">Email</label>
+                    <input id="email" type="email" name="email" value="{{ email }}">
+                </div>
 
                 <div class="profile-section">
                      <label for="job_title" class="profile-label">Job Title</label>
