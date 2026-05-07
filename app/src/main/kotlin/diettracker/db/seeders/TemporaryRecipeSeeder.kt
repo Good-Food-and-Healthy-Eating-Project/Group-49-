@@ -1,10 +1,11 @@
-package diettracker
+package diettracker.db.seeders
 
 import diettracker.db.tables.Foods
 import diettracker.db.tables.RecipeIngredients
 import diettracker.db.tables.Recipes
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.isNotDistinctFrom
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -12,6 +13,7 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
+import java.io.IOException
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.net.URI
@@ -58,9 +60,9 @@ object TemporaryRecipeSeeder {
                         usdaApiKey = usdaApiKey,
                     )
                     println("Seeded: ${meal.strMeal}")
-                } catch (e: java.io.IOException) {
+                } catch (e: IOException) {
                     println("Failed to seed meal ${mealSummary.idMeal}: ${e.message}")
-                } catch (e: kotlinx.serialization.SerializationException) {
+                } catch (e: SerializationException) {
                     println("Failed to parse meal ${mealSummary.idMeal}: ${e.message}")
                 }
             }
@@ -258,10 +260,10 @@ object TemporaryRecipeSeeder {
                 )
             val response = json.decodeFromString<UsdaSearchResponse>(body)
             response.foods.firstOrNull()
-        } catch (e: java.io.IOException) {
+        } catch (e: IOException) {
             println("USDA lookup failed for '$query': ${e.message}")
             null
-        } catch (e: kotlinx.serialization.SerializationException) {
+        } catch (e: SerializationException) {
             println("Failed to parse USDA response for '$query': ${e.message}")
             null
         }

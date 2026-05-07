@@ -1,11 +1,10 @@
 package diettracker.routing
 
-import diettracker.UserSession
-import diettracker.buildNavbarContext
-import diettracker.getUserIdByEmail
+import diettracker.db.repositories.getUserIdByEmail
 import diettracker.services.DiaryService
+import diettracker.services.UserSession
+import diettracker.services.buildNavbarContext
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.response.respond

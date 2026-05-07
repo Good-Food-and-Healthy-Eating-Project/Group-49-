@@ -1,4 +1,4 @@
-package diettracker
+package diettracker.services
 
 import diettracker.db.tables.FoodLogItems
 import diettracker.db.tables.FoodLogs

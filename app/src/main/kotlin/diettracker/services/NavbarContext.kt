@@ -1,6 +1,8 @@
-package diettracker
+package diettracker.services
 
 import diettracker.db.repositories.MessagingRepository
+import diettracker.db.repositories.getUserIdByEmail
+import diettracker.db.repositories.getUserRoles
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions

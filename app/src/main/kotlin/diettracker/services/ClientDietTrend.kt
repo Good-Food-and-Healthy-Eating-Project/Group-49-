@@ -1,11 +1,10 @@
-package diettracker
+package diettracker.services
 
 import diettracker.db.tables.Clients
 import diettracker.db.tables.FoodLogItems
 import diettracker.db.tables.FoodLogs
 import diettracker.db.tables.Foods
 import diettracker.db.tables.Users
-import io.ktor.server.sessions.get
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction

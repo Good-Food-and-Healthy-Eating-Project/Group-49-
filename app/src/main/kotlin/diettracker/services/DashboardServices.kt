@@ -1,15 +1,8 @@
 package diettracker.services
 
-import diettracker.ClientDietTrend
-import diettracker.DailyDietTrend
-import diettracker.DailyNutritionSummary
-import diettracker.NutritionInput
-import diettracker.buildGuidanceMessages
-import diettracker.buildNavbarContext
+import diettracker.db.repositories.getClientCalorieGoal
+import diettracker.db.repositories.getUserRoles
 import diettracker.db.tables.Clients
-import diettracker.getClientCalorieGoal
-import diettracker.getDailyNutritionSummary
-import diettracker.getUserRoles
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction

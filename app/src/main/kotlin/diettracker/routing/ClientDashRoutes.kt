@@ -1,7 +1,7 @@
 package diettracker.routing
 
-import diettracker.UserSession
-import diettracker.getUserIdByEmail
+import diettracker.db.repositories.getUserIdByEmail
+import diettracker.services.UserSession
 import diettracker.services.buildClientDashModel
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.response.respond
@@ -11,11 +11,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 
-/**
- * This page contains all the routing functions used for the client dashboard page
- * The Client dashboard displays guidance messages based on UK recommended nutritional guidelines
- * The messages help the user know if they are following recommended guidelines
- **/
 // AC-ATH-01
 // AC-ATH-07
 // AC-ATH-08
@@ -27,6 +22,12 @@ import io.ktor.server.sessions.sessions
 // AC-STUDENT-08
 // AC-STUDENT-10
 // AC-VEG-05
+
+/**
+ * This page contains all the routing functions used for the client dashboard page
+ * The Client dashboard displays guidance messages based on UK recommended nutritional guidelines
+ * The messages help the user know if they are following recommended guidelines
+ **/
 fun Route.configureClientDashRoute() {
     get("/client_dash") {
         // get client email from session
