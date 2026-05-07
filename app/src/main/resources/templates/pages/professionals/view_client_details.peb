@@ -73,9 +73,9 @@
                                     {% set found = true %}
                                     {# numberformat("0") removes decimal places from the calorie value #}
                                     {# colourClass is set in the backend based on how close calories were to target #}
-                                    <div class="day-box {{ trend.colourClass }}">
+                                    <div class="day-box {{ trend.colourClass }}" tabindex="0" aria-label="Day {{ day }}: {{ trend.totalCalorie | numberformat("0") }} kcal of {{ trend.targetCalorie }} kcal target">
                                         {{ day }}
-                                        <div class="tooltip">
+                                        <div class="tooltip" aria-hidden="true">
                                             Kcal: {{ trend.totalCalorie | numberformat("0") }} / {{ trend.targetCalorie }}
                                         </div>
                                     </div>
@@ -83,7 +83,7 @@
                             {% endfor %}
                             {# No log entry for this day — show it as untracked #}
                             {% if not found %}
-                                <div class="day-box empty-day">
+                                <div class="day-box empty-day" aria-label="Day {{ day }}: no data logged">
                                     {{ day }}
                                 </div>
                             {% endif %}
@@ -98,7 +98,7 @@
 
         <div class="card chart-section">
             <h2 class="section-title">7-Day Trend</h2>
-            <canvas id="calorieChart"></canvas>
+            <canvas id="calorieChart" role="img" aria-label="7-day calorie and macronutrient trend chart for {{ client.firstName }} {{ client.lastName }}"></canvas>
         </div>
     </div>
 

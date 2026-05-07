@@ -170,23 +170,27 @@
 			</div>
 
 			<div class="field-group">
-				<label>Gender</label>
-				<div class="goal-options">
-					<button type="button" class="goal-btn" onclick="selectGender(this, 'male')">Male</button>
-					<button type="button" class="goal-btn" onclick="selectGender(this, 'female')">Female</button>
-				</div>
+				<fieldset style="border:none; padding:0; margin:0;">
+					<legend style="display:block; margin-bottom:6px; font-size:14px; color:#4A3F35;">Gender</legend>
+					<div class="goal-options">
+						<button type="button" class="goal-btn" aria-pressed="false" onclick="selectGender(this, 'male')">Male</button>
+						<button type="button" class="goal-btn" aria-pressed="false" onclick="selectGender(this, 'female')">Female</button>
+					</div>
+				</fieldset>
                 {# Stores selected gender value from button UI for form submission
                     - Used Claude AI to explain how to associate a button click with values#}
 				<input type="hidden" name="gender" id="genderInput">
 			</div>
 
 			<div class="field-group">
-				<label>Goal</label>
-				<div class="goal-options">
-					<button type="button" class="goal-btn" onclick="selectGoal(this, 'lose')">Lose Weight</button>
-					<button type="button" class="goal-btn" onclick="selectGoal(this, 'maintain')">Maintain</button>
-					<button type="button" class="goal-btn" onclick="selectGoal(this, 'gain')">Gain Muscle</button>
-				</div>
+				<fieldset style="border:none; padding:0; margin:0;">
+					<legend style="display:block; margin-bottom:6px; font-size:14px; color:#4A3F35;">Goal</legend>
+					<div class="goal-options">
+						<button type="button" class="goal-btn" aria-pressed="false" onclick="selectGoal(this, 'lose')">Lose Weight</button>
+						<button type="button" class="goal-btn" aria-pressed="false" onclick="selectGoal(this, 'maintain')">Maintain</button>
+						<button type="button" class="goal-btn" aria-pressed="false" onclick="selectGoal(this, 'gain')">Gain Muscle</button>
+					</div>
+				</fieldset>
 				{# Stores selected goal from button UI #}
 				<input type="hidden" name="goal" id="goalInput">
 			</div>
@@ -209,14 +213,22 @@
           The logic was adapted and used throughout this project to improve UI
         #}
 		function selectGender(button, value) {
-			button.closest('.goal-options').querySelectorAll('.goal-btn').forEach(btn => btn.classList.remove('active'));
+			button.closest('.goal-options').querySelectorAll('.goal-btn').forEach(function(btn) {
+				btn.classList.remove('active');
+				btn.setAttribute('aria-pressed', 'false');
+			});
 			button.classList.add('active');
+			button.setAttribute('aria-pressed', 'true');
 			document.getElementById('genderInput').value = value;
 		}
 
 		function selectGoal(button, value) {
-			button.closest('.goal-options').querySelectorAll('.goal-btn').forEach(btn => btn.classList.remove('active'));
+			button.closest('.goal-options').querySelectorAll('.goal-btn').forEach(function(btn) {
+				btn.classList.remove('active');
+				btn.setAttribute('aria-pressed', 'false');
+			});
 			button.classList.add('active');
+			button.setAttribute('aria-pressed', 'true');
 			document.getElementById('goalInput').value = value;
 		}
 	</script>

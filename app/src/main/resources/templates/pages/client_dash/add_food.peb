@@ -9,13 +9,13 @@
      If success is saved, it means a meal was saved.
      Otherwise, it shows "Added!", which is used after adding food,recipes or saved meals. -->
 {% if success is defined%}
-<div id="success-banner" class="success-banner">
+<div id="success-banner" class="success-banner" role="alert" aria-live="polite">
     {% if success == "saved" %}Meal Saved!{% else %}Added!{% endif %}
 </div>
 {% endif %}
 
 {% if error is defined %}
-<div class="error-banner">
+<div class="error-banner" role="alert" aria-live="assertive">
         {{ error }}
 </div>
 {% endif %}
@@ -113,7 +113,8 @@
                 <!-- Searches for recipes using the text entered as "query".
                      GET is used because searching only requests results and does not save or change data. -->
                 <form method="get" action="/food_log" class="search-row">
-                    <input type="text" name="query" placeholder="Search recipes…" class="form-input">
+                    <label for="recipe-search" class="visually-hidden">Search recipes by name</label>
+                    <input id="recipe-search" type="text" name="query" placeholder="Search recipes…" class="form-input">
                     <button type="submit" class="btn btn-secondary">Search</button>
                 </form>
                 {# POST form — actually adds the selected recipe to the session log #}
@@ -149,7 +150,8 @@
                 <!-- Searches for individual foods/ingredients using the text entered as "foodquery". GET is used because this only fetches search results and does not save anything. -->
                 {# GET form — filters the food list by name, different param (foodquery) to the recipe search above #}
                 <form method="get" action="/food_log" class="search-row">
-                    <input type="text" name="foodquery" placeholder="Search foods…" class="form-input">
+                    <label for="food-search" class="visually-hidden">Search foods by name</label>
+                    <input id="food-search" type="text" name="foodquery" placeholder="Search foods…" class="form-input">
                     <button type="submit" class="btn btn-secondary">Search</button>
                 </form>
 
@@ -168,8 +170,8 @@
                             {% endfor %}
                         </div>
                         <div class="form-group" style="margin-top: 1rem;">
-                            <label class="form-label">Grams</label>
-                            <input type="number" name="grams" placeholder="e.g. 150" min="1" max="5000" required class="form-input">
+                            <label for="grams-input" class="form-label">Grams</label>
+                            <input id="grams-input" type="number" name="grams" placeholder="e.g. 150" min="1" max="5000" required class="form-input">
                         </div>
                     {% else %}
                         <p class="empty-hint">No foods found — try a search above.</p>

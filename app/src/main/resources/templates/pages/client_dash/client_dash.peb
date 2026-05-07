@@ -36,7 +36,7 @@ Home
                         <span class="nutrient-name">Calories</span>
                         <span class="nutrient-values">{{ totalCalories }} kcal / {{ calorieGoal }} kcal</span>
                     </div>
-                    <div class="progress-track">
+                    <div class="progress-track" role="progressbar" aria-label="Calories" aria-valuenow="{{ caloriePct }}" aria-valuemin="0" aria-valuemax="100">
                         <div class="progress-fill calories-fill" style="width: {{ caloriePct }}%;"></div>
                     </div>
                 </div>
@@ -46,7 +46,7 @@ Home
                         <span class="nutrient-name">Protein</span>
                         <span class="nutrient-values">{{ totalProtein }}g / {{ targetProtein }}g</span>
                     </div>
-                    <div class="progress-track">
+                    <div class="progress-track" role="progressbar" aria-label="Protein" aria-valuenow="{{ proteinPct }}" aria-valuemin="0" aria-valuemax="100">
                         <div class="progress-fill protein-fill" style="width: {{ proteinPct }}%;"></div>
                     </div>
                 </div>
@@ -56,7 +56,7 @@ Home
                         <span class="nutrient-name">Carbs</span>
                         <span class="nutrient-values">{{ totalCarbs }}g / {{ targetCarbs }}g</span>
                     </div>
-                    <div class="progress-track">
+                    <div class="progress-track" role="progressbar" aria-label="Carbohydrates" aria-valuenow="{{ carbsPct }}" aria-valuemin="0" aria-valuemax="100">
                         <div class="progress-fill carbs-fill" style="width: {{ carbsPct }}%;"></div>
                     </div>
                 </div>
@@ -66,7 +66,7 @@ Home
                         <span class="nutrient-name">Fat</span>
                         <span class="nutrient-values">{{ totalFat }}g / {{ targetFat }}g</span>
                     </div>
-                    <div class="progress-track">
+                    <div class="progress-track" role="progressbar" aria-label="Fat" aria-valuenow="{{ fatPct }}" aria-valuemin="0" aria-valuemax="100">
                         <div class="progress-fill fat-fill" style="width: {{ fatPct }}%;"></div>
                     </div>
                 </div>
@@ -153,9 +153,9 @@ Home
                                 {% if trend.dayOfMonth == day %}
                                     {% set found = true %}
                                     {# colourClass is set in the backend based on how close calories were to target #}
-                                    <div class="day-box {{ trend.colourClass }}">
+                                    <div class="day-box {{ trend.colourClass }}" tabindex="0" aria-label="Day {{ day }}: {{ trend.totalCalorie }} kcal of {{ trend.targetCalorie }} kcal target">
                                         {{ day }}
-                                        <div class="tooltip">
+                                        <div class="tooltip" aria-hidden="true">
                                             Kcal: {{ trend.totalCalorie }} / {{ trend.targetCalorie }}
                                         </div>
                                     </div>
@@ -164,7 +164,7 @@ Home
 
                             {# No log entry for this day — show it as untracked #}
                             {% if not found %}
-                                <div class="day-box empty-day">
+                                <div class="day-box empty-day" aria-label="Day {{ day }}: no data logged">
                                     {{ day }}
                                 </div>
                             {% endif %}
@@ -455,7 +455,7 @@ Home
 <div class="card week-chart-card">
     <h2 class="week-chart-title">7-Day Trend</h2>
     <div class="week-chart-wrapper">
-        <canvas id="weekChart"></canvas>
+        <canvas id="weekChart" role="img" aria-label="7-day calorie and macronutrient trend chart"></canvas>
     </div>
 </div>
 

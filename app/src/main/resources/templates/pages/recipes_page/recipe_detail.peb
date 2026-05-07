@@ -195,8 +195,8 @@
             </select>
         </div>
         <div class="form-group">
-            <label class="form-label">Comment</label>
-            <textarea name="comment" class="form-input" rows="4" placeholder="Share your thoughts on this recipe..." style="resize:vertical; height:auto;"></textarea>
+            <label for="review-comment" class="form-label">Comment</label>
+            <textarea id="review-comment" name="comment" class="form-input" rows="4" placeholder="Share your thoughts on this recipe..." style="resize:vertical; height:auto;"></textarea>
         </div>
         <button type="submit" class="btn btn-primary">Submit Review</button>
     </form>
