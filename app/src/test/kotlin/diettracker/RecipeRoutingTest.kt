@@ -282,6 +282,18 @@ class RecipeRoutingTest {
     fun should_only_return_recipes_matching_the_selected_category() =
         testApplication {
             application { module(testing = true) }
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode(),
+                )
+            }
             // Insert two recipes with different categories so we can verify the filter excludes non-matching ones
             transaction {
                 Recipes.insert {
