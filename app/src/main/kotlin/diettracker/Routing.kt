@@ -9,6 +9,7 @@ import diettracker.routing.configureFoodRoutes
 import diettracker.routing.configureMessageRoutes
 import diettracker.routing.configureRecipeRoutes
 import diettracker.routing.foodDiaryRoutes
+import diettracker.routing.hasRole
 import diettracker.routing.professionalProfileRoutes
 import diettracker.routing.profileRoutes
 import io.ktor.server.application.Application
@@ -28,13 +29,6 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDate
-import kotlin.math.abs
-
-private const val ON_TRACK_TOLERANCE = 100
-private const val MIN_YEAR = 1900
-private const val MAX_YEAR = 2100
-private const val MIN_MONTH = 1
-private const val MAX_MONTH = 12
 
 /**
  * Entry point for all application routing
@@ -87,6 +81,7 @@ fun Route.configureClientRoutes() {
     profileRoutes()
 
     get("/diary") {
+        if (!call.hasRole("client")) return@get call.respondRedirect("/Login")
         val email = call.sessions.get<UserSession>()?.email
         val userId = email?.let(::getUserIdByEmail)
         call.respond(PebbleContent("pages/client_dash/food_diary.peb", buildNavbarContext(userId)))
@@ -146,14 +141,26 @@ private fun Route.configureProfessionalAccountRoutes() {
         val professionalId =
             getUserIdByEmail(email)
                 ?: return@get call.respondText("User not found")
+        if (!call.hasRole("professional")) return@get call.respondRedirect("/Login")
         val userRoles = getUserRoles(professionalId)
         // Get all clients linked to this professional for display on the dashboard
         val clients = getClientsForProfessional(professionalId)
+        val yesterday = LocalDate.now().minusDays(1)
+        val clientYesterdayStatus =
+            clients.associate { client ->
+                val trend = ClientDietTrend.getDietTrend(client.id).find { it.date == yesterday }
+                client.id to
+                    mapOf(
+                        "wasOnTrackYesterday" to (trend?.colourClass == "green"),
+                        "didNotLogYesterday" to (trend == null || trend.colourClass == "empty-day"),
+                    )
+            }
         call.respondTemplate(
             "pages/professionals/professionals_dash.peb",
             buildNavbarContext(professionalId, userRoles) +
                 mapOf(
                     "clients" to clients,
+                    "clientYesterdayStatus" to clientYesterdayStatus,
                 ),
         )
     }
@@ -204,72 +211,7 @@ fun fetchClientData(clientId: Int): Map<String, Any?>? =
  * Shows monthly trend using calendar from client dashboard so professional can see if client is on track
  **/
 fun Route.configureViewClientDetailsRoutes() {
-    get("/professional/client/{clientId}") {
-        // Redirect to login if not authenticated
-        val session = call.sessions.get<UserSession>()
-        val email = session?.email ?: return@get call.respondRedirect("/Login")
-        val professionalId = getUserIdByEmail(email) ?: return@get call.respondText("User not found")
-        val userRoles = getUserRoles(professionalId)
-        val clients = getClientsForProfessional(professionalId)
-        val clientId = call.parameters["clientId"]?.toIntOrNull()
-
-        if (clientId == null) {
-            call.respondText("Invalid client ID")
-            return@get
-        }
-
-        // Fetch the client's basic info from the database
-        val clientData = fetchClientData(clientId)
-
-        val today = LocalDate.now()
-        // Default to current month if no query params provided
-        val selectedYear = call.request.queryParameters["year"]?.toIntOrNull() ?: today.year
-        val selectedMonth = call.request.queryParameters["month"]?.toIntOrNull() ?: today.monthValue
-        // Validate the date range to prevent invalid dates being used
-        val selectedDate =
-            if (selectedMonth in MIN_MONTH..MAX_MONTH && selectedYear in MIN_YEAR..MAX_YEAR) {
-                LocalDate.of(selectedYear, selectedMonth, 1)
-            } else {
-                today.withDayOfMonth(1)
-            }
-
-        val currentYear = selectedDate.year
-        val currentMonth = selectedDate.month
-        val previousMonthDate = selectedDate.minusMonths(1)
-        val nextMonthDate = selectedDate.plusMonths(1)
-        val daysInMonth = selectedDate.lengthOfMonth()
-        // Used to offset the calendar grid so days align to the correct weekday
-        val leadingEmptyDays = selectedDate.withDayOfMonth(1).dayOfWeek.value - 1
-
-        val allTrends = ClientDietTrend.getDietTrend(clientId)
-        // Filter trends to only show the selected month
-        val trends = allTrends.filter { it.date.year == currentYear && it.date.month == currentMonth }
-
-        val todayCalories = allTrends.find { it.date == today }?.totalCalorie?.toInt() ?: 0
-        // Count days where calorie intake was within the tolerance of the target
-        val onTrackDays = trends.count { abs(it.totalCalorie - it.targetCalorie) <= ON_TRACK_TOLERANCE }
-
-        call.respondTemplate(
-            "pages/professionals/view_client_details.peb",
-            buildNavbarContext(professionalId, userRoles) +
-                mapOf(
-                    "clients" to clients,
-                    "client" to (clientData ?: emptyMap<String, Any?>()),
-                    "trends" to trends,
-                    "currentYear" to currentYear,
-                    "currentMonth" to currentMonth,
-                    "daysInMonth" to daysInMonth,
-                    "leadingEmptyDays" to leadingEmptyDays,
-                    "previousYear" to previousMonthDate.year,
-                    "previousMonth" to previousMonthDate.monthValue,
-                    "nextYear" to nextMonthDate.year,
-                    "nextMonth" to nextMonthDate.monthValue,
-                    "todayCalories" to todayCalories,
-                    "onTrackDays" to onTrackDays,
-                    "totalTrackedDays" to trends.size,
-                ),
-        )
-    }
+    get("/professional/client/{clientId}") { call.handleViewClientDetails() }
 }
 
 fun Route.configureProtectedRoutes() {

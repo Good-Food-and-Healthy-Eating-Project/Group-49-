@@ -1,4 +1,4 @@
-/*
+/**
  * Service and data tests using the TestDatabaseFactory.
  * Each test resets and seeds the in-memory H2 test database, then verifies food diary
  * behaviour through direct service/database calls instead of a real HTTP server.
@@ -62,6 +62,8 @@ class FoodDiaryTest {
         }
     }
 
+    // AC-COACH-05
+    // AC-COACH-06
     @Test
     fun should_return_empty_weekly_diary_when_user_has_no_logs() {
         val userId =
@@ -80,6 +82,9 @@ class FoodDiaryTest {
         assertTrue(result.days.all { it.status == "No meals logged" })
     }
 
+    // AC-ATH-02
+    // AC-STUDENT-01
+    // AC-STUDENT-03
     @Test
     fun should_mark_day_as_logged_when_user_has_food_log() {
         val zone = ZoneId.systemDefault()
@@ -110,6 +115,9 @@ class FoodDiaryTest {
         }
     }
 
+    // AC-ATH-02
+    // AC-STUDENT-03
+    // AC-PARENT-04
     @Test
     fun should_count_multiple_logs_on_same_day() {
         val zone = ZoneId.systemDefault()
@@ -162,6 +170,8 @@ class FoodDiaryTest {
         assertEquals(1, result.days.count { it.hasEntries })
     }
 
+    // AC-ATH-07
+    // AC-PARENT-02
     @Test
     fun should_only_include_log_from_select_week() {
         val zone = ZoneId.systemDefault()
@@ -213,6 +223,7 @@ class FoodDiaryTest {
         assertEquals(2, loggedDay.fats)
     }
 
+    // AC-COACH-05
     @Test
     fun should_return_empty_when_user_has_no_logs_for_day() {
         val today = LocalDate.now(ZoneId.systemDefault())
@@ -224,6 +235,9 @@ class FoodDiaryTest {
         assertTrue(result.meals.isEmpty())
     }
 
+    // AC-ATH-01
+    // AC-STUDENT-03
+    // AC-PARENT-04
     @Test
     fun should_retrun_daily_deatil_for_single_log() {
         val zone = ZoneId.systemDefault()
@@ -269,6 +283,8 @@ class FoodDiaryTest {
         assertEquals(2, item.fats)
     }
 
+    // AC-ATH-02
+    // AC-STUDENT-03
     @Test
     fun should_sum_multipe_log_in_daily_deatil() {
         val zone = ZoneId.systemDefault()
@@ -316,6 +332,7 @@ class FoodDiaryTest {
         assertEquals("Lunch", result.meals[1].mealType)
     }
 
+    // AC-ATH-07
     @Test
     fun should_only_include_log_from_select_day_in_daily_deatil() {
         val zone = ZoneId.systemDefault()
@@ -363,5 +380,45 @@ class FoodDiaryTest {
         assertEquals(1, result.meals.size)
         assertEquals("Breakfast", result.meals.first().mealType)
         assertEquals("Testselected", result.meals.first().notes)
+    }
+
+    // AC-ATH-02
+    // AC-STUDENT-03
+    @Test
+    fun should_sum_multiple_items_within_the_same_meal() {
+        val zone = ZoneId.systemDefault()
+        val today = LocalDate.now(zone)
+        val logInstant = today.atStartOfDay(zone).toInstant()
+
+        val logId =
+            transaction {
+                FoodLogs.insert {
+                    it[FoodLogs.user_id] = userId
+                    it[log_date] = logInstant
+                    it[meal_type] = "Breakfast"
+                    it[notes] = "Test note"
+                } get FoodLogs.food_log_id
+            }
+
+        transaction {
+            FoodLogItems.insert {
+                it[FoodLogItems.food_log_id] = logId
+                it[FoodLogItems.food_id] = appleId
+                it[quantity_g] = BigDecimal("100.00")
+            }
+            FoodLogItems.insert {
+                it[FoodLogItems.food_log_id] = logId
+                it[FoodLogItems.food_id] = appleId
+                it[quantity_g] = BigDecimal("100.00")
+            }
+        }
+
+        val result = DiaryService.getDailyDiaryDetail(userId, today)
+        val meal = result.meals.first()
+
+        assertEquals(1, result.meals.size)
+        assertEquals(2, meal.items.size)
+        assertEquals(130, meal.totalCalories)
+        assertEquals(130, result.totalCalories)
     }
 }

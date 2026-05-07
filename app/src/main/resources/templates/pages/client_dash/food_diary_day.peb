@@ -1,3 +1,4 @@
+<!-- Daily food diary detail page - shows meal entries and nutrition totals for a selected day -->
 {% extends "layouts/base.peb" %}
 
 {% block title %}

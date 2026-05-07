@@ -1,4 +1,4 @@
-/*
+/**
  * Shared test database setup.
  * Tests connect to an in-memory H2 database, then drop and recreate all Exposed
  * tables so each test starts from a clean schema without touching real data.
@@ -23,11 +23,12 @@ import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 object TestDatabaseFactory {
     fun init() {
-        Database.connect(url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;", driver = "org.h2.Driver")
+        Database.connect(url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MODE=MySQL;", driver = "org.h2.Driver")
 
         transaction {
             SchemaUtils.drop(
@@ -69,6 +70,9 @@ object TestDatabaseFactory {
                 RecipeReviews,
                 UserFavouritedRecipes,
             )
+            // Added for role based authentication testing
+            Roles.insert { it[role_name] = "client" }
+            Roles.insert { it[role_name] = "professional" }
         }
     }
 }

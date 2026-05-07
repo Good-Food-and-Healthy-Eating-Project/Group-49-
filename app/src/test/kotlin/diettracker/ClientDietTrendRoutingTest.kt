@@ -1,4 +1,4 @@
-/*
+/**
  * Routing tests using Ktor's testApplication.
  * Each test resets and seeds the in-memory H2 test database, starts module(testing = true),
  * then uses a test HTTP client with cookies to log in and call the target route.
@@ -7,6 +7,8 @@
 package diettracker
 
 import diettracker.db.tables.Clients
+import diettracker.db.tables.Roles
+import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
 import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.get
@@ -32,6 +34,8 @@ class ClientDietTrendRoutingTest {
     fun setUP() {
         TestDatabaseFactory.init()
         transaction {
+            UserRoles.deleteAll()
+            Roles.deleteAll()
             Users.deleteAll()
             Clients.deleteAll()
             val time = Instant.now()
@@ -53,9 +57,19 @@ class ClientDietTrendRoutingTest {
                 it[age] = 20
                 it[gender] = "Male"
             }
+            val clientRoleId =
+                Roles.insert {
+                    it[role_name] = "client"
+                } get Roles.role_id
+            UserRoles.insert {
+                it[UserRoles.user_id] = userId
+                it[UserRoles.role_id] = clientRoleId
+            }
         }
     }
 
+    // AC-ATH-07
+    // AC-STUDENT-07
     @Test
     fun should_change_month_when_url_query_parameters() =
         testApplication {
@@ -82,6 +96,8 @@ class ClientDietTrendRoutingTest {
             assertTrue(juneBody.contains("2026 / 6"))
         }
 
+    // AC-ATH-07
+    // AC-ATH-08
     @Test
     fun should_link_to_last_year_december_when_current_month_is_january() =
         testApplication {

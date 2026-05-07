@@ -1,3 +1,4 @@
+<!-- Recipes browse page - lists available recipes with search and category filter support -->
 {% extends "layouts/base.peb" %}
 
 {% block title %}{{ pageTitle | default("Recipes") }}{% endblock %}
@@ -44,7 +45,7 @@
 	}
 
 	.favourite-entry-over {
-		background
+		background: #a83c3c;
 	}
 
 	.right-content {
@@ -79,10 +80,16 @@
 		cursor: pointer;
     	transition: border-color 0.2s ease;
 		position: relative;
+		text-decoration: none;
 	}
 
 	.recipe-card:hover {
     border-color: #1A3D28;
+	}
+
+	.recipe-card:focus {
+		outline: 3px solid #A94F24;
+		outline-offset: 2px;
 	}
 
 	.recipe-card img {
@@ -189,27 +196,29 @@
 		<div class="left-content">
 			<div class="right-content">
 				<form method="get" action="/recipes" class = "search-bar" style="display:flex; gap:0.5rem;">
-					
+
 					<input type="hidden" name="category" value="{{ category }}">
-					
-					<input type="text" name="query" value="{{ query }}"
+
+					<label for="recipe-query" class="visually-hidden">Search recipes by name</label>
+					<input id="recipe-query" type="text" name="query" value="{{ query }}"
 						placeholder="Search for recipes..."
 						style="border:none; outline:none; flex:1; font-family:var(--font-body); font-size:0.95rem; background:transparent;">
-					
+
 					<button type="submit" class="btn btn-primary" style="padding:0.4rem 1rem;">Search</button>
-				
+
 				</form>
 
 				<form method="get" action="/recipes" class = "search-bar" style="display:flex; gap:0.5rem; margin-top:0.5rem;">
-					
+
 					<input type="hidden" name="category" value="{{ category }}">
-					
-					<input type="text" name="ingredient" value="{{ ingredient }}"
+
+					<label for="recipe-ingredient" class="visually-hidden">Search recipes by ingredient</label>
+					<input id="recipe-ingredient" type="text" name="ingredient" value="{{ ingredient }}"
 						placeholder="Search by ingredient..."
 						style="border:none; outline:none; flex:1; font-family:var(--font-body); font-size:0.95rem; background:transparent;">
-					
+
 					<button type="submit" class="btn btn-primary" style="padding:0.4rem 1rem;">Search</button>
-				
+
 				</form>
 					<div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
 						<a href="/recipes?query={{ query }}"
@@ -225,25 +234,23 @@
 
 					<div class="cards-grid">
 						{% for recipe in recipes %}
-							<div class="recipe-card" data-recipe="{{ recipe.name }}" data-id="{{ recipe.id }}" onclick="window.location.href='/recipes/' + this.getAttribute('data-id')">
-								<button class="heart {% if recipe.isFavourited %}active{% endif %}" aria-label="Favourite {{ recipe.name }}" type="button"></button>
-								
-								{% if recipe.thumbnail %}
-									<img src="{{ recipe.thumbnail }}" alt="{{ recipe.name }}">
-								{% endif %}
-								
-								<div class="recipe-card-label">{{ recipe.name }}</div>
-							</div>
+							<a class="recipe-card" href="/recipes/{{ recipe.id }}" data-recipe="{{ recipe.name }}" data-id="{{ recipe.id }}" aria-label="{{ recipe.name }}">
+								<button class="heart {% if recipe.isFavourited %}active{% endif %}" aria-label="{% if recipe.isFavourited %}Remove {{ recipe.name }} from favourites{% else %}Add {{ recipe.name }} to favourites{% endif %}" type="button"></button>
 
-							{# <p>{{ recipe.id }} - {{favouriteIds}}</p> #}
+								{% if recipe.thumbnail %}
+									<img src="{{ recipe.thumbnail }}" alt="">
+								{% endif %}
+
+								<div class="recipe-card-label" aria-hidden="true">{{ recipe.name }}</div>
+							</a>
 
 						{% endfor %}
 					</div>
 			</div>
 		</div>
 
-		<aside class="favourites" id="favourites-panel">
-    		<p class="favourites-title">Favourites</p>
+		<aside class="favourites" id="favourites-panel" aria-label="Favourite recipes">
+    		<h2 class="favourites-title">Favourites</h2>
 			{% for recipe in favouriteRecipes %}
 				<div class="favourite-entry" id="fav-{{ recipe.id }}">
 					{{ recipe.name }}
@@ -257,6 +264,7 @@
 <script>
     document.querySelectorAll(".heart").forEach(function(heart) {
         heart.addEventListener("click", function(e) {
+            e.preventDefault();
             e.stopPropagation();
 
             var card = heart.closest(".recipe-card");
@@ -266,6 +274,7 @@
 
             if (isActive) {
                 heart.classList.remove("active");
+                heart.setAttribute("aria-label", "Add " + recipeName + " to favourites");
                 var entry = document.getElementById("fav-" + recipeId);
 
 				if (entry) entry.remove();
@@ -276,6 +285,7 @@
             } else {
 
                 heart.classList.add("active");
+                heart.setAttribute("aria-label", "Remove " + recipeName + " from favourites");
                 var entry = document.createElement("div");
 
                 entry.classList.add("favourite-entry");
