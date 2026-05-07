@@ -1,3 +1,8 @@
+/*
+ * Routing tests using Ktor's testApplication.
+ * Each test resets and seeds the in-memory H2 test database, starts module(testing = true),
+ * then uses the test HTTP client to request recipe routes and verify responses.
+ */
 package diettracker
 
 import diettracker.db.tables.Foods

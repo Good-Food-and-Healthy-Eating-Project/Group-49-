@@ -1,3 +1,9 @@
+/*
+ * Database integration tests using the TestDatabaseFactory.
+ * The in-memory H2 test database is recreated before each test so relationships
+ * across multiple Exposed tables can be verified in isolation.
+ * Acceptance criteria: DB-4, P5-1.
+ */
 import diettracker.db.tables.ClientProfessionalLink
 import diettracker.db.tables.Clients
 import diettracker.db.tables.FoodLogItems

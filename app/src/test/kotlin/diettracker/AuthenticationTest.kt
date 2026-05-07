@@ -1,3 +1,8 @@
+/*
+ * Authentication tests using Ktor's testApplication.
+ * Each test resets the in-memory H2 test database, starts the app with module(testing = true),
+ * then creates a test HTTP client with cookies/redirect settings to verify route responses.
+ */
 package diettracker
 
 import io.ktor.client.plugins.cookies.HttpCookies
@@ -413,5 +418,18 @@ class AuthenticationTest {
             val result = client.get("/professional-profile")
             assertEquals(302, result.status.value)
             assertEquals("/Professional-Login", result.headers[HttpHeaders.Location])
+        }
+
+    @Test
+    fun should_redirect_to_login_when_message_page_not_Authentication() =
+        testApplication {
+            application { module(testing = true) }
+            val client =
+                createClient {
+                    followRedirects = false
+                }
+            val result = client.get("/messages")
+            assertEquals(302, result.status.value)
+            assertEquals("/Login", result.headers[HttpHeaders.Location])
         }
 }

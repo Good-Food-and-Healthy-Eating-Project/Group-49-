@@ -141,7 +141,6 @@
 			<div class="actions">
 				<button type="submit">Sign Up</button>
 
-				<!-- NEW BUTTON -->
 				<button type="button" class="secondary-btn"
 					onclick="window.location='/Professional-Sign-Up'">
 					Sign up as Professional

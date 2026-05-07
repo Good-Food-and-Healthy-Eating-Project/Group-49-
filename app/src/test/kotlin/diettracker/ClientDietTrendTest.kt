@@ -1,3 +1,9 @@
+/*
+ * Service and data tests using the TestDatabaseFactory.
+ * Each test resets and seeds the in-memory H2 test database, then calls the diet trend
+ * logic and verifies the calculated results from isolated test data.
+ * Acceptance criteria: P1-11, P2-5, P5-4, P5-6, P6-2.
+ */
 package diettracker
 
 import diettracker.db.tables.Clients

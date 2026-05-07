@@ -1,3 +1,9 @@
+/*
+ * Service and data tests using the TestDatabaseFactory.
+ * Each test resets and seeds the in-memory H2 test database, then verifies food diary
+ * behaviour through direct service/database calls instead of a real HTTP server.
+ * Acceptance criteria: P1-7, P4-2, P5-2, P7-4.
+ */
 package diettracker
 
 import diettracker.db.tables.FoodLogItems

@@ -1,3 +1,9 @@
+/*
+ * Routing tests using Ktor's testApplication.
+ * Each test resets and seeds the in-memory H2 test database, starts module(testing = true),
+ * then uses a cookie-enabled test HTTP client to log in and verify professional routes.
+ * Acceptance criteria: P2-1, P2-3, P6-1.
+ */
 package diettracker
 
 import TestDatabaseFactory

@@ -1,3 +1,9 @@
+/*
+ * Database table tests using the TestDatabaseFactory.
+ * Each test resets the in-memory H2 test database, then uses Exposed transactions
+ * to insert, query, update, and delete rows directly against the schema.
+ * Acceptance criteria: DB-3, DB-5, P3-9, P5-3.
+ */
 import diettracker.db.tables.Clients
 import diettracker.db.tables.Users
 import org.jetbrains.exposed.v1.core.eq

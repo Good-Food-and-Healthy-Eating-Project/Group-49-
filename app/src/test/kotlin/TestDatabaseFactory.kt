@@ -1,3 +1,9 @@
+/*
+ * Shared test database setup.
+ * Tests connect to an in-memory H2 database, then drop and recreate all Exposed
+ * tables so each test starts from a clean schema without touching real data.
+ * Acceptance criteria: DB-1.
+ */
 import diettracker.db.tables.Chats
 import diettracker.db.tables.ClientProfessionalLink
 import diettracker.db.tables.Clients

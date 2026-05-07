@@ -67,8 +67,15 @@ private fun Route.configureProfilePageRoute() {
                                     "gender" to row[Clients.gender],
                                     "daily_calorie_goal" to row[Clients.daily_calorie_goal],
                                 )
-                            }.single()
-                    }
+                            }.singleOrNull()
+                    } ?: mapOf(
+                        "client_id" to userId,
+                        "age" to null,
+                        "weight" to null,
+                        "height" to null,
+                        "goal" to null,
+                    )
+
                 call.respondTemplate(
                     "pages/client_dash/profile.peb",
                     buildNavbarContext(userId) +
