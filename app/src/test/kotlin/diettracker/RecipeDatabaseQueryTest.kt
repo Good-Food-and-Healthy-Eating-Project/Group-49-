@@ -77,6 +77,8 @@ class RecipeDatabaseQueryTest {
         }
     }
 
+    // AC-PARENT-05
+    // AC-PARENT-06
     @Test
     fun should_search_recipe_by_name() {
         val result = RecipeDatabaseQuery.searchRecipes("Test")
@@ -84,6 +86,8 @@ class RecipeDatabaseQueryTest {
         assertEquals("Test", result.first().name)
     }
 
+    // AC-PARENT-05
+    // AC-VEG-01
     @Test
     fun should_search_recipe_by_ingredient() {
         val result = RecipeDatabaseQuery.searchByIngredient("Apple")
@@ -91,12 +95,15 @@ class RecipeDatabaseQueryTest {
         assertEquals("Test", result.first().name)
     }
 
+    // AC-VEG-01
     @Test
     fun should_fiter_recipe_by_category() {
         val result = RecipeDatabaseQuery.searchRecipes("", category = "Launch")
         assertTrue(result.any { it.name == "Test" })
     }
 
+    // AC-API-02
+    // AC-ATH-04
     @Test
     fun should_get_recipe_detil_by_ingredient() {
         val result = RecipeDatabaseQuery.getRecipeById(recipeId)
@@ -107,6 +114,8 @@ class RecipeDatabaseQueryTest {
         assertEquals(1, result.ingredients.size)
     }
 
+    // AC-ATH-03
+    // AC-VEG-09
     @Test
     fun should_add_and_get_favourite_recipe() {
         RecipeDatabaseQuery.addFavourite(userId, recipeId)

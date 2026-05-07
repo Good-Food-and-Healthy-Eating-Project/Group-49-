@@ -1,3 +1,4 @@
+<!-- Public landing page - shown to unauthenticated users with sign up and login options -->
 {% extends "layouts/base.peb" %}
 {% set showNavbar = false %}
 {% block content %}

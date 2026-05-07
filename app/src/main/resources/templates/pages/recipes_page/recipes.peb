@@ -1,3 +1,4 @@
+<!-- Recipes browse page - lists available recipes with search and category filter support -->
 {% extends "layouts/base.peb" %}
 
 {% block title %}{{ pageTitle | default("Recipes") }}{% endblock %}

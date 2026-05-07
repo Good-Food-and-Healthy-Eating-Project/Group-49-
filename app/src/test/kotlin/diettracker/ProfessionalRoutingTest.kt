@@ -124,6 +124,7 @@ class ProfessionalRoutingTest {
         }
     }
 
+    // AC-DB-02
     @Test
     fun should_signup_professional_user() =
         testApplication {
@@ -143,6 +144,8 @@ class ProfessionalRoutingTest {
             }
         }
 
+    // AC-DB-05
+    // AC-ELDER-02
     @Test
     fun professional_sign_up_should_fail_when_missing_email() =
         testApplication {
@@ -155,6 +158,8 @@ class ProfessionalRoutingTest {
             assertEquals(400, result.status.value)
         }
 
+    // AC-DB-05
+    // AC-ELDER-02
     @Test
     fun professional_sign_up_should_fail_when_missing_password() =
         testApplication {
@@ -167,6 +172,7 @@ class ProfessionalRoutingTest {
             assertEquals(400, result.status.value)
         }
 
+    // AC-DB-05
     @Test
     fun professional_sign_up_should_fail_when_have_same_eamil() =
         testApplication {
@@ -185,6 +191,7 @@ class ProfessionalRoutingTest {
             assertEquals(400, result.status.value)
         }
 
+    // AC-DB-02
     @Test
     fun should_login_professional_success_when_password_right() =
         testApplication {
@@ -200,6 +207,8 @@ class ProfessionalRoutingTest {
             assertEquals(302, result.status.value)
         }
 
+    // AC-DB-05
+    // AC-ELDER-02
     @Test
     fun should_login_professional_fail_when_missing_email() =
         testApplication {
@@ -212,6 +221,8 @@ class ProfessionalRoutingTest {
             assertEquals(400, result.status.value)
         }
 
+    // AC-DB-05
+    // AC-ELDER-02
     @Test
     fun should_login_professional_fail_when_missing_password() =
         testApplication {
@@ -224,6 +235,8 @@ class ProfessionalRoutingTest {
             assertEquals(400, result.status.value)
         }
 
+    // AC-DB-05
+    // AC-ELDER-02
     @Test
     fun should_login_professional_fail_when_missing_password_and_email() =
         testApplication {
@@ -275,6 +288,8 @@ class ProfessionalRoutingTest {
             assertTrue(body.contains("Find a Professional"))
         }
 
+    // AC-COACH-03
+    // AC-DIET-01
     @Test
     fun should_load_professional_dash_page_with_professional_list() =
         testApplication {
@@ -297,6 +312,10 @@ class ProfessionalRoutingTest {
             assertTrue(body.contains("Manage and view the progress of your linked clients."))
         }
 
+    // AC-COACH-01
+    // AC-COACH-04
+    // AC-DIET-02
+    // AC-DIET-04
     @Test
     fun should_show_client_detail_for_professional() =
         testApplication {
@@ -370,6 +389,7 @@ class ProfessionalRoutingTest {
             assertEquals("/professionals?error=consent", result.headers[HttpHeaders.Location])
         }
 
+    // AC-DB-02
     @Test
     fun should_link_client_to_professional_after_select_professional() =
         testApplication {

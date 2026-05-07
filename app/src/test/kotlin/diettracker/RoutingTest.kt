@@ -188,6 +188,7 @@ class RoutingTest {
             assertEquals(200, result.status.value)
         }
 
+    // AC-DB-02
     @Test
     fun should_signup_user() =
         testApplication {
@@ -207,6 +208,8 @@ class RoutingTest {
             }
         }
 
+    // AC-DB-05
+    // AC-ELDER-02
     @Test
     fun should_signup_fail_when_missing_email() =
         testApplication {
@@ -219,6 +222,8 @@ class RoutingTest {
             assertEquals(400, result.status.value)
         }
 
+    // AC-DB-05
+    // AC-ELDER-02
     @Test
     fun should_signup_fail_when_missing_password() =
         testApplication {
@@ -231,6 +236,7 @@ class RoutingTest {
             assertEquals(400, result.status.value)
         }
 
+    // AC-DB-05
     @Test
     fun should_signup_fail_when_have_same_eamil() =
         testApplication {
@@ -249,6 +255,7 @@ class RoutingTest {
             assertEquals(400, result.status.value)
         }
 
+    // AC-DB-02
     @Test
     fun should_login_success_when_password_right() =
         testApplication {
@@ -264,6 +271,7 @@ class RoutingTest {
             assertEquals(302, result.status.value)
         }
 
+    // AC-ELDER-02
     @Test
     fun should_login_fail_when_password_wrong() =
         testApplication {
@@ -283,6 +291,8 @@ class RoutingTest {
             assertTrue(body.contains("Invalid email or password"))
         }
 
+    // AC-DB-05
+    // AC-ELDER-02
     @Test
     fun should_login_fail_when_missing_email() =
         testApplication {
@@ -295,6 +305,8 @@ class RoutingTest {
             assertEquals(400, result.status.value)
         }
 
+    // AC-DB-05
+    // AC-ELDER-02
     @Test
     fun should_login_fail_when_missing_password() =
         testApplication {
@@ -307,6 +319,8 @@ class RoutingTest {
             assertEquals(400, result.status.value)
         }
 
+    // AC-DB-05
+    // AC-ELDER-02
     @Test
     fun should_login_fail_when_missing_password_and_email() =
         testApplication {
@@ -333,6 +347,42 @@ class RoutingTest {
                         ).formUrlEncode(),
                     )
                 }
+            assertEquals(302, result.status.value)
+            assertEquals("/client_dash", result.headers[HttpHeaders.Location])
+        }
+
+    // AC-PARENT-07
+    // AC-PARENT-08
+    // AC-ELDER-05
+    // AC-ELDER-06
+    @Test
+    fun should_redirect_to_dashboard_when_quiz_submitted_with_empty_optional_fields() =
+        testApplication {
+            application { module(testing = true) }
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+            // Sign up a new user so we have a valid userId to submit the quiz with
+            val signupResult =
+                client.post("/Sign-Up") {
+                    contentType(ContentType.Application.FormUrlEncoded)
+                    setBody(
+                        listOf("email" to "quizskip@test.com", "password" to "quizskip@test.com")
+                            .formUrlEncode(),
+                    )
+                }
+            // The signup redirect URL contains the userId as a query parameter
+            val location = signupResult.headers[HttpHeaders.Location] ?: ""
+            val userId = location.substringAfter("userId=")
+            // Submit the quiz with only the userId and no optional health fields
+            val result =
+                client.post("/quiz") {
+                    contentType(ContentType.Application.FormUrlEncoded)
+                    setBody(listOf("userId" to userId).formUrlEncode())
+                }
+            // The user must be redirected to the dashboard even when optional fields are skipped
             assertEquals(302, result.status.value)
             assertEquals("/client_dash", result.headers[HttpHeaders.Location])
         }

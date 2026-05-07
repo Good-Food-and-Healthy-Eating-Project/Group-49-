@@ -68,6 +68,8 @@ class ClientDietTrendRoutingTest {
         }
     }
 
+    // AC-ATH-07
+    // AC-STUDENT-07
     @Test
     fun should_change_month_when_url_query_parameters() =
         testApplication {
@@ -94,6 +96,8 @@ class ClientDietTrendRoutingTest {
             assertTrue(juneBody.contains("2026 / 6"))
         }
 
+    // AC-ATH-07
+    // AC-ATH-08
     @Test
     fun should_link_to_last_year_december_when_current_month_is_january() =
         testApplication {

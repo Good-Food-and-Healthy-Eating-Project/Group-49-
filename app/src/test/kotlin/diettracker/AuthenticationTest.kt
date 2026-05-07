@@ -47,6 +47,7 @@ class AuthenticationTest {
             assertEquals("/client_dash", response.headers[HttpHeaders.Location])
         }
 
+    // AC-ELDER-02
     @Test
     fun `login with invalid credentials shows error`() =
         testApplication {
@@ -66,6 +67,7 @@ class AuthenticationTest {
             assertEquals(200, response.status.value) // stays on page
         }
 
+    // AC-ELDER-02
     @Test
     fun `login with correct email but wrong password shows error`() =
         testApplication {
@@ -357,6 +359,7 @@ class AuthenticationTest {
             assertEquals(200, response.status.value)
         }
 
+    // AC-DB-05
     @Test
     fun `sign up with duplicate email shows error`() =
         testApplication {

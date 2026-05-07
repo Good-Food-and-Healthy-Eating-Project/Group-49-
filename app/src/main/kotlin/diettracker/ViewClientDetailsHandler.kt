@@ -16,6 +16,11 @@ private const val MAX_YEAR = 2100
 private const val MIN_MONTH = 1
 private const val MAX_MONTH = 12
 
+/**
+ * Returns the first day of the requested month, or the current month if the values are out of range.
+ *
+ * This prevents invalid dates from being constructed if the query parameters are manipulated.
+ */
 private fun resolveSelectedDate(
     selectedYear: Int,
     selectedMonth: Int,
@@ -27,6 +32,13 @@ private fun resolveSelectedDate(
         today.withDayOfMonth(1)
     }
 
+/**
+ * Counts how many days in the given trend list are considered on track based on the client's goal.
+ *
+ * For a lose goal, on track means staying at or under the calorie target.
+ * For a gain goal, on track means reaching or exceeding the calorie target.
+ * For all other goals, on track means staying within 200 kcal of the target.
+ */
 private fun countOnTrackDays(
     trends: List<DailyDietTrend>,
     clientGoal: String?,
@@ -39,6 +51,13 @@ private fun countOnTrackDays(
         }
     }
 
+/**
+ * Validates that the current user is a logged-in professional and routes to the detail renderer.
+ *
+ * It checks the session for an email, looks up the user ID, and confirms they have the professional role.
+ * If any check fails, the user is redirected to the login page or shown an error message.
+ * The client ID is taken from the route path and passed to the renderer if all checks pass.
+ */
 suspend fun ApplicationCall.handleViewClientDetails() {
     val email = sessions.get<UserSession>()?.email
     val professionalId = email?.let { getUserIdByEmail(it) }
@@ -52,6 +71,15 @@ suspend fun ApplicationCall.handleViewClientDetails() {
     }
 }
 
+/**
+ * Builds and sends the client detail page response for the given professional and client.
+ *
+ * It loads the client's basic info, diet trends and weekly chart data.
+ * The selected month defaults to the current month but can be changed using year and month query parameters.
+ * Month and year values are validated before use to prevent invalid dates being constructed.
+ * On-track days are counted based on the client's goal type so the summary card shows accurate progress.
+ * The full data set is passed to the template so the professional can see calories, macros and the monthly calendar.
+ */
 private suspend fun ApplicationCall.renderClientDetails(
     professionalId: Int,
     clientId: Int,

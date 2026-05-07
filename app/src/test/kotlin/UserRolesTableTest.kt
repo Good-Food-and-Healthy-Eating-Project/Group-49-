@@ -31,6 +31,7 @@ class UserRolesTableTest {
         }
     }
 
+    // AC-DB-02
     @Test
     fun should_insert_user_role_succsess() {
         transaction {
@@ -58,6 +59,7 @@ class UserRolesTableTest {
         }
     }
 
+    // AC-DB-05
     @Test
     fun should_not_allow_insert_when_non_existing_user_id() {
         transaction {
@@ -74,6 +76,7 @@ class UserRolesTableTest {
         }
     }
 
+    // AC-DB-05
     @Test
     fun should_not_allow_insert_when_non_existing_role_id() {
         transaction {
@@ -122,6 +125,7 @@ class UserRolesTableTest {
         }
     }
 
+    // AC-DB-05
     @Test
     fun should_not_allow_same_user_role() {
         transaction {

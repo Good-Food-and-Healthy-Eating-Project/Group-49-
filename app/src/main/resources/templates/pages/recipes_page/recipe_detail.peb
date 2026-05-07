@@ -1,3 +1,4 @@
+<!-- Recipe detail page - shows full recipe information including ingredients, instructions and user reviews -->
 {% extends "layouts/base.peb" %}
 
 {% block title %}{{ recipe.name }}{% endblock %}

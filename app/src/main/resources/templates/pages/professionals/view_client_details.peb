@@ -1,3 +1,4 @@
+<!-- Client detail page - shown to professionals with the selected client's stats, monthly calendar and weekly nutrition charts -->
 {% extends "layouts/base.peb" %}
 
 {% block title %}{{ pageTitle | default("View Client Details") }}{% endblock %}

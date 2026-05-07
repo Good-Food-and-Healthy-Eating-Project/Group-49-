@@ -95,6 +95,9 @@ class ClientDietTrendTest {
         }
     }
 
+    // AC-ATH-07
+    // AC-ATH-11
+    // AC-STUDENT-04
     @Test
     fun should_return_grenn_when_lose_goal_and_calorie_under_target() {
         val date = LocalDate.of(2026, 5, 1)
@@ -113,6 +116,8 @@ class ClientDietTrendTest {
         assertEquals("green", trends.first().colourClass)
     }
 
+    // AC-ATH-07
+    // AC-ATH-11
     @Test
     fun should_return_red_when_lose_goal_and_calorie_over_target() {
         val date = LocalDate.of(2026, 5, 2)
@@ -128,6 +133,8 @@ class ClientDietTrendTest {
         assertEquals("red", trends.first().colourClass)
     }
 
+    // AC-ATH-07
+    // AC-ATH-11
     @Test
     fun should_reyurn_red_when_gain_goal_and_calorie_under_target() {
         transaction {
@@ -148,6 +155,8 @@ class ClientDietTrendTest {
         assertEquals("red", trends.first().colourClass)
     }
 
+    // AC-ATH-07
+    // AC-ATH-11
     @Test
     fun should_return_green_when_gain_goal_and_calorie_over_target() {
         transaction {
@@ -168,6 +177,7 @@ class ClientDietTrendTest {
         assertEquals("green", trends.first().colourClass)
     }
 
+    // AC-COACH-05
     @Test
     fun should_return_empty_list_when_user_has_no_food_log() {
         val trends = ClientDietTrend.getDietTrend(userId)

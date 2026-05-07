@@ -1,3 +1,4 @@
+<!-- Add food page - lets clients log food by searching for items or entering custom amounts -->
 {% extends "layouts/base.peb" %}
 
 {% block title %}Log Food{% endblock %}

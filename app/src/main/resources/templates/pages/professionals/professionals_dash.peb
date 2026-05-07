@@ -1,3 +1,4 @@
+<!-- Professional dashboard page - shows linked clients and a summary of their yesterday's progress -->
 {% extends "layouts/base.peb" %}
 
 {% block title %}{{ pageTitle | default("My Clients") }}{% endblock %}

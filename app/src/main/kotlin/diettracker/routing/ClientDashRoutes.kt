@@ -16,6 +16,17 @@ import io.ktor.server.sessions.sessions
  * The Client dashboard displays guidance messages based on UK recommended nutritional guidelines
  * The messages help the user know if they are following recommended guidelines
  **/
+// AC-ATH-01
+// AC-ATH-07
+// AC-ATH-08
+// AC-ATH-11
+// AC-STUDENT-03
+// AC-STUDENT-04
+// AC-STUDENT-06
+// AC-STUDENT-07
+// AC-STUDENT-08
+// AC-STUDENT-10
+// AC-VEG-05
 fun Route.configureClientDashRoute() {
     get("/client_dash") {
         // get client email from session

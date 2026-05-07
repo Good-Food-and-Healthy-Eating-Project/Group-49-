@@ -72,6 +72,7 @@ class FoodLogItemsTableTest {
             it[fat_per_100g] = BigDecimal("2.00")
         } get Foods.food_id
 
+    // AC-DB-04
     @Test
     fun should_insert_food_log_item_success() {
         transaction {
@@ -135,6 +136,7 @@ class FoodLogItemsTableTest {
         }
     }
 
+    // AC-DB-04
     @Test
     fun should_get_food_log_item_by_id() {
         transaction {
@@ -156,6 +158,7 @@ class FoodLogItemsTableTest {
         }
     }
 
+    // AC-DB-05
     @Test
     fun should_fail_when_food_log_id_not_exist() {
         transaction {

@@ -110,7 +110,8 @@ private suspend fun respondAddFoodPage(
  * Only allows users with role=client to prevent unauthorised access
  *
  * Uses the function above to render the template to avoid the function getting too long
- * and to improve maintainability*/
+ * and to improve maintainability
+ */
 private fun Route.configureFoodLogRoute() {
     get("/food_log") {
         if (!call.hasRole("client")) return@get call.respondRedirect("/Login")

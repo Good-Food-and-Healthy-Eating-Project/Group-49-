@@ -126,6 +126,9 @@ class MessageRoutingTest {
         }
     }
 
+    // AC-DIET-05
+    // AC-DIET-06
+    // AC-DIET-07
     @Test
     fun should_show_message_after_professional_start_covesation() =
         testApplication {
@@ -205,6 +208,8 @@ class MessageRoutingTest {
             assertTrue(body.contains("Not allowed"))
         }
 
+    // AC-DIET-05
+    // AC-ELDER-02
     @Test
     fun should_redirect_when_message_is_empty() =
         testApplication {

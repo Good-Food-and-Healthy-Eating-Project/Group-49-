@@ -153,6 +153,8 @@ class FoodLogRoutingTest {
             assertTrue(body.contains("test mix"))
         }
 
+    // AC-API-01
+    // AC-PARENT-01
     @Test
     fun should_search_food_in_log() =
         testApplication {
@@ -173,6 +175,9 @@ class FoodLogRoutingTest {
             assertTrue(body.contains("apple"))
         }
 
+    // AC-ATH-02
+    // AC-API-04
+    // AC-STUDENT-01
     @Test
     fun should_add_custom_food_calories() =
         testApplication {
@@ -212,6 +217,8 @@ class FoodLogRoutingTest {
             assertTrue(body.contains("220 kcal")) // grams / 100 * 110
         }
 
+    // AC-ATH-04
+    // AC-VEG-10
     @Test
     fun should_add_recipe_calories() =
         testApplication {
@@ -314,6 +321,8 @@ class FoodLogRoutingTest {
             assertTrue(body.contains("0 kcal"))
         }
 
+    // AC-STUDENT-02
+    // AC-ELDER-02
     @Test
     fun should_fail_when_food_id_missing() =
         testApplication {
@@ -342,6 +351,8 @@ class FoodLogRoutingTest {
             assertTrue(body.contains("0 kcal"))
         }
 
+    // AC-STUDENT-02
+    // AC-ELDER-02
     @Test
     fun should_fail_when_recipe_id_missing() =
         testApplication {
@@ -367,6 +378,33 @@ class FoodLogRoutingTest {
 
             assertEquals(200, result.status.value)
             assertTrue(body.contains("0 kcal"))
+        }
+
+    // AC-STUDENT-02
+    // AC-ELDER-02
+    @Test
+    fun should_display_error_message_when_food_id_is_missing() =
+        testApplication {
+            application { module(testing = true) }
+            val client =
+                createClient {
+                    install(io.ktor.client.plugins.cookies.HttpCookies)
+                    followRedirects = false
+                }
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(listOf("email" to "foodlog@test.com", "password" to "foodlog@test.com").formUrlEncode())
+            }
+            // Submit without a foodId to trigger the invalid entry path
+            val result =
+                client.post("/food_log_custom") {
+                    contentType(ContentType.Application.FormUrlEncoded)
+                    setBody(listOf("grams" to "100").formUrlEncode())
+                }
+            val body = result.bodyAsText()
+            assertEquals(200, result.status.value)
+            // The page must display an error message so the user knows their entry was not accepted
+            assertTrue(body.contains("Invalid or missing foodId"))
         }
 
     /**
@@ -421,6 +459,8 @@ class FoodLogRoutingTest {
             assertEquals(0, itemCount)
         }
 
+    // AC-DB-04
+    // AC-STUDENT-01
     @Test
     fun should_save_food_log_when_add_to_diary_button_pressed() =
         testApplication {
@@ -461,6 +501,11 @@ class FoodLogRoutingTest {
             assertEquals(1, count)
         }
 
+    // AC-ATH-03
+    // AC-ATH-04
+    // AC-VEG-09
+    // AC-VEG-10
+    // AC-PARENT-03
     @Test
     fun should_create_and_add_saved_meal_to_food_log_and_add_to_diary() =
         testApplication {

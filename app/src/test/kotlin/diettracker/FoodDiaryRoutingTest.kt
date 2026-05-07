@@ -59,6 +59,7 @@ class FoodDiaryRoutingTest {
         }
     }
 
+    // AC-ATH-07
     @Test
     fun should_access_food_diary_after_login() =
         testApplication {
@@ -80,6 +81,7 @@ class FoodDiaryRoutingTest {
             assertEquals(200, response.status.value)
         }
 
+    // AC-ATH-07
     @Test
     fun should_open_food_diary_with_vaild_week_parameter() =
         testApplication {
@@ -102,6 +104,7 @@ class FoodDiaryRoutingTest {
             assertEquals(200, response.status.value)
         }
 
+    // AC-API-03
     @Test
     fun should_open_food_diary_with_invalid_week_parameter() =
         testApplication {
@@ -124,6 +127,7 @@ class FoodDiaryRoutingTest {
             assertEquals(200, response.status.value)
         }
 
+    // AC-STUDENT-03
     @Test
     fun should_access_food_diary_day_when_authenticated() =
         testApplication {
@@ -146,6 +150,7 @@ class FoodDiaryRoutingTest {
             assertEquals(200, response.status.value)
         }
 
+    // AC-API-03
     @Test
     fun should_handle_invalid_date_parameter_for_food_diary_day() =
         testApplication {

@@ -1,3 +1,4 @@
+<!-- Professionals directory page - lists registered professionals for clients to browse and link to -->
 {% extends "layouts/base.peb" %}
 
 {% block title %}{{ pageTitle | default("Find a Professional") }}{% endblock %}

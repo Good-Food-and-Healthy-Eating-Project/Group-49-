@@ -30,6 +30,8 @@ class RecipesTableTest {
         }
     }
 
+    // AC-DB-02
+    // AC-VEG-08
     @Test
     fun should_insert_recipe_success() {
         transaction {
@@ -117,6 +119,8 @@ class RecipesTableTest {
         }
     }
 
+    // AC-PARENT-05
+    // AC-PARENT-06
     @Test
     fun should_find_recipe_by_name() {
         transaction {
@@ -147,6 +151,7 @@ class RecipesTableTest {
         }
     }
 
+    // AC-DB-05
     @Test
     fun should_fail_when_insert_recipe_with_invalid_user_id() {
         transaction {

@@ -122,6 +122,8 @@ class ProfileTest {
             assertEquals(200, result.status.value)
         }
 
+    // AC-VEG-05
+    // AC-STUDENT-06
     @Test
     fun should_load_profile_page_deatil_when_logged_in() =
         testApplication {
@@ -150,6 +152,8 @@ class ProfileTest {
             assertTrue(body.contains("180"))
         }
 
+    // AC-DB-03
+    // AC-VEG-12
     @Test
     fun should_update_profile_and_redirect_back_to_profile_page() =
         testApplication {
@@ -199,6 +203,7 @@ class ProfileTest {
             }
         }
 
+    // AC-API-03
     @Test
     fun should_not_crash_when_user_has_no_profile() =
         testApplication {
@@ -252,6 +257,7 @@ class ProfileTest {
             assertTrue(body.contains("testorganisation"))
         }
 
+    // AC-DB-03
     @Test
     fun should_update_professional_profile() =
         testApplication {

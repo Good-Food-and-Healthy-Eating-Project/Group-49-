@@ -16,6 +16,12 @@ import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 import java.time.LocalDate
 
+/**
+ * Groups all food diary routes together
+ *
+ * Includes the weekly diary view and the daily detail view
+ * Both routes require the user to be logged in as a client
+ **/
 fun Route.foodDiaryRoutes() {
     authenticate("group49-client_auth") {
         get("/food_diary") { call.handleFoodDiaryWeek() }
@@ -23,6 +29,16 @@ fun Route.foodDiaryRoutes() {
     }
 }
 
+/**
+ * Handles requests to the weekly food diary page.
+ *
+ * It checks the session to confirm the user is logged in and has the client role.
+ * If not, the user is redirected to the login page.
+ *
+ * An optional week query parameter is used to show a specific week's entries.
+ * If the parameter is missing or invalid, the diary service uses the current week instead.
+ * The diary data is built by DiaryService to keep routing logic separate.
+ */
 private suspend fun ApplicationCall.handleFoodDiaryWeek() {
     val sessionEmail = sessions.get<UserSession>()?.email
     val userId = sessionEmail?.let { getUserIdByEmail(it) }
@@ -55,6 +71,16 @@ private suspend fun ApplicationCall.handleFoodDiaryWeek() {
     )
 }
 
+/**
+ * Handles requests to the daily food diary detail page.
+ *
+ * It checks the session to confirm the user is logged in and has the client role.
+ * If not, the user is redirected to the login page.
+ *
+ * An optional date query parameter is used to show a specific day's entries.
+ * If the parameter is missing or invalid, today's date is used instead.
+ * The detail data is built by DiaryService to keep routing logic separate.
+ */
 private suspend fun ApplicationCall.handleFoodDiaryDay() {
     val sessionEmail = sessions.get<UserSession>()?.email
     val userId = sessionEmail?.let { getUserIdByEmail(it) }

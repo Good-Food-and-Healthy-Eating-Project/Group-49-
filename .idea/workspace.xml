@@ -5,17 +5,54 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3e8b2f3c-ea88-445f-8f8a-aedd969d0c66" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/CaloriesSession.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/CaloriesSession.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/ClientDietTrend.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/ClientDietTrend.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/Routing.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/Routing.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/ViewClientDetailsHandler.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/ViewClientDetailsHandler.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ClientDashRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ClientDashRoutes.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/FoodDiaryRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/FoodDiaryRoutes.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ProfileRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/ProfileRoutes.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/RoleCheck.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/RoleCheck.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/services/DashboardServices.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/services/DashboardServices.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/FoodRoutes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/kotlin/diettracker/routing/FoodRoutes.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/auth/login.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/auth/login.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/auth/signup.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/auth/signup.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/client_dash/add_food.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/client_dash/add_food.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/client_dash/food_diary.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/client_dash/food_diary.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/client_dash/food_diary_day.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/client_dash/food_diary_day.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/client_dash/profile.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/client_dash/profile.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/landing_page/landing_page.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/landing_page/landing_page.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/messages/messages.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/messages/messages.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/prof_quiz.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/prof_quiz.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/professional_profile.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/professional_profile.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/professionals.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/professionals.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/professionals_dash.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/professionals_dash.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/proflogin.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/proflogin.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/profsignup.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/profsignup.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/view_client_details.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/professionals/view_client_details.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/recipes_page/recipe_detail.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/recipes_page/recipe_detail.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/pages/recipes_page/recipes.peb" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/pages/recipes_page/recipes.peb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/ClientProfessionalLinkTableTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/ClientProfessionalLinkTableTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/ClientsTableTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/ClientsTableTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/FoodLogItemsTableTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/FoodLogItemsTableTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/FoodLogsTableTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/FoodLogsTableTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/FoodsTableTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/FoodsTableTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/MessagingRepositoryTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/MessagingRepositoryTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/MultiTableIntegrationTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/MultiTableIntegrationTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/ProfessionalsTableTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/ProfessionalsTableTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/RecipeIngredientsTableTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/RecipeIngredientsTableTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/RecipesTableTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/RecipesTableTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/RolesTableTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/RolesTableTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/UserRolesTableTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/UserRolesTableTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/UsersTableTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/UsersTableTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/AuthenticationTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/AuthenticationTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/ClientDietTrendRoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/ClientDietTrendRoutingTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/ClientDietTrendTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/ClientDietTrendTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodDiaryRoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodDiaryRoutingTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodDiaryTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodDiaryTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodLogRoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodLogRoutingTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/MessageRoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/MessageRoutingTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/ProfessionalRoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/ProfessionalRoutingTest.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/ProfileTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/ProfileTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/RecipeDatabaseQueryTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/RecipeDatabaseQueryTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/RecipeRoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/RecipeRoutingTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/RoutingTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/test/kotlin/diettracker/RoutingTest.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,7 +60,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="138" />
+    <option name="cachedIndexableFilesCount" value="140" />
   </component>
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
@@ -180,12 +217,12 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/test/kotlin/diettracker/FoodDiaryRoutingTest.kt</url>
-          <line>116</line>
+          <line>119</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/app/src/test/kotlin/diettracker/ProfileTest.kt</url>
-          <line>180</line>
+          <line>184</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
       </breakpoints>

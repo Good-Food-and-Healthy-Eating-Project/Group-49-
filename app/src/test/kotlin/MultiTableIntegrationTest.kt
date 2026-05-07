@@ -155,6 +155,7 @@ class MultiTableIntegrationTest {
         }
     }
 
+    // AC-DB-02
     @Test
     fun should_assign_role_to_user_success() {
         transaction {
@@ -176,6 +177,7 @@ class MultiTableIntegrationTest {
         }
     }
 
+    // AC-DB-04
     @Test
     fun should_create_food_log_with_item() {
         transaction {
@@ -199,6 +201,8 @@ class MultiTableIntegrationTest {
         }
     }
 
+    // AC-DB-04
+    // AC-VEG-08
     @Test
     fun should_crate_recipe_with_ingredients() {
         transaction {
@@ -224,6 +228,7 @@ class MultiTableIntegrationTest {
         }
     }
 
+    // AC-DB-02
     @Test
     fun should_link_client_with_profesional() {
         transaction {

@@ -30,6 +30,7 @@ class ProfessionalsTableTest {
         }
     }
 
+    // AC-DB-02
     @Test
     fun should_inser_professional_success() {
         transaction {
@@ -85,6 +86,7 @@ class ProfessionalsTableTest {
         }
     }
 
+    // AC-DB-03
     @Test
     fun should_update_professional_success() {
         transaction {
@@ -141,6 +143,7 @@ class ProfessionalsTableTest {
         }
     }
 
+    // AC-DB-05
     @Test
     fun should_fail_when_insert_same_professional_id() {
         transaction {
@@ -170,6 +173,7 @@ class ProfessionalsTableTest {
         }
     }
 
+    // AC-DB-05
     @Test
     fun should_fail_when_user_not_exits() {
         transaction {

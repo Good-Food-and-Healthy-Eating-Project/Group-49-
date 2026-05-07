@@ -28,6 +28,8 @@ class FoodsTableTest {
         transaction { Foods.deleteAll() }
     }
 
+    // AC-DB-04
+    // AC-API-02
     @Test
     fun insert_food_should_success() {
         transaction {
@@ -56,6 +58,8 @@ class FoodsTableTest {
         }
     }
 
+    // AC-API-01
+    // AC-API-02
     @Test
     fun should_find_food_by_name() {
         transaction {
@@ -155,6 +159,7 @@ class FoodsTableTest {
         }
     }
 
+    // AC-API-02
     @Test
     fun should_insert_food_with_null_optional() {
         transaction {
@@ -190,6 +195,7 @@ class FoodsTableTest {
         }
     }
 
+    // AC-DB-05
     @Test
     fun should_fail_when_food_name_over_max_length() {
         assertFailsWith<Exception> {

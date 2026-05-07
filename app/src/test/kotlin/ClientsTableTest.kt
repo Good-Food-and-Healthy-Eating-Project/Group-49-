@@ -32,6 +32,8 @@ class ClientsTableTest {
         }
     }
 
+    // AC-DB-02
+    // AC-DB-03
     @Test
     fun should_insert_client_success() {
         transaction {
@@ -58,6 +60,7 @@ class ClientsTableTest {
         }
     }
 
+    // AC-DB-03
     @Test
     fun should_update_height_and_weight() {
         transaction {
@@ -111,6 +114,7 @@ class ClientsTableTest {
         }
     }
 
+    // AC-DB-03
     @Test
     fun should_get_client_from_id() {
         transaction {
@@ -136,6 +140,7 @@ class ClientsTableTest {
         }
     }
 
+    // AC-DB-05
     @Test
     fun should_fail_to_insert_client_when_user_does_not_exits() {
         transaction {
@@ -150,6 +155,7 @@ class ClientsTableTest {
         }
     }
 
+    // AC-DB-05
     @Test
     fun should_fail_when_insert_same_client_id() {
         transaction {
