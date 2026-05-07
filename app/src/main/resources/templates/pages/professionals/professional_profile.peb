@@ -102,17 +102,31 @@
                 <h1 class="profile-title">Profile</h1>
 
                 {% if userinfo is not null %}
-                    <p class="profile-info">Professional ID: {{ userinfo.professional_id }}</p>
+                    <p class="profile-info">Name: {{ userinfo.first_name }} {{ userinfo.second_name }}</p>
                     {% if email is defined %}
                         <p class="profile-info">Email: {{ email }}</p>
                     {% endif %}
-                    <p class="profile-info">Name: {{ userinfo.first_name }} {{ userinfo.second_name }}</p>
                 {% else %}
                     <p class="profile-info">No profile information found.</p>
                 {% endif %}
             </div>
 
             <form method="post" action="/professional-profile-update" class="profile-form">
+
+                <div class="profile-section">
+                    <label for="first_name" class="profile-label">First Name</label>
+                    <input id="first_name" type="text" name="first_name" value="{{ userinfo.first_name }}">
+                </div>
+
+                <div class="profile-section">
+                    <label for="second_name" class="profile-label">Last Name</label>
+                    <input id="second_name" type="text" name="second_name" value="{{ userinfo.second_name }}">
+                </div>
+
+                <div class="profile-section">
+                    <label for="email" class="profile-label">Email</label>
+                    <input id="email" type="email" name="email" value="{{ email }}">
+                </div>
 
                 <div class="profile-section">
                      <label for="job_title" class="profile-label">Job Title</label>

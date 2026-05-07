@@ -107,11 +107,13 @@ private fun Route.configureProfessionalProfileUpdateRoute() {
 
         val params = call.receiveParameters()
 
+        val newFirstName = params["first_name"]?.takeIf { it.isNotBlank() }
+        val newSecondName = params["second_name"]?.takeIf { it.isNotBlank() }
+        val newEmail = params["email"]?.takeIf { it.isNotBlank() }
         val newJobTitle = params["job_title"]?.takeIf { it.isNotBlank() }
         val newOrganisation = params["organisation"]?.takeIf { it.isNotBlank() }
         val newBio = params["bio"]?.takeIf { it.isNotBlank() }
 
-        // Get current values to use if fields were left blank
         val currentProfessional =
             transaction {
                 Professionals
@@ -120,16 +122,32 @@ private fun Route.configureProfessionalProfileUpdateRoute() {
                     .singleOrNull()
             }
 
-        if (currentProfessional == null) {
+        val currentUser =
+            transaction {
+                Users
+                    .selectAll()
+                    .where { Users.user_id eq userId }
+                    .singleOrNull()
+            }
+
+        if (currentProfessional == null || currentUser == null) {
             call.respondRedirect("/professional-profile")
             return@post
         }
 
+        val checkedFirstName = newFirstName ?: currentUser[Users.first_name]
+        val checkedSecondName = newSecondName ?: currentUser[Users.second_name]
+        val checkedEmail = newEmail ?: currentUser[Users.email]
         val checkedJobTitle = newJobTitle ?: currentProfessional[Professionals.job_title]
         val checkedOrganisation = newOrganisation ?: currentProfessional[Professionals.organistation]
         val checkedBio = newBio ?: currentProfessional[Professionals.bio]
 
         transaction {
+            Users.update({ Users.user_id eq userId }) {
+                it[Users.first_name] = checkedFirstName
+                it[Users.second_name] = checkedSecondName
+                it[Users.email] = checkedEmail
+            }
             Professionals.update({ Professionals.professional_id eq userId }) {
                 it[Professionals.job_title] = checkedJobTitle
                 it[Professionals.organistation] = checkedOrganisation
