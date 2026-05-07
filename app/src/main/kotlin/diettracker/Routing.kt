@@ -55,7 +55,7 @@ fun Application.configureRouting() {
 /**
  * Public routes accessible to all users - no login required
  *
- * Only includes the landing page, recipes and health check
+ * Only includes the landing page and health check
  **/
 fun Route.configurePublicRoutes() {
     // Landing page shown to unauthenticated users
@@ -67,9 +67,6 @@ fun Route.configurePublicRoutes() {
             ),
         )
     }
-
-    // Recipes are publicly browsable without an account
-    configureRecipeRoutes()
 
     // Health check endpoint used to verify the server is running
     get("/health") {
@@ -279,5 +276,6 @@ fun Route.configureProtectedRoutes() {
     authenticate("group49-client_auth") {
         get("/") { call.dashboardPage() }
         get("/logout") { call.logout() }
+        configureRecipeRoutes()
     }
 }
