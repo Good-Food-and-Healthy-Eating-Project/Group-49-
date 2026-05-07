@@ -14,6 +14,8 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 
 /**
  * Used https://www.gov.uk/government/publications/the-eatwell-guide for the nutritional guidelines
@@ -281,6 +283,18 @@ fun buildClientDashModel(
 
     val trends = getMonthlyTrends(userId, calendar)
 
+    val today = LocalDate.now()
+    val allTrends = ClientDietTrend.getDietTrend(userId)
+    val last7Days = (6 downTo 0).map { today.minusDays(it.toLong()) }
+    val weekLabels =
+        last7Days.map {
+            "${it.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())} ${it.dayOfMonth}"
+        }
+    val weekCalories = last7Days.map { day -> allTrends.find { it.date == day }?.totalCalorie?.toInt() ?: 0 }
+    val weekProtein = last7Days.map { day -> allTrends.find { it.date == day }?.totalProtein?.toInt() ?: 0 }
+    val weekCarbs = last7Days.map { day -> allTrends.find { it.date == day }?.totalCarbs?.toInt() ?: 0 }
+    val weekFat = last7Days.map { day -> allTrends.find { it.date == day }?.totalFat?.toInt() ?: 0 }
+
     // assigns both values received from the function as a result of returning as a pair
     val (calorieGoal, goal) = fetchClientProfile(userId)
 
@@ -298,5 +312,12 @@ fun buildClientDashModel(
             goal = goal,
         )
 
-    return buildDashboardMap(dashboardData)
+    return buildDashboardMap(dashboardData) +
+        mapOf(
+            "weekLabels" to weekLabels,
+            "weekCalories" to weekCalories,
+            "weekProtein" to weekProtein,
+            "weekCarbs" to weekCarbs,
+            "weekFat" to weekFat,
+        )
 }

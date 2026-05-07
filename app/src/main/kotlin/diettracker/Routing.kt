@@ -158,13 +158,15 @@ private fun Route.configureProfessionalAccountRoutes() {
         // Get all clients linked to this professional for display on the dashboard
         val clients = getClientsForProfessional(professionalId)
         val yesterday = LocalDate.now().minusDays(1)
-        val clientYesterdayStatus = clients.associate { client ->
-            val trend = ClientDietTrend.getDietTrend(client.id).find { it.date == yesterday }
-            client.id to mapOf(
-                "wasOnTrackYesterday" to (trend?.colourClass == "green"),
-                "didNotLogYesterday" to (trend == null || trend.colourClass == "empty-day"),
-            )
-        }
+        val clientYesterdayStatus =
+            clients.associate { client ->
+                val trend = ClientDietTrend.getDietTrend(client.id).find { it.date == yesterday }
+                client.id to
+                    mapOf(
+                        "wasOnTrackYesterday" to (trend?.colourClass == "green"),
+                        "didNotLogYesterday" to (trend == null || trend.colourClass == "empty-day"),
+                    )
+            }
         call.respondTemplate(
             "pages/professionals/professionals_dash.peb",
             buildNavbarContext(professionalId, userRoles) +
@@ -231,7 +233,6 @@ fun Route.configureViewClientDetailsRoutes() {
         val clients = getClientsForProfessional(professionalId)
         val clientId = call.parameters["clientId"]?.toIntOrNull()
 
-
         if (clientId == null) {
             call.respondText("Invalid client ID")
             return@get
@@ -265,19 +266,20 @@ fun Route.configureViewClientDetailsRoutes() {
 
         val trends = allTrends.filter { it.date.year == currentYear && it.date.month == currentMonth }
         val yesterday = today.minusDays(1)
-        val yesterdayTrend = allTrends.find {it.date == yesterday}
+        val yesterdayTrend = allTrends.find { it.date == yesterday }
         val didNotLogYesterday = yesterdayTrend?.colourClass == "empty-day" || yesterdayTrend == null
         val wasOnTrackYesterday = yesterdayTrend?.colourClass == "green"
 
         val todayCalories = allTrends.find { it.date == today }?.totalCalorie?.toInt() ?: 0
         val clientGoal = clientData?.get("goal") as? String
-        val onTrackDays = trends.count { trend ->
-            when (clientGoal) {
-                "lose" -> trend.totalCalorie <= trend.targetCalorie
-                "gain" -> trend.totalCalorie >= trend.targetCalorie
-                else -> kotlin.math.abs(trend.totalCalorie - trend.targetCalorie) <= ON_TRACK_TOLERANCE
+        val onTrackDays =
+            trends.count { trend ->
+                when (clientGoal) {
+                    "lose" -> trend.totalCalorie <= trend.targetCalorie
+                    "gain" -> trend.totalCalorie >= trend.targetCalorie
+                    else -> kotlin.math.abs(trend.totalCalorie - trend.targetCalorie) <= ON_TRACK_TOLERANCE
+                }
             }
-        }
 
         // Last 7 days from today for the weekly chart — day numbers only for the x-axis labels
         // last7days creates a list of 7 LocalDate objects from 6 days ago up to today so it shows a continuous trends
@@ -285,22 +287,27 @@ fun Route.configureViewClientDetailsRoutes() {
         val last7Days = (6 downTo 0).map { today.minusDays(it.toLong()) }
         // map the calculations from above to dayofmonth to extract just a short month name followed by the date
         // This avoids confusion as opposed to just having the date
-        val weekLabels = last7Days.map {
-            "${it.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())} ${it.dayOfMonth}"
-        }
+        val weekLabels =
+            last7Days.map {
+                "${it.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())} ${it.dayOfMonth}"
+            }
         // Checks allTrends to find the corresponding nutritional data for each day
-        val weekCalories = last7Days.map { day ->
-            allTrends.find { it.date == day }?.totalCalorie?.toInt() ?: 0
-        }
-        val weekProtein = last7Days.map { day ->
-            allTrends.find { it.date == day }?.totalProtein?.toInt() ?: 0
-        }
-        val weekCarbs = last7Days.map { day ->
-            allTrends.find { it.date == day }?.totalCarbs?.toInt() ?: 0
-        }
-        val weekFat = last7Days.map { day ->
-            allTrends.find { it.date == day }?.totalFat?.toInt() ?: 0
-        }
+        val weekCalories =
+            last7Days.map { day ->
+                allTrends.find { it.date == day }?.totalCalorie?.toInt() ?: 0
+            }
+        val weekProtein =
+            last7Days.map { day ->
+                allTrends.find { it.date == day }?.totalProtein?.toInt() ?: 0
+            }
+        val weekCarbs =
+            last7Days.map { day ->
+                allTrends.find { it.date == day }?.totalCarbs?.toInt() ?: 0
+            }
+        val weekFat =
+            last7Days.map { day ->
+                allTrends.find { it.date == day }?.totalFat?.toInt() ?: 0
+            }
 
         call.respondTemplate(
             "pages/professionals/view_client_details.peb",

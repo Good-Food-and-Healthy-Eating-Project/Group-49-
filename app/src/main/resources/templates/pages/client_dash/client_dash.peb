@@ -29,10 +29,12 @@ Home
             <div class="daily-overview">
                 <h3 class="summary-title">Today's Nutrition</h3>
 
+                {% if calorieGoal is not empty %}
+
                 <div class="nutrient-row">
                     <div class="nutrient-header">
                         <span class="nutrient-name">Calories</span>
-                        <span class="nutrient-values">{{ totalCalories }} kcal / {% if calorieGoal is not empty %}{{ calorieGoal }} kcal{% else %}–{% endif %}</span>
+                        <span class="nutrient-values">{{ totalCalories }} kcal / {{ calorieGoal }} kcal</span>
                     </div>
                     <div class="progress-track">
                         <div class="progress-fill calories-fill" style="width: {{ caloriePct }}%;"></div>
@@ -42,7 +44,7 @@ Home
                 <div class="nutrient-row">
                     <div class="nutrient-header">
                         <span class="nutrient-name">Protein</span>
-                        <span class="nutrient-values">{{ totalProtein }}g / {% if targetProtein is not empty %}{{ targetProtein }}g{% else %}–{% endif %}</span>
+                        <span class="nutrient-values">{{ totalProtein }}g / {{ targetProtein }}g</span>
                     </div>
                     <div class="progress-track">
                         <div class="progress-fill protein-fill" style="width: {{ proteinPct }}%;"></div>
@@ -52,7 +54,7 @@ Home
                 <div class="nutrient-row">
                     <div class="nutrient-header">
                         <span class="nutrient-name">Carbs</span>
-                        <span class="nutrient-values">{{ totalCarbs }}g / {% if targetCarbs is not empty %}{{ targetCarbs }}g{% else %}–{% endif %}</span>
+                        <span class="nutrient-values">{{ totalCarbs }}g / {{ targetCarbs }}g</span>
                     </div>
                     <div class="progress-track">
                         <div class="progress-fill carbs-fill" style="width: {{ carbsPct }}%;"></div>
@@ -62,7 +64,7 @@ Home
                 <div class="nutrient-row">
                     <div class="nutrient-header">
                         <span class="nutrient-name">Fat</span>
-                        <span class="nutrient-values">{{ totalFat }}g / {% if targetFat is not empty %}{{ targetFat }}g{% else %}–{% endif %}</span>
+                        <span class="nutrient-values">{{ totalFat }}g / {{ targetFat }}g</span>
                     </div>
                     <div class="progress-track">
                         <div class="progress-fill fat-fill" style="width: {{ fatPct }}%;"></div>
@@ -74,6 +76,15 @@ Home
                     <a href="https://www.gov.uk/government/publications/the-eatwell-guide" target="_blank" rel="noopener">UK Eatwell Guide</a>
                     (Public Health England, 2016): 50% carbs, 35% fat, 15% protein of total energy.
                 </p>
+
+                {% else %}
+
+                <div class="nutrition-empty-state">
+                    <p class="nutrition-empty-message">No nutrition targets set for this client</p>
+                    <p class="nutrition-empty-hint">Set targets to enable progress tracking</p>
+                </div>
+
+                {% endif %}
 
                 <h3 class="guidance-title">Guidance</h3>
                 <ul class="guidance-list">
@@ -403,5 +414,117 @@ Home
         color: #4A3F35;
         line-height: 1.7;
     }
+
+    .nutrition-empty-state {
+        padding: 1rem 0 0.5rem;
+        text-align: center;
+        color: #9E8E7E;
+    }
+
+    .nutrition-empty-message {
+        margin: 0 0 0.35rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #7A6855;
+    }
+
+    .nutrition-empty-hint {
+        margin: 0;
+        font-size: 0.8rem;
+        color: #9E8E7E;
+    }
+
+    .week-chart-card {
+        margin-top: 1.5rem;
+        padding: 1.5rem;
+    }
+
+    .week-chart-title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0 0 1rem 0;
+        color: var(--brown);
+    }
+
+    .week-chart-wrapper {
+        position: relative;
+        height: 250px;
+    }
 </style>
+
+<div class="card week-chart-card">
+    <h2 class="week-chart-title">7-Day Trend</h2>
+    <div class="week-chart-wrapper">
+        <canvas id="weekChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const weekLabels = [{% for d in weekLabels %}"{{ d }}"{% if not loop.last %},{% endif %}{% endfor %}];
+    const weekActual = [{% for c in weekCalories %}{{ c }}{% if not loop.last %},{% endif %}{% endfor %}];
+    const weekTarget = [{% for d in weekLabels %}{{ calorieGoal }}{% if not loop.last %},{% endif %}{% endfor %}];
+    const weekProtein = [{% for p in weekProtein %}{{ p }}{% if not loop.last %},{% endif %}{% endfor %}];
+    const weekCarbs = [{% for c in weekCarbs %}{{ c }}{% if not loop.last %},{% endif %}{% endfor %}];
+    const weekFat = [{% for f in weekFat %}{{ f }}{% if not loop.last %},{% endif %}{% endfor %}];
+
+    new Chart(document.getElementById('weekChart'), {
+        type: 'line',
+        data: {
+            labels: weekLabels,
+            datasets: [
+                {
+                    label: 'Calories eaten',
+                    data: weekActual,
+                    borderColor: '#A94F24',
+                    backgroundColor: 'rgba(169, 79, 36, 0.08)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 4,
+                },
+                {
+                    label: 'Target',
+                    data: weekTarget,
+                    borderColor: '#7A8C72',
+                    borderDash: [6, 4],
+                    pointRadius: 0,
+                    fill: false,
+                },
+                {
+                    label: 'Protein (g)',
+                    data: weekProtein,
+                    borderColor: '#4A90D9',
+                    pointRadius: 4,
+                    fill: false,
+                    tension: 0.3,
+                },
+                {
+                    label: 'Carbs (g)',
+                    data: weekCarbs,
+                    borderColor: '#E8A838',
+                    pointRadius: 4,
+                    fill: false,
+                    tension: 0.3,
+                },
+                {
+                    label: 'Fat (g)',
+                    data: weekFat,
+                    borderColor: '#9B59B6',
+                    pointRadius: 4,
+                    fill: false,
+                    tension: 0.3,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top' } },
+            scales: {
+                y: { beginAtZero: false, title: { display: true, text: 'kcal / g' } },
+                x: { title: { display: true, text: 'Date' } }
+            }
+        }
+    });
+</script>
 {% endblock %}

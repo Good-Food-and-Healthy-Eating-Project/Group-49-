@@ -17,8 +17,10 @@
 			color: #2C1E10;
 			display: flex;
 			justify-content: center;
-			align-items: center;
-			height: 100vh;
+			align-items: flex-start;
+			min-height: 100vh;
+			padding: 2rem 1rem;
+			box-sizing: border-box;
 		}
 
 		.container {

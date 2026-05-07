@@ -68,8 +68,9 @@ suspend fun ApplicationCall.signUpUser() {
         }
 
         result.getOrDefault(false) -> {
-            sessions.set(UserSession(email))
-            val userId = getUserIdByEmail(email)
+            val normalisedEmail = email.lowercase()
+            sessions.set(UserSession(normalisedEmail))
+            val userId = getUserIdByEmail(normalisedEmail)
             if (userId != null) {
                 respondRedirect("/quiz?userId=$userId")
             } else {
