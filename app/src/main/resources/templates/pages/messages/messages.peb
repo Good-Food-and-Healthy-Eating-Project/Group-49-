@@ -1,3 +1,4 @@
+<!-- Messages page - shows the active message conversation between a client and professional -->
 {% extends "layouts/base.peb" %}
 
 {% block title %}Messages{% endblock %}

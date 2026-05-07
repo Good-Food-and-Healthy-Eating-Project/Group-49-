@@ -6,6 +6,7 @@ import diettracker.db.tables.SavedMeals
 import diettracker.models.CurrentMealFood
 import diettracker.models.CurrentMealSession
 import diettracker.models.SavedMeal
+import diettracker.routing.hasRole
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.respondRedirect
@@ -140,6 +141,7 @@ fun getSavedMealFoods(mealId: Int): List<CurrentMealFood> =
  * session and would be lost after the session is cleared or changed.
  */
 suspend fun ApplicationCall.saveCurrentMeal() {
+    if (!hasRole("client")) return respondRedirect("/Login")
     val params = receiveParameters()
     val mealName = params["mealName"] ?: "Unnamed Meal"
     val email = sessions.get<UserSession>()?.email
@@ -179,6 +181,7 @@ suspend fun ApplicationCall.saveCurrentMeal() {
  * food log.
  */
 suspend fun ApplicationCall.addSavedMealToLog() {
+    if (!hasRole("client")) return respondRedirect("/Login")
     val params = receiveParameters()
     val mealId = params["mealId"]?.toIntOrNull()
     var addCalories = 0

@@ -19,7 +19,7 @@
                 <a href="/messages" class="nav-link nav-link--messages {% if currentNav == 'messages' %}nav-link--active{% endif %}">
                     <span>Messages</span>
                     {% if unreadMessageCount is defined and unreadMessageCount > 0 %}
-                        <span class="nav-badge">{{ unreadMessageCount }}</span>
+                        <span class="nav-badge" aria-label="{{ unreadMessageCount }} unread messages">{{ unreadMessageCount }}</span>
                     {% endif %}
                 </a>
             </li>
@@ -48,7 +48,7 @@
                 <a href="/messages" class="nav-link nav-link--messages {% if currentNav == 'messages' %}nav-link--active{% endif %}">
                     <span>Messages</span>
                     {% if unreadMessageCount is defined and unreadMessageCount > 0 %}
-                        <span class="nav-badge">{{ unreadMessageCount }}</span>
+                        <span class="nav-badge" aria-label="{{ unreadMessageCount }} unread messages">{{ unreadMessageCount }}</span>
                     {% endif %}
                 </a>
             </li>

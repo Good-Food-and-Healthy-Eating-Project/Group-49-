@@ -17,3 +17,6 @@ ktlint
 
 # Ignore AI tool configuration
 .ai/
+
+# Ignore IntelliJ IDEA project files
+.idea/

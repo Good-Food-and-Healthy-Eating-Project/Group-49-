@@ -14,6 +14,8 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 
 /**
  * Used https://www.gov.uk/government/publications/the-eatwell-guide for the nutritional guidelines
@@ -26,7 +28,6 @@ import java.time.LocalDate
  * Carbohydrates and Protein: 4 cals per gram
  * Fats: 9 cals per gram
  */
-
 private const val PROTEIN_KCAL_PROPORTION = 0.15
 private const val CARBS_KCAL_PROPORTION = 0.50
 private const val FAT_KCAL_PROPORTION = 0.35
@@ -38,8 +39,16 @@ private const val MIN_YEAR = 1900
 private const val MAX_YEAR = 2100
 private const val MIN_MONTH = 1
 private const val MAX_MONTH = 12
+private const val WEEK_LOOKBACK_DAYS = 6
 
-private data class MacroTargets(val proteinG: Int?, val carbsG: Int?, val fatG: Int?)
+/**
+ * This data class stores values of the target that the users should aim for
+ */
+private data class MacroTargets(
+    val proteinG: Int?,
+    val carbsG: Int?,
+    val fatG: Int?,
+)
 
 private data class CalendarMonthModel(
     val currentYear: Int,
@@ -82,6 +91,14 @@ private fun buildCalendarMonthModel(
     )
 }
 
+/**
+ * This function is used to query the Clients table in the database
+ *
+ * It searches for the client_id using the user_id and then looks for
+ * the corresponding daily calorie target and goal that is stored
+ *
+ * If this exists it returns it as a pair otherwise returns null
+ */
 private fun fetchClientProfile(userId: Int): Pair<Int?, String?> =
     transaction {
         Clients.selectAll().where { Clients.client_id eq userId }.singleOrNull()?.let {
@@ -89,6 +106,12 @@ private fun fetchClientProfile(userId: Int): Pair<Int?, String?> =
         } ?: (null to null)
     }
 
+/**
+ * This function is used to calculate the protein, fats and carb targets
+ *
+ * @param calorieGoal is passed into the function so the targets can be calculated relative to the individual goal
+ * This allows for increased personalisation and user specific guidance
+ */
 private fun calculateMacroTargets(calorieGoal: Int?): MacroTargets {
     calorieGoal ?: return MacroTargets(null, null, null)
     return MacroTargets(
@@ -98,13 +121,15 @@ private fun calculateMacroTargets(calorieGoal: Int?): MacroTargets {
     )
 }
 
-// Converts actual and target values for dashboard display on a scale of 0-100
-// Used claude AI to help me understand how to implement a progress bar tool
-// Which I display on UI using this function
+/** Converts actual and target values for dashboard display on a scale of 0-100
+ *
+ * Used claude AI to help me understand how to implement a progress bar tool
+ * Which I display on UI using this function */
 private fun barPct(
     actual: Double,
     target: Int?,
 ) = if (target != null && target > 0) {
+    // takes minimum to ensure the progress bar isn't overflowing
     minOf(actual / target * PERCENTAGE_CONV, PERCENTAGE_CONV).toInt()
 } else {
     0
@@ -126,6 +151,15 @@ private data class NutritionSummaryData(
     val status: String,
 )
 
+/**
+ * This function calculates everything needed to be displayed on the client dashboard for the day
+ *
+ * It fetched today's nutrition from the food log to get how many protein, carbs and fat the user has eaten
+ * Calculates macro targets based on the user's calorie goal
+ *
+ * It then passes these values into NutritionInput so it can be used to build guidance messages
+ * based on user's food entries during the day
+ */
 private fun buildNutritionSummary(
     userId: Int,
     calorieGoal: Int?,
@@ -168,6 +202,9 @@ private fun buildNutritionSummary(
     )
 }
 
+/**
+ * This function is used to get the information regarding whether a client is on track or not
+ * It can then be passed it*/
 private fun getMonthlyTrends(
     userId: Int,
     calendar: CalendarMonthModel,
@@ -179,6 +216,9 @@ private fun getMonthlyTrends(
                 it.date.month == calendar.currentMonth
         }
 
+/**
+ * This class is used to define all the parameters that need to be passed into other functions
+ */
 private data class DashboardMapData(
     val userId: Int,
     val userRoles: List<String>,
@@ -190,6 +230,10 @@ private data class DashboardMapData(
     val goal: String?,
 )
 
+/**
+ * This function is used to pass all the dat that need to be used/displayed
+ * on the client dashboard to the buildClientDashModel function below
+ */
 private fun buildDashboardMap(data: DashboardMapData): Map<String, Any> {
     val today = LocalDate.now()
     return buildNavbarContext(data.userId, data.userRoles) +
@@ -222,12 +266,15 @@ private fun buildDashboardMap(data: DashboardMapData): Map<String, Any> {
             "goal" to (data.goal as Any? ?: ""),
             "status" to data.summary.status,
             "messages" to data.summary.guidanceMessages,
-            "todayYear" to today.year,
-            "todayMonth" to today.monthValue,
-            "todayDay" to today.dayOfMonth,
         )
 }
 
+/**
+ * This function is used to pass the necessary information/data to the client dashboard frontend
+ *
+ * @param userId is used to keep track on entries
+ * @param year is used to keep track of entries store info for the calendar function
+ */
 fun buildClientDashModel(
     userId: Int,
     year: Int? = null,
@@ -239,6 +286,19 @@ fun buildClientDashModel(
 
     val trends = getMonthlyTrends(userId, calendar)
 
+    val today = LocalDate.now()
+    val allTrends = ClientDietTrend.getDietTrend(userId)
+    val last7Days = (WEEK_LOOKBACK_DAYS downTo 0).map { today.minusDays(it.toLong()) }
+    val weekLabels =
+        last7Days.map {
+            "${it.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())} ${it.dayOfMonth}"
+        }
+    val weekCalories = last7Days.map { day -> allTrends.find { it.date == day }?.totalCalorie?.toInt() ?: 0 }
+    val weekProtein = last7Days.map { day -> allTrends.find { it.date == day }?.totalProtein?.toInt() ?: 0 }
+    val weekCarbs = last7Days.map { day -> allTrends.find { it.date == day }?.totalCarbs?.toInt() ?: 0 }
+    val weekFat = last7Days.map { day -> allTrends.find { it.date == day }?.totalFat?.toInt() ?: 0 }
+
+    // assigns both values received from the function as a result of returning as a pair
     val (calorieGoal, goal) = fetchClientProfile(userId)
 
     val summary = buildNutritionSummary(userId, calorieGoal, goal)
@@ -255,5 +315,12 @@ fun buildClientDashModel(
             goal = goal,
         )
 
-    return buildDashboardMap(dashboardData)
+    return buildDashboardMap(dashboardData) +
+        mapOf(
+            "weekLabels" to weekLabels,
+            "weekCalories" to weekCalories,
+            "weekProtein" to weekProtein,
+            "weekCarbs" to weekCarbs,
+            "weekFat" to weekFat,
+        )
 }

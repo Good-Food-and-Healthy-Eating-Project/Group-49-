@@ -11,9 +11,12 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.format.TextStyle
+import java.util.Locale
 
 private const val GARMS100 = 100.00
 private const val GUIDANCE_MESSAGE_LIMIT = 4
+private const val WEEK_LOOKBACK_DAYS = 6
 
 data class DailyDietTrend(
     val totalCalorie: Double,
@@ -21,6 +24,9 @@ data class DailyDietTrend(
     val date: LocalDate,
     val dayOfMonth: Int,
     val colourClass: String,
+    val totalCarbs: Double,
+    val totalFat: Double,
+    val totalProtein: Double,
 )
 
 object ClientDietTrend {
@@ -73,13 +79,16 @@ object ClientDietTrend {
                 row.groupBy { it[FoodLogs.log_date].atZone(ZoneId.systemDefault()).toLocalDate() }
             group.map { (date, dayRows) ->
                 var total = 0.0
-                // calculate total calorie
+                var protein = 0.0
+                var carbs = 0.0
+                var fat = 0.0
                 for (row in dayRows) {
                     val quantity = row[FoodLogItems.quantity_g].toDouble()
-                    val calorie = row[Foods.calories_per_100g].toDouble()
-                    total += calorie * quantity / GARMS100
+                    total += row[Foods.calories_per_100g].toDouble() * quantity / GARMS100
+                    protein += row[Foods.protein_per_100g].toDouble() * quantity / GARMS100
+                    carbs += row[Foods.carbs_per_100g].toDouble() * quantity / GARMS100
+                    fat += row[Foods.fat_per_100g].toDouble() * quantity / GARMS100
                 }
-                // decide colour shown
                 val colourClass =
                     getColour(
                         totalCalorie = total.toInt().toDouble(),
@@ -92,9 +101,34 @@ object ClientDietTrend {
                     totalCalorie = total.toInt().toDouble(),
                     targetCalorie = target,
                     colourClass = colourClass,
+                    totalProtein = protein.toInt().toDouble(),
+                    totalCarbs = carbs.toInt().toDouble(),
+                    totalFat = fat.toInt().toDouble(),
                 )
             }
         }
+}
+
+fun buildWeeklyTrendData(
+    allTrends: List<DailyDietTrend>,
+    today: LocalDate,
+): Map<String, List<Any>> {
+    val last7Days = (WEEK_LOOKBACK_DAYS downTo 0).map { today.minusDays(it.toLong()) }
+    val weekLabels =
+        last7Days.map {
+            "${it.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())} ${it.dayOfMonth}"
+        }
+    val weekCalories = last7Days.map { day -> allTrends.find { it.date == day }?.totalCalorie?.toInt() ?: 0 }
+    val weekProtein = last7Days.map { day -> allTrends.find { it.date == day }?.totalProtein?.toInt() ?: 0 }
+    val weekCarbs = last7Days.map { day -> allTrends.find { it.date == day }?.totalCarbs?.toInt() ?: 0 }
+    val weekFat = last7Days.map { day -> allTrends.find { it.date == day }?.totalFat?.toInt() ?: 0 }
+    return mapOf(
+        "weekLabels" to weekLabels,
+        "weekCalories" to weekCalories,
+        "weekProtein" to weekProtein,
+        "weekCarbs" to weekCarbs,
+        "weekFat" to weekFat,
+    )
 }
 
 // return css class based on calorie total and client goal
@@ -139,6 +173,10 @@ private fun getColour(
 * Created a data class containing all parameters
 * Parameters needed to be passed into buildGuidanceMessages
 * Avoids having a parameter list that's too long
+ * @param calorieGoal stores the calculated calorie goal
+ * @param totalCalories stores the values of the total calorie input for food from that day
+ * @param proteinGrams stores the amount of protein the user has entered for the day
+ * @param proteinTarget stores the amount of protein the user should be aiming for
 * */
 
 data class NutritionInput(
@@ -153,6 +191,12 @@ data class NutritionInput(
     val goal: String?,
 )
 
+/**
+ * This function handles the guidance/feedback to be given to users
+ * based on their input throughout the day
+ * @param NutritionInput takes the values defined in the data class above
+ * to avoid having a long parameter list being passed into the function directly
+ */
 private fun calorieMessage(input: NutritionInput): String? {
     val calorieGoal = input.calorieGoal ?: return null
     val diff = input.totalCalories - calorieGoal
@@ -177,6 +221,15 @@ private fun calorieMessage(input: NutritionInput): String? {
     }
 }
 
+/**
+ * Each of the macro functions below are used to include more specific guidance based on
+ * macro target calculated earlier on
+ *
+ * This gives users more guidance and also gives a few suggestions regarding what foods
+ * they can include in their next meal.
+ *
+ * It also tells the user the benefit of meeting their macro target in relation to their goal
+ * Giving a more personalised feedback*/
 private fun proteinMessages(input: NutritionInput): List<String> {
     val messages = mutableListOf<String>()
 
@@ -222,6 +275,10 @@ private fun carbMessages(input: NutritionInput): List<String> {
     return messages
 }
 
+/**
+ * This function is used to collect all the values from the previous functions
+ * Then it can be called on from another file to be displayed on the client dashboard
+ */
 fun buildGuidanceMessages(input: NutritionInput): List<String> {
     val messages = mutableListOf<String>()
 
