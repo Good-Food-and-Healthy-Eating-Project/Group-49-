@@ -1,3 +1,4 @@
+<!-- Public landing page - shown to unauthenticated users with sign up and login options -->
 {% extends "layouts/base.peb" %}
 {% set showNavbar = false %}
 {% block content %}
@@ -27,6 +28,7 @@
     }
     .landing-btn:focus {
         outline: 3px solid #A94F24;
+        outline-offset: 2px;
     }
     .prof-section {
         margin: 40px auto 0 auto;

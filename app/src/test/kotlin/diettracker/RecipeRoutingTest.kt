@@ -1,4 +1,4 @@
-/*
+/**
  * Routing tests using Ktor's testApplication.
  * Each test resets and seeds the in-memory H2 test database, starts module(testing = true),
  * then uses the test HTTP client to request recipe routes and verify responses.
@@ -30,6 +30,7 @@ import java.math.BigDecimal
 import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class RecipeRoutingTest {
@@ -86,6 +87,9 @@ class RecipeRoutingTest {
         }
     }
 
+    // AC-API-01
+    // AC-PARENT-05
+    // AC-PARENT-06
     @Test
     fun should_search_recipe_by_query() =
         testApplication {
@@ -107,6 +111,8 @@ class RecipeRoutingTest {
             assertTrue(body.contains("Test"))
         }
 
+    // AC-PARENT-05
+    // AC-VEG-01
     @Test
     fun should_search_recipe_by_ingredient() =
         testApplication {
@@ -128,6 +134,8 @@ class RecipeRoutingTest {
             assertTrue(body.contains("Test"))
         }
 
+    // AC-API-02
+    // AC-ATH-04
     @Test
     fun should_load_recipe_detail_page() =
         testApplication {
@@ -151,6 +159,8 @@ class RecipeRoutingTest {
             assertTrue(body.contains("200g apple"))
         }
 
+    // AC-DB-05
+    // AC-ELDER-02
     @Test
     fun should_return_bad_requst_when_recipe_id_is_invaild() =
         testApplication {
@@ -170,6 +180,7 @@ class RecipeRoutingTest {
             assertEquals(400, response.status.value)
         }
 
+    // AC-API-03
     @Test
     fun should_return_not_found_when_recipe_id_does_not_exist() =
         testApplication {
@@ -219,6 +230,7 @@ class RecipeRoutingTest {
             assertEquals("test comment", reviews.first().comment)
         }
 
+    // AC-ATH-03
     @Test
     fun should_remove_favourite_recipe_when_logged_in() =
         testApplication {
@@ -241,6 +253,7 @@ class RecipeRoutingTest {
             assertEquals(listOf(recipeId), favourite)
         }
 
+    // AC-ATH-03
     @Test
     fun should_add_favourite_recipe_when_logged_in() =
         testApplication {
@@ -261,5 +274,39 @@ class RecipeRoutingTest {
             val favourite = RecipeDatabaseQuery.getFavourites(userId)
             assertEquals(200, response.status.value)
             assertTrue(favourite.isEmpty())
+        }
+
+    // AC-VEG-01
+    // AC-VEG-02
+    @Test
+    fun should_only_return_recipes_matching_the_selected_category() =
+        testApplication {
+            application { module(testing = true) }
+            // Insert two recipes with different categories so we can verify the filter excludes non-matching ones
+            transaction {
+                Recipes.insert {
+                    it[recipe_name] = "Vegan Lentil Salad"
+                    it[instructions] = "mix and serve"
+                    it[category] = "Vegan"
+                    it[area] = "UK"
+                    it[created_by_user_id] = userId
+                    it[is_system_recipe] = false
+                }
+                Recipes.insert {
+                    it[recipe_name] = "Beef Stew"
+                    it[instructions] = "slow cook"
+                    it[category] = "Meat"
+                    it[area] = "UK"
+                    it[created_by_user_id] = userId
+                    it[is_system_recipe] = false
+                }
+            }
+            val response = client.get("/recipes?category=Vegan")
+            val body = response.bodyAsText()
+            assertEquals(200, response.status.value)
+            // Only the vegan recipe should be shown
+            assertTrue(body.contains("Vegan Lentil Salad"))
+            // The non-vegan recipe must not appear in the filtered results
+            assertFalse(body.contains("Beef Stew"))
         }
 }

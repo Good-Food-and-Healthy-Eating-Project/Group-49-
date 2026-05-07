@@ -32,6 +32,8 @@ class MessagingRepositoryTest {
         }
     }
 
+    // AC-DIET-05
+    // AC-DIET-06
     @Test
     fun should_find_or_create_single_conversation_for_client_professional_pair() {
         val clientId = createClientUser("client@test.com")
@@ -46,6 +48,8 @@ class MessagingRepositoryTest {
         }
     }
 
+    // AC-DIET-06
+    // AC-DIET-07
     @Test
     fun should_create_and_list_messages_in_created_order() {
         val clientId = createClientUser("client2@test.com")
@@ -66,6 +70,8 @@ class MessagingRepositoryTest {
         assertNull(messages[0].readAt)
     }
 
+    // AC-DIET-06
+    // AC-DIET-07
     @Test
     fun should_list_user_conversations_with_other_participant_and_latest_message() {
         val clientId = createClientUser("client3@test.com", firstName = "Casey", lastName = "Client")
@@ -89,6 +95,7 @@ class MessagingRepositoryTest {
         assertNotNull(summaries[0].lastMessageAt)
     }
 
+    // AC-DIET-06
     @Test
     fun should_mark_only_other_users_unread_messages_as_read() {
         val clientId = createClientUser("client4@test.com")

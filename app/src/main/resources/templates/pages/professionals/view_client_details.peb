@@ -1,70 +1,307 @@
+<!-- Client detail page - shown to professionals with the selected client's stats, monthly calendar and weekly nutrition charts -->
 {% extends "layouts/base.peb" %}
 
 {% block title %}{{ pageTitle | default("View Client Details") }}{% endblock %}
 
 {% block content %}
+<div class="overview-container">
 
-    <h1>Client Overview</h1>
-
-    <p>Name: {{ client.firstName }} {{ client.lastName }}</p>
-    <p>Email: {{ client.email }}</p>
-    <p>Goal: {{ client.goal }}</p>
-    <p>Daily Calorie Target: {{ client.calorieGoal }} kcal</p>
-    <p>Age: {{ client.age }}</p>
-    <p>Gender: {{ client.gender }}</p>
-
-    <div class="client-summary" style="margin: 20px 0; padding: 16px; border: 2px solid #8C7B6A; border-radius: 12px; background: #FDFAF5; display: inline-block;">
-        <h2 style="margin-top: 0;">Monthly Summary</h2>
-        <p>On track: <strong>{{ onTrackDays }} / {{ totalTrackedDays }}</strong> days this month
-            <span style="font-size: 13px; color: #4A3F35;">(within 100 kcal of target)</span>
-        </p>
-        <p>Today: <strong>{{ todayCalories }} kcal</strong> / {{ client.calorieGoal }} kcal target</p>
+    <div class="overview-header">
+        <div>
+            <h1>{{ client.firstName }}&nbsp;{{ client.lastName }}</h1>
+            <p class="overview-meta">Email: {{ client.email }} &middot; Goal: {{ client.goal }} &middot; Target: {{ client.calorieGoal }} kcal &middot; Age: {{ client.age }} &middot; Gender: {{ client.gender }}</p>
+        </div>
+        <form method="post" action="/messages/start" style="margin: 0; flex-shrink: 0;">
+            <input type="hidden" name="client_id" value="{{ client.clientId }}">
+            <button type="submit" class="send-advice-btn">Send Advice</button>
+        </form>
     </div>
 
-    <div class="calendar-widget" style="width: auto; min-width: 340px; margin-top: 20px;">
-        <div class="calendar-navigation">
-            <a href="/professional/client/{{ client.clientId }}?year={{ previousYear }}&month={{ previousMonth }}" class="calendar-nav-button">&laquo; Prev</a>
-            <h2>{{ currentYear }} / {{ currentMonth }}</h2>
-            <a href="/professional/client/{{ client.clientId }}?year={{ nextYear }}&month={{ nextMonth }}" class="calendar-nav-button">Next &raquo;</a>
+    <div class="summary-row">
+        <div class="summary-card">
+            <span class="summary-label">On Track This Month</span>
+            <span class="summary-value">{{ onTrackDays }} / {{ totalTrackedDays }}</span>
+            <span class="summary-sub">days</span>
         </div>
-        <div class="calendar-weekdays" style="margin-top: 12px;">
-            <div>Mon</div>
-            <div>Tue</div>
-            <div>Wed</div>
-            <div>Thu</div>
-            <div>Fri</div>
-            <div>Sat</div>
-            <div>Sun</div>
+        <div class="summary-card">
+            <span class="summary-label">Today</span>
+            <span class="summary-value">{{ todayCalories }}</span>
+            <span class="summary-sub">kcal / {{ client.calorieGoal }} target</span>
         </div>
-        <div class="calendar-grid">
-            {% for i in 1..leadingEmptyDays %}
-                <div class="day-cell empty-cell"></div>
-            {% endfor %}
-            {% for day in 1..daysInMonth %}
-                {% set found = false %}
-                <div class="day-cell">
-                    {% for trend in trends %}
-                        {% if trend.dayOfMonth == day %}
-                            {% set found = true %}
-                            <div class="day-box {{ trend.colourClass }}">
-                                {{ day }}
-                                <div class="tooltip">
-                                    Kcal: {{ trend.totalCalorie | numberformat("0") }} / {{ trend.targetCalorie }}
-                                </div>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                    {% if not found %}
-                        <div class="day-box empty-day">
-                            {{ day }}
-                        </div>
-                    {% endif %}
-                </div>
-            {% endfor %}
+        <div class="summary-card {% if wasOnTrackYesterday %}card-green{% else %}card-red{% endif %}">
+            <span class="summary-label">Yesterday</span>
+            <span class="summary-value">{% if wasOnTrackYesterday %}On Track{% else %}Off Track{% endif %}</span>
+            <span class="summary-sub">based on yesterday's log</span>
         </div>
-        {% if trends is empty %}
-            <div class="no-data">No diet data for this month</div>
+        {% if didNotLogYesterday %}
+        <div class="summary-card card-amber">
+            <span class="summary-label">Yesterday</span>
+            <span class="summary-value">Missing Log</span>
+            <span class="summary-sub">no entry recorded</span>
+        </div>
         {% endif %}
     </div>
+
+    <div class="dashboard-grid">
+        <div class="card calendar-section">
+            <div class="calendar-widget" style="width: auto; min-width: 340px;">
+                <div class="calendar-navigation">
+                    <a href="/professional/client/{{ client.clientId }}?year={{ previousYear }}&month={{ previousMonth }}" class="calendar-nav-button">&laquo; Prev</a>
+                    <h2>{{ currentYear }} / {{ currentMonth }}</h2>
+                    <a href="/professional/client/{{ client.clientId }}?year={{ nextYear }}&month={{ nextMonth }}" class="calendar-nav-button">Next &raquo;</a>
+                </div>
+                <div class="calendar-weekdays" style="margin-top: 12px;">
+                    <div>Mon</div>
+                    <div>Tue</div>
+                    <div>Wed</div>
+                    <div>Thu</div>
+                    <div>Fri</div>
+                    <div>Sat</div>
+                    <div>Sun</div>
+                </div>
+                <div class="calendar-grid">
+                    {# Push day 1 to the right weekday column — leadingEmptyDays comes from backend (dayOfWeek - 1) #}
+                    {% for i in 1..leadingEmptyDays %}
+                        <div class="day-cell empty-cell"></div>
+                    {% endfor %}
+                    {% for day in 1..daysInMonth %}
+                        {# found tracks whether this day has diet data — used to show empty-day style if no log entry #}
+                        {% set found = false %}
+                        <div class="day-cell">
+                            {% for trend in trends %}
+                                {% if trend.dayOfMonth == day %}
+                                    {% set found = true %}
+                                    {# numberformat("0") removes decimal places from the calorie value #}
+                                    {# colourClass is set in the backend based on how close calories were to target #}
+                                    <div class="day-box {{ trend.colourClass }}" tabindex="0" aria-label="Day {{ day }}: {{ trend.totalCalorie | numberformat("0") }} kcal of {{ trend.targetCalorie }} kcal target">
+                                        {{ day }}
+                                        <div class="tooltip" aria-hidden="true">
+                                            Kcal: {{ trend.totalCalorie | numberformat("0") }} / {{ trend.targetCalorie }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                            {# No log entry for this day — show it as untracked #}
+                            {% if not found %}
+                                <div class="day-box empty-day" aria-label="Day {{ day }}: no data logged">
+                                    {{ day }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if trends is empty %}
+                    <div class="no-data">No diet data for this month</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card chart-section">
+            <h2 class="section-title">7-Day Trend</h2>
+            <canvas id="calorieChart" role="img" aria-label="7-day calorie and macronutrient trend chart for {{ client.firstName }} {{ client.lastName }}"></canvas>
+        </div>
+    </div>
+
+</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Chart.js library used because:
+        // Chosen because it is very simple to use due to limited time to learn other methods
+        // Works very well with JS and HTML
+        // Claude AI used to learn how to create simple line graph and then used to design to line graph and improve css mainly (lines 95-155)
+        // Last 7 days — day numbers as labels (e.g. 29, 30, 1, 2, 3, 4, 5), calories pre-calculated in backend
+        // 0 means the client had no diary entry that day
+        const labels = [{% for d in weekLabels %}"{{ d }}"{% if not loop.last %},{% endif %}{% endfor %}];
+        const actual = [{% for c in weekCalories %}{{ c }}{% if not loop.last %},{% endif %}{% endfor %}];
+        // target is the same value every day (client's daily calorie goal) — shown as a flat dashed line
+        const target = [{% for d in weekLabels %}{{ client.calorieGoal }}{% if not loop.last %},{% endif %}{% endfor %}];
+        const protein = [{% for p in weekProtein %}{{ p }}{% if not loop.last %},{% endif %}{% endfor %}];
+        const carbs = [{% for c in weekCarbs %}{{ c }}{% if not loop.last %},{% endif %}{% endfor %}];
+        const fat = [{% for f in weekFat %}{{ f }}{% if not loop.last %},{% endif %}{% endfor %}];
+
+        new Chart(document.getElementById('calorieChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Calories eaten',
+                        data: actual,
+                        borderColor: '#A94F24',
+                        backgroundColor: 'rgba(169, 79, 36, 0.08)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                    },
+                    {
+                        label: 'Target',
+                        data: target,
+                        borderColor: '#7A8C72',
+                        borderDash: [6, 4],
+                        pointRadius: 0,
+                        fill: false,
+                    },
+                    {
+                        label: 'Protein (g)',
+                        data: protein,
+                        borderColor: '#4A90D9',
+                        pointRadius: 4,
+                        fill: false,
+                        tension: 0.3,
+                    },
+                    {
+                        label: 'Carbs (g)',
+                        data: carbs,
+                        borderColor: '#E8A838',
+                        pointRadius: 4,
+                        fill: false,
+                        tension: 0.3,
+                    },
+                    {
+                        label: 'Fat (g)',
+                        data: fat,
+                        borderColor: '#9B59B6',
+                        pointRadius: 4,
+                        fill: false,
+                        tension: 0.3,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: { display: true, text: 'kcal / g' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Date' }
+                    }
+                }
+            }
+        });
+    </script>
+
+<style>
+    .overview-container {
+        max-width: 1600px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 0 2.5rem;
+        box-sizing: border-box;
+    }
+
+    .overview-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1.5rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .send-advice-btn {
+        padding: 0.55rem 1.4rem;
+        background: var(--terracotta);
+        color: var(--warm-white);
+        border: none;
+        border-radius: var(--radius-md);
+        font-size: 0.9rem;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.2s;
+        margin-top: 0.35rem;
+    }
+
+    .send-advice-btn:hover {
+        background: #7A3518;
+    }
+
+    .overview-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .overview-meta {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .summary-row {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.75rem;
+    }
+
+    .summary-card {
+        flex: 1;
+        min-width: 160px;
+        background: var(--warm-white);
+        border: 1px solid rgba(59,42,26,0.08);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .summary-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+
+    .summary-value {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--brown);
+        line-height: 1.2;
+    }
+
+    .summary-sub {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    .card-green { border-left: 4px solid #4a8c5c; }
+    .card-green .summary-value { color: #2d6a3f; }
+    .card-red   { border-left: 4px solid #B5574E; }
+    .card-red .summary-value   { color: #7a1f1a; }
+    .card-amber { border-left: 4px solid #C9A84C; }
+    .card-amber .summary-value { color: #7a5200; }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    .calendar-section, .chart-section {
+        padding: 1.5rem;
+        min-width: 0;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0 0 1rem 0;
+        color: var(--brown);
+    }
+
+    @media (max-width: 900px) {
+        .dashboard-grid { grid-template-columns: 1fr; }
+        .summary-card { min-width: 140px; }
+    }
+</style>
 
 {% endblock %}

@@ -50,12 +50,15 @@ private fun Route.configureProfilePageRoute() {
                 call.respondRedirect("/Login")
                 return@get
             } else {
+                if (!call.hasRole("client")) return@get call.respondRedirect("/Login")
                 val userinfo =
                     transaction {
                         Clients.selectAll()
                             .where { Clients.client_id eq userId }
                             .map { row ->
                                 mapOf(
+                                    "firstName" to row[Clients.firstName],
+                                    "lastName" to row[Clients.lastName],
                                     "client_id" to row[Clients.client_id],
                                     "age" to row[Clients.age],
                                     "weight" to row[Clients.weight_kg],
@@ -91,7 +94,7 @@ private fun Route.configureProfilePageRoute() {
  *
  * This defines the profileupdate POST route.
  * It runs when the user submits the profile form by pressing the update button.
- * The route first checks the session to make sure the user is logged in, then
+ * The route first checks the session t         o make sure the user is logged in, then
  * uses the email to find the matching client ID.
  *
  * It reads the new height, weight, age, gender, and goal from the submitted
@@ -120,8 +123,12 @@ private fun Route.configureProfileUpdateRoute() {
             return@post
         }
 
+        if (!call.hasRole("client")) return@post call.respondRedirect("/Login")
+
         val params = call.receiveParameters()
 
+        val newFirstName = params["firstName"]
+        val newLastName = params["lastName"]
         val newHeight = params["height"]?.toIntOrNull()
         val newWeight = params["weight"]?.toIntOrNull()
         val newAge = params["age"]?.toIntOrNull()
@@ -140,30 +147,59 @@ private fun Route.configureProfileUpdateRoute() {
             return@post
         }
 
+        val checkedfirstName = newFirstName ?: currentClient[Clients.firstName]
+        val checkedlastName = newLastName ?: currentClient[Clients.lastName]
         val checkedHeight = newHeight ?: currentClient[Clients.height_cm]
         val checkedWeight = newWeight ?: currentClient[Clients.weight_kg]
         val checkedAge = newAge ?: currentClient[Clients.age]
         val checkedGender = newGender ?: currentClient[Clients.gender]
         val checkedGoal = newGoal ?: currentClient[Clients.goal]
-        val newDailyCalorieGoal =
-            calculateDailyCalorieGoal(
-                checkedWeight,
+        applyProfileUpdate(
+            ProfileUpdateParameters(
+                userId,
+                checkedfirstName,
+                checkedlastName,
                 checkedHeight,
+                checkedWeight,
                 checkedAge,
                 checkedGender,
                 checkedGoal,
-            )
-
-        transaction {
-            Clients.update({ Clients.client_id eq userId }) {
-                it[Clients.height_cm] = checkedHeight
-                it[Clients.weight_kg] = checkedWeight
-                it[Clients.age] = checkedAge
-                it[Clients.gender] = checkedGender
-                it[Clients.goal] = checkedGoal
-                it[Clients.daily_calorie_goal] = newDailyCalorieGoal
-            }
-        }
+            ),
+        )
         call.respondRedirect("/profile")
+    }
+}
+
+private data class ProfileUpdateParameters(
+    val userId: Int,
+    val firstName: String?,
+    val lastName: String?,
+    val height: Int?,
+    val weight: Int?,
+    val age: Int?,
+    val gender: String?,
+    val goal: String?,
+)
+
+private fun applyProfileUpdate(profileUpdateParameters: ProfileUpdateParameters) {
+    val newDailyCalorieGoal =
+        calculateDailyCalorieGoal(
+            profileUpdateParameters.weight,
+            profileUpdateParameters.height,
+            profileUpdateParameters.age,
+            profileUpdateParameters.gender,
+            profileUpdateParameters.goal,
+        )
+    transaction {
+        Clients.update({ Clients.client_id eq profileUpdateParameters.userId }) {
+            it[Clients.firstName] = profileUpdateParameters.firstName
+            it[Clients.lastName] = profileUpdateParameters.lastName
+            it[Clients.height_cm] = profileUpdateParameters.height
+            it[Clients.weight_kg] = profileUpdateParameters.weight
+            it[Clients.age] = profileUpdateParameters.age
+            it[Clients.gender] = profileUpdateParameters.gender
+            it[Clients.goal] = profileUpdateParameters.goal
+            it[Clients.daily_calorie_goal] = newDailyCalorieGoal
+        }
     }
 }

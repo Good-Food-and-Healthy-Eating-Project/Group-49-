@@ -1,4 +1,4 @@
-/*
+/**
  * Routing tests using Ktor's testApplication.
  * Each test resets and seeds the in-memory H2 test database, starts module(testing = true),
  * then uses a cookie-enabled test HTTP client to log in and verify professional routes.
@@ -34,6 +34,8 @@ import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.text.get
+import kotlin.toString
 
 class ProfessionalRoutingTest {
     private var clientId: Int = 0
@@ -50,59 +52,79 @@ class ProfessionalRoutingTest {
             Users.deleteAll()
             val time = Instant.now()
             val salt = BCrypt.gensalt()
-            professionalId =
-                Users.insert {
-                    it[first_name] = "Sponge"
-                    it[second_name] = "Bob"
-                    it[email] = "testpro@test.com"
-                    it[password_hash] = BCrypt.hashpw("testpro@test.com", salt)
-                    it[created_at] = time
-                } get Users.user_id
-
-            Professionals.insert {
-                it[professional_id] = professionalId
-                it[job_title] = "test"
-                it[organistation] = "tester"
-                it[bio] = "for test"
-            }
-
-            val professionalRoleId =
-                Roles.insert {
-                    it[role_name] = "professional"
-                } get Roles.role_id
-
-            UserRoles.insert {
-                it[user_id] = professionalId
-                it[role_id] = professionalRoleId
-            }
-            clientId =
-                Users.insert {
-                    it[first_name] = "cilent"
-                    it[second_name] = "test"
-                    it[email] = "test@test.com"
-                    it[password_hash] = BCrypt.hashpw("test@test.com", salt)
-                    it[created_at] = time
-                } get Users.user_id
-            val clientRoleId =
-                Roles.insert {
-                    it[role_name] = "client"
-                } get Roles.role_id
-            UserRoles.insert {
-                it[user_id] = clientId
-                it[role_id] = clientRoleId
-            }
-            Clients.insert {
-                it[client_id] = clientId
-                it[height_cm] = 180
-                it[weight_kg] = 80
-                it[daily_calorie_goal] = 2300
-                it[goal] = "Lose weight"
-                it[age] = 20
-                it[gender] = "Male"
-            }
+            val clientRoleId = insertProfessionalAndRoles(time, salt)
+            insertClients(time, salt, clientRoleId)
         }
     }
 
+    private fun insertProfessionalAndRoles(
+        time: Instant,
+        salt: String,
+    ): Int {
+        professionalId =
+            Users.insert {
+                it[first_name] = "Sponge"
+                it[second_name] = "Bob"
+                it[email] = "testpro@test.com"
+                it[password_hash] = BCrypt.hashpw("testpro@test.com", salt)
+                it[created_at] = time
+            } get Users.user_id
+        Professionals.insert {
+            it[professional_id] = professionalId
+            it[job_title] = "test"
+            it[organistation] = "tester"
+            it[bio] = "for test"
+        }
+        val clientRoleId = Roles.insert { it[role_name] = "client" } get Roles.role_id
+        val professionalRoleId = Roles.insert { it[role_name] = "professional" } get Roles.role_id
+        UserRoles.insert {
+            it[user_id] = professionalId
+            it[role_id] = professionalRoleId
+        }
+        return clientRoleId
+    }
+
+    private fun insertClients(
+        time: Instant,
+        salt: String,
+        clientRoleId: Int,
+    ) {
+        val userId =
+            Users.insert {
+                it[first_name] = "Sponge"
+                it[second_name] = "Bob"
+                it[email] = "foodlog@test.com"
+                it[password_hash] = BCrypt.hashpw("foodlog@test.com", BCrypt.gensalt())
+                it[created_at] = time
+            } get Users.user_id
+        UserRoles.insert {
+            it[UserRoles.user_id] = userId
+            it[UserRoles.role_id] = clientRoleId
+        }
+        clientId =
+            Users.insert {
+                it[first_name] = "cilent"
+                it[second_name] = "test"
+                it[email] = "test@test.com"
+                it[password_hash] = BCrypt.hashpw("test@test.com", salt)
+                it[created_at] = time
+            } get Users.user_id
+        Clients.insert {
+            it[client_id] = clientId
+            it[height_cm] = 180
+            it[weight_kg] = 80
+            it[daily_calorie_goal] = 2300
+            it[goal] = "Lose weight"
+            it[age] = 20
+            it[gender] = "Male"
+        }
+        UserRoles.insert {
+            it[user_id] = clientId
+            it[role_id] = clientRoleId
+        }
+    }
+
+    // AC-DB-02
     @Test
     fun should_signup_professional_user() =
         testApplication {
@@ -122,6 +144,8 @@ class ProfessionalRoutingTest {
             }
         }
 
+    // AC-DB-05
+    // AC-ELDER-02
     @Test
     fun professional_sign_up_should_fail_when_missing_email() =
         testApplication {
@@ -134,6 +158,8 @@ class ProfessionalRoutingTest {
             assertEquals(400, result.status.value)
         }
 
+    // AC-DB-05
+    // AC-ELDER-02
     @Test
     fun professional_sign_up_should_fail_when_missing_password() =
         testApplication {
@@ -146,6 +172,7 @@ class ProfessionalRoutingTest {
             assertEquals(400, result.status.value)
         }
 
+    // AC-DB-05
     @Test
     fun professional_sign_up_should_fail_when_have_same_eamil() =
         testApplication {
@@ -164,6 +191,7 @@ class ProfessionalRoutingTest {
             assertEquals(400, result.status.value)
         }
 
+    // AC-DB-02
     @Test
     fun should_login_professional_success_when_password_right() =
         testApplication {
@@ -179,6 +207,8 @@ class ProfessionalRoutingTest {
             assertEquals(302, result.status.value)
         }
 
+    // AC-DB-05
+    // AC-ELDER-02
     @Test
     fun should_login_professional_fail_when_missing_email() =
         testApplication {
@@ -191,6 +221,8 @@ class ProfessionalRoutingTest {
             assertEquals(400, result.status.value)
         }
 
+    // AC-DB-05
+    // AC-ELDER-02
     @Test
     fun should_login_professional_fail_when_missing_password() =
         testApplication {
@@ -203,6 +235,8 @@ class ProfessionalRoutingTest {
             assertEquals(400, result.status.value)
         }
 
+    // AC-DB-05
+    // AC-ELDER-02
     @Test
     fun should_login_professional_fail_when_missing_password_and_email() =
         testApplication {
@@ -254,6 +288,8 @@ class ProfessionalRoutingTest {
             assertTrue(body.contains("Find a Professional"))
         }
 
+    // AC-COACH-03
+    // AC-DIET-01
     @Test
     fun should_load_professional_dash_page_with_professional_list() =
         testApplication {
@@ -276,6 +312,10 @@ class ProfessionalRoutingTest {
             assertTrue(body.contains("Manage and view the progress of your linked clients."))
         }
 
+    // AC-COACH-01
+    // AC-COACH-04
+    // AC-DIET-02
+    // AC-DIET-04
     @Test
     fun should_show_client_detail_for_professional() =
         testApplication {
@@ -294,11 +334,11 @@ class ProfessionalRoutingTest {
             val result = client.get("/professional/client/$clientId")
             val body = result.bodyAsText()
             assertEquals(200, result.status.value)
-            assertTrue(body.contains("Client Overview"))
-            assertTrue(body.contains("cilent test"))
+            assertTrue(body.contains("On Track This Month"))
+            assertTrue(body.contains("cilent&nbsp;test"))
             assertTrue(body.contains("test@test.com"))
             assertTrue(body.contains("Goal"))
-            assertTrue(body.contains("Daily Calorie Target"))
+            assertTrue(body.contains("Target"))
             assertTrue(body.contains("Age"))
             assertTrue(body.contains("Gender"))
         }
@@ -320,6 +360,37 @@ class ProfessionalRoutingTest {
         }
 
     @Test
+    fun should_redirect_with_error_when_no_consent_given() =
+        testApplication {
+            application {
+                module(testing = true)
+            }
+
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode())
+            }
+
+            val result =
+                client.post("/select-professional") {
+                    contentType(ContentType.Application.FormUrlEncoded)
+                    setBody(
+                        listOf(
+                            "professional_id" to professionalId.toString(),
+                            "consent" to "false",
+                        ).formUrlEncode(),
+                    )
+                }
+            assertEquals("/professionals?error=consent", result.headers[HttpHeaders.Location])
+        }
+
+    // AC-DB-02
+    @Test
     fun should_link_client_to_professional_after_select_professional() =
         testApplication {
             application { module(testing = true) }
@@ -339,20 +410,58 @@ class ProfessionalRoutingTest {
                 client.post("/select-professional") {
                     contentType(ContentType.Application.FormUrlEncoded)
                     setBody(
-                        listOf("professional_id" to professionalId.toString())
-                            .formUrlEncode(),
+                        listOf(
+                            "professional_id" to professionalId.toString(),
+                            "consent" to "true",
+                        ).formUrlEncode(),
                     )
                 }
-            val linkCount =
+            val link =
                 transaction {
                     ClientProfessionalLink
                         .selectAll()
                         .where { ClientProfessionalLink.client_id eq clientId }
-                        .toList()
-                        .size
+                        .single()
                 }
             assertEquals(302, result.status.value)
             assertEquals("/professionals?linked=true", result.headers[HttpHeaders.Location])
-            assertEquals(1, linkCount)
+            assertEquals(true, link[ClientProfessionalLink.consent_given])
+        }
+
+    /**
+     * This functions tests that when a client is unlinked from a profession
+     * The Client-Professional link entry is deleted from the database*/
+    @Test
+    fun should_unlink_client_from_professional() =
+        testApplication {
+            application { module(testing = true) }
+
+            transaction {
+                ClientProfessionalLink.insert {
+                    it[ClientProfessionalLink.client_id] = clientId
+                    it[ClientProfessionalLink.professional_id] = professionalId
+                }
+            }
+
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode())
+            }
+
+            client.post("/unlink-professional") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(listOf("professional_id" to professionalId.toString()).formUrlEncode())
+            }
+            val count =
+                transaction {
+                    ClientProfessionalLink.selectAll().count()
+                }
+            assertEquals(0, count)
         }
 }

@@ -1,4 +1,4 @@
-/*
+/**
  * Database table tests using the TestDatabaseFactory.
  * Each test resets the in-memory H2 test database, then uses Exposed transactions
  * to insert, query, update, and delete rows directly against the schema.
@@ -68,6 +68,7 @@ class ClientProfessionalLinkTableTest {
         return Pair(userId, proUser)
     }
 
+    // AC-DB-02
     @Test
     fun should_insert_link_success() {
         transaction {
@@ -156,6 +157,7 @@ class ClientProfessionalLinkTableTest {
         }
     }
 
+    // AC-DB-05
     @Test
     fun should_fail_when_insert_same_link() {
         transaction {

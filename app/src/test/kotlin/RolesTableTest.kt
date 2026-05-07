@@ -1,4 +1,4 @@
-/*
+/**
  * Database table tests using the TestDatabaseFactory.
  * Each test resets the in-memory H2 test database, then uses Exposed transactions
  * to insert, query, update, and delete rows directly against the schema.
@@ -22,6 +22,7 @@ class RolesTableTest {
         transaction { Roles.deleteAll() }
     }
 
+    // AC-DB-02
     @Test
     fun should_insert_role_success() {
         transaction {
@@ -49,6 +50,7 @@ class RolesTableTest {
         }
     }
 
+    // AC-DB-05
     @Test
     fun should_not_allow_same_role_name() {
         transaction {
