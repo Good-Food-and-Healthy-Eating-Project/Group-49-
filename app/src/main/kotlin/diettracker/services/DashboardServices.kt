@@ -266,6 +266,9 @@ private fun buildDashboardMap(data: DashboardMapData): Map<String, Any> {
             "goal" to (data.goal as Any? ?: ""),
             "status" to data.summary.status,
             "messages" to data.summary.guidanceMessages,
+            "todayYear" to today.year,
+            "todayMonth" to today.monthValue,
+            "todayDay" to today.dayOfMonth,
         )
 }
 
