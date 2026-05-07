@@ -183,47 +183,45 @@ private fun calcAndLogCustomFood(
  * session, and displays the updated food log page.
  */
 suspend fun ApplicationCall.foodLogCustom() {
-    if (!hasRole("client")) return respondRedirect("/Login")
+    if (!hasRole("client")) {
+        respondRedirect("/Login")
+        return
+    }
     val caloriesSession = sessions.get<CaloriesSession>() ?: CaloriesSession(0, 0, 0, 0)
     val params = receiveParameters()
     val foodIdStr = params["foodId"]
     val foodId = foodIdStr?.toIntOrNull()
-    var grams = params["grams"]?.toIntOrNull() ?: GRAMS_PER_SERVING
+    val grams = params["grams"]?.toIntOrNull() ?: GRAMS_PER_SERVING
 
-    if (grams > MAX_GRAMS) {
-        respondTemplate(
-            "pages/client_dash/add_food.peb",
-            mapOf(
-                "calories" to caloriesSession.calories,
-                "protein" to caloriesSession.protein,
-                "fat" to caloriesSession.fat,
-                "carbs" to caloriesSession.carbs,
-                "error" to "Maximum is 5000g.",
-            ),
-        )
-        return
+    when {
+        grams > MAX_GRAMS ->
+            respondTemplate(
+                "pages/client_dash/add_food.peb",
+                mapOf(
+                    "calories" to caloriesSession.calories,
+                    "protein" to caloriesSession.protein,
+                    "fat" to caloriesSession.fat,
+                    "carbs" to caloriesSession.carbs,
+                    "error" to "Maximum is 5000g.",
+                ),
+            )
+        foodId == null ->
+            respondTemplate(
+                "pages/client_dash/add_food.peb",
+                mapOf("calories" to 0, "error" to "Invalid or missing foodId: $foodIdStr"),
+            )
+        else -> {
+            val nutrients = calcAndLogCustomFood(foodId, grams)
+            val newTotalCals = caloriesSession.calories + nutrients.calories
+            val newTotalProtein = caloriesSession.protein + nutrients.protein
+            val newTotalFat = caloriesSession.fat + nutrients.fat
+            val newTotalCarbs = caloriesSession.carbs + nutrients.carbs
+            sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
+            val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
+            sessions.set(CurrentMealSession(currentMeal.foods + CurrentMealFood(foodId = foodId, grams = grams)))
+            respondRedirect("/food_log?success=added")
+        }
     }
-
-    if (foodId == null) {
-        respondTemplate(
-            "pages/client_dash/add_food.peb",
-            mapOf("calories" to 0, "error" to "Invalid or missing foodId: $foodIdStr"),
-        )
-        return
-    }
-
-    val nutrients = calcAndLogCustomFood(foodId, grams)
-
-    val newTotalCals = caloriesSession.calories + nutrients.calories
-    val newTotalProtein = caloriesSession.protein + nutrients.protein
-    val newTotalFat = caloriesSession.fat + nutrients.fat
-    val newTotalCarbs = caloriesSession.carbs + nutrients.carbs
-
-    sessions.set(CaloriesSession(newTotalCals, newTotalProtein, newTotalFat, newTotalCarbs))
-    val currentMeal = sessions.get<CurrentMealSession>() ?: CurrentMealSession(emptyList())
-    sessions.set(CurrentMealSession(currentMeal.foods + CurrentMealFood(foodId = foodId, grams = grams)))
-
-    respondRedirect("/food_log?success=added")
 }
 
 /**

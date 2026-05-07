@@ -1,4 +1,4 @@
-/*
+/**
  * Profile routing tests using Ktor's testApplication.
  * Each test resets and seeds the in-memory H2 test database, starts module(testing = true),
  * then uses a cookie-enabled test HTTP client to log in and check profile responses.
@@ -47,64 +47,60 @@ class ProfileTest {
             Professionals.deleteAll()
             Clients.deleteAll()
             Users.deleteAll()
-
             val time = Instant.now()
-            userId =
-                Users.insert {
-                    it[first_name] = "Sponge"
-                    it[second_name] = "Bob"
-                    it[email] = "test@test.com"
-                    it[password_hash] = BCrypt.hashpw("test@test.com", BCrypt.gensalt())
-                    it[created_at] = time
-                } get Users.user_id
-            clientId =
-                Clients.insert {
-                    it[client_id] = userId
-                    it[age] = 20
-                    it[height_cm] = 180
-                    it[weight_kg] = 80
-                    it[gender] = "male"
-                    it[goal] = "maintain"
-                    it[daily_calorie_goal] = 2500
-                } get Clients.client_id
-
-            val proId =
-                Users.insert {
-                    it[first_name] = "testpro"
-                    it[second_name] = "pro"
-                    it[email] = "testpro@test.com"
-                    it[password_hash] = BCrypt.hashpw("testpro@test.com", BCrypt.gensalt())
-                    it[created_at] = time
-                } get Users.user_id
-
-            val clientRoleId =
-                Roles.insert {
-                    it[role_name] = "client"
-                } get Roles.role_id
-
-            UserRoles.insert {
-                it[user_id] = userId
-                it[role_id] = clientRoleId
-            }
-
-            val roleId =
-                Roles.insert {
-                    it[role_name] = "professional"
-                } get Roles.role_id
-
-            UserRoles.insert {
-                it[user_id] = proId
-                it[role_id] = roleId
-            }
-
-            professionalId =
-                Professionals.insert {
-                    it[professional_id] = proId
-                    it[job_title] = "testpro"
-                    it[organistation] = "testorganisation"
-                    it[bio] = "testbio"
-                } get Professionals.professional_id
+            insertClientUser(time)
+            insertProfessionalUser(time)
         }
+    }
+
+    private fun insertClientUser(time: Instant): Int {
+        userId =
+            Users.insert {
+                it[first_name] = "Sponge"
+                it[second_name] = "Bob"
+                it[email] = "test@test.com"
+                it[password_hash] = BCrypt.hashpw("test@test.com", BCrypt.gensalt())
+                it[created_at] = time
+            } get Users.user_id
+        clientId =
+            Clients.insert {
+                it[client_id] = userId
+                it[age] = 20
+                it[height_cm] = 180
+                it[weight_kg] = 80
+                it[gender] = "male"
+                it[goal] = "maintain"
+                it[daily_calorie_goal] = 2500
+            } get Clients.client_id
+        val clientRoleId = Roles.insert { it[role_name] = "client" } get Roles.role_id
+        UserRoles.insert {
+            it[user_id] = userId
+            it[role_id] = clientRoleId
+        }
+        return clientRoleId
+    }
+
+    private fun insertProfessionalUser(time: Instant) {
+        val proId =
+            Users.insert {
+                it[first_name] = "testpro"
+                it[second_name] = "pro"
+                it[email] = "testpro@test.com"
+                it[password_hash] = BCrypt.hashpw("testpro@test.com", BCrypt.gensalt())
+                it[created_at] = time
+            } get Users.user_id
+        val roleId = Roles.insert { it[role_name] = "professional" } get Roles.role_id
+        UserRoles.insert {
+            it[user_id] = proId
+            it[role_id] = roleId
+        }
+        professionalId =
+            Professionals.insert {
+                it[professional_id] = proId
+                it[job_title] = "testpro"
+                it[organistation] = "testorganisation"
+                it[bio] = "testbio"
+            } get Professionals.professional_id
     }
 
     @Test

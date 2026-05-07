@@ -1,4 +1,4 @@
-/*
+/**
  * Routing tests using Ktor's testApplication.
  * Each test resets and seeds the in-memory H2 test database, starts module(testing = true),
  * then uses a cookie-enabled test HTTP client to log in and verify professional routes.
@@ -52,72 +52,75 @@ class ProfessionalRoutingTest {
             Users.deleteAll()
             val time = Instant.now()
             val salt = BCrypt.gensalt()
-            professionalId =
-                Users.insert {
-                    it[first_name] = "Sponge"
-                    it[second_name] = "Bob"
-                    it[email] = "testpro@test.com"
-                    it[password_hash] = BCrypt.hashpw("testpro@test.com", salt)
-                    it[created_at] = time
-                } get Users.user_id
+            val clientRoleId = insertProfessionalAndRoles(time, salt)
+            insertClients(time, salt, clientRoleId)
+        }
+    }
 
-            Professionals.insert {
-                it[professional_id] = professionalId
-                it[job_title] = "test"
-                it[organistation] = "tester"
-                it[bio] = "for test"
-            }
-            val userId =
-                Users.insert {
-                    it[first_name] = "Sponge"
-                    it[second_name] = "Bob"
-                    it[email] = "foodlog@test.com"
-                    it[password_hash] = BCrypt.hashpw("foodlog@test.com", BCrypt.gensalt())
-                    it[created_at] = time
-                } get Users.user_id
+    private fun insertProfessionalAndRoles(
+        time: Instant,
+        salt: String,
+    ): Int {
+        professionalId =
+            Users.insert {
+                it[first_name] = "Sponge"
+                it[second_name] = "Bob"
+                it[email] = "testpro@test.com"
+                it[password_hash] = BCrypt.hashpw("testpro@test.com", salt)
+                it[created_at] = time
+            } get Users.user_id
+        Professionals.insert {
+            it[professional_id] = professionalId
+            it[job_title] = "test"
+            it[organistation] = "tester"
+            it[bio] = "for test"
+        }
+        val clientRoleId = Roles.insert { it[role_name] = "client" } get Roles.role_id
+        val professionalRoleId = Roles.insert { it[role_name] = "professional" } get Roles.role_id
+        UserRoles.insert {
+            it[user_id] = professionalId
+            it[role_id] = professionalRoleId
+        }
+        return clientRoleId
+    }
 
-            val clientRoleId =
-                Roles.insert {
-                    it[role_name] = "client"
-                } get Roles.role_id
-
-            UserRoles.insert {
-                it[UserRoles.user_id] = userId
-                it[UserRoles.role_id] = clientRoleId
-            }
-
-            val professionalRoleId =
-                Roles.insert {
-                    it[role_name] = "professional"
-                } get Roles.role_id
-
-            UserRoles.insert {
-                it[user_id] = professionalId
-                it[role_id] = professionalRoleId
-            }
-            clientId =
-                Users.insert {
-                    it[first_name] = "cilent"
-                    it[second_name] = "test"
-                    it[email] = "test@test.com"
-                    it[password_hash] = BCrypt.hashpw("test@test.com", salt)
-                    it[created_at] = time
-                } get Users.user_id
-
-            Clients.insert {
-                it[client_id] = clientId
-                it[height_cm] = 180
-                it[weight_kg] = 80
-                it[daily_calorie_goal] = 2300
-                it[goal] = "Lose weight"
-                it[age] = 20
-                it[gender] = "Male"
-            }
-
-            UserRoles.insert {
-                it[user_id] = clientId
-                it[role_id] = clientRoleId
-            }
+    private fun insertClients(
+        time: Instant,
+        salt: String,
+        clientRoleId: Int,
+    ) {
+        val userId =
+            Users.insert {
+                it[first_name] = "Sponge"
+                it[second_name] = "Bob"
+                it[email] = "foodlog@test.com"
+                it[password_hash] = BCrypt.hashpw("foodlog@test.com", BCrypt.gensalt())
+                it[created_at] = time
+            } get Users.user_id
+        UserRoles.insert {
+            it[UserRoles.user_id] = userId
+            it[UserRoles.role_id] = clientRoleId
+        }
+        clientId =
+            Users.insert {
+                it[first_name] = "cilent"
+                it[second_name] = "test"
+                it[email] = "test@test.com"
+                it[password_hash] = BCrypt.hashpw("test@test.com", salt)
+                it[created_at] = time
+            } get Users.user_id
+        Clients.insert {
+            it[client_id] = clientId
+            it[height_cm] = 180
+            it[weight_kg] = 80
+            it[daily_calorie_goal] = 2300
+            it[goal] = "Lose weight"
+            it[age] = 20
+            it[gender] = "Male"
+        }
+        UserRoles.insert {
+            it[user_id] = clientId
+            it[role_id] = clientRoleId
         }
     }
 
@@ -312,11 +315,11 @@ class ProfessionalRoutingTest {
             val result = client.get("/professional/client/$clientId")
             val body = result.bodyAsText()
             assertEquals(200, result.status.value)
-            assertTrue(body.contains("Client Overview"))
-            assertTrue(body.contains("cilent test"))
+            assertTrue(body.contains("On Track This Month"))
+            assertTrue(body.contains("cilent&nbsp;test"))
             assertTrue(body.contains("test@test.com"))
             assertTrue(body.contains("Goal"))
-            assertTrue(body.contains("Daily Calorie Target"))
+            assertTrue(body.contains("Target"))
             assertTrue(body.contains("Age"))
             assertTrue(body.contains("Gender"))
         }
@@ -357,7 +360,12 @@ class ProfessionalRoutingTest {
             val result =
                 client.post("/select-professional") {
                     contentType(ContentType.Application.FormUrlEncoded)
-                    setBody(listOf("professional_id" to professionalId.toString(), "consent" to "false").formUrlEncode())
+                    setBody(
+                        listOf(
+                            "professional_id" to professionalId.toString(),
+                            "consent" to "false",
+                        ).formUrlEncode(),
+                    )
                 }
             assertEquals("/professionals?error=consent", result.headers[HttpHeaders.Location])
         }

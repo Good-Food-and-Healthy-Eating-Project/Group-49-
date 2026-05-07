@@ -39,6 +39,7 @@ private const val MIN_YEAR = 1900
 private const val MAX_YEAR = 2100
 private const val MIN_MONTH = 1
 private const val MAX_MONTH = 12
+private const val WEEK_LOOKBACK_DAYS = 6
 
 /**
  * This data class stores values of the target that the users should aim for
@@ -285,7 +286,7 @@ fun buildClientDashModel(
 
     val today = LocalDate.now()
     val allTrends = ClientDietTrend.getDietTrend(userId)
-    val last7Days = (6 downTo 0).map { today.minusDays(it.toLong()) }
+    val last7Days = (WEEK_LOOKBACK_DAYS downTo 0).map { today.minusDays(it.toLong()) }
     val weekLabels =
         last7Days.map {
             "${it.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())} ${it.dayOfMonth}"

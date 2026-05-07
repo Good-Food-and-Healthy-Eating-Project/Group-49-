@@ -154,27 +154,52 @@ private fun Route.configureProfileUpdateRoute() {
         val checkedAge = newAge ?: currentClient[Clients.age]
         val checkedGender = newGender ?: currentClient[Clients.gender]
         val checkedGoal = newGoal ?: currentClient[Clients.goal]
-        val newDailyCalorieGoal =
-            calculateDailyCalorieGoal(
-                checkedWeight,
+        applyProfileUpdate(
+            ProfileUpdateParameters(
+                userId,
+                checkedfirstName,
+                checkedlastName,
                 checkedHeight,
+                checkedWeight,
                 checkedAge,
                 checkedGender,
                 checkedGoal,
-            )
-
-        transaction {
-            Clients.update({ Clients.client_id eq userId }) {
-                it[Clients.firstName] = checkedfirstName
-                it[Clients.lastName] = checkedlastName
-                it[Clients.height_cm] = checkedHeight
-                it[Clients.weight_kg] = checkedWeight
-                it[Clients.age] = checkedAge
-                it[Clients.gender] = checkedGender
-                it[Clients.goal] = checkedGoal
-                it[Clients.daily_calorie_goal] = newDailyCalorieGoal
-            }
-        }
+            ),
+        )
         call.respondRedirect("/profile")
+    }
+}
+
+private data class ProfileUpdateParameters(
+    val userId: Int,
+    val firstName: String?,
+    val lastName: String?,
+    val height: Int?,
+    val weight: Int?,
+    val age: Int?,
+    val gender: String?,
+    val goal: String?,
+)
+
+private fun applyProfileUpdate(profileUpdateParameters: ProfileUpdateParameters) {
+    val newDailyCalorieGoal =
+        calculateDailyCalorieGoal(
+            profileUpdateParameters.weight,
+            profileUpdateParameters.height,
+            profileUpdateParameters.age,
+            profileUpdateParameters.gender,
+            profileUpdateParameters.goal,
+        )
+    transaction {
+        Clients.update({ Clients.client_id eq profileUpdateParameters.userId }) {
+            it[Clients.firstName] = profileUpdateParameters.firstName
+            it[Clients.lastName] = profileUpdateParameters.lastName
+            it[Clients.height_cm] = profileUpdateParameters.height
+            it[Clients.weight_kg] = profileUpdateParameters.weight
+            it[Clients.age] = profileUpdateParameters.age
+            it[Clients.gender] = profileUpdateParameters.gender
+            it[Clients.goal] = profileUpdateParameters.goal
+            it[Clients.daily_calorie_goal] = newDailyCalorieGoal
+        }
     }
 }

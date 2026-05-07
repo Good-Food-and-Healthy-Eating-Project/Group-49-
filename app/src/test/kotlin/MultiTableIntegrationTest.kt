@@ -1,4 +1,4 @@
-/*
+/**
  * Database integration tests using the TestDatabaseFactory.
  * The in-memory H2 test database is recreated before each test so relationships
  * across multiple Exposed tables can be verified in isolation.

@@ -1,4 +1,4 @@
-/*
+/**
  * Shared test database setup.
  * Tests connect to an in-memory H2 database, then drop and recreate all Exposed
  * tables so each test starts from a clean schema without touching real data.

@@ -1,4 +1,4 @@
-/*
+/**
  * Authentication tests using Ktor's testApplication.
  * Each test resets the in-memory H2 test database, starts the app with module(testing = true),
  * then creates a test HTTP client with cookies/redirect settings to verify route responses.

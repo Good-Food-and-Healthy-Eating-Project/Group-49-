@@ -1,4 +1,4 @@
-/*
+/**
  * Routing tests using Ktor's testApplication.
  * Each test resets and seeds the in-memory H2 test database, starts module(testing = true),
  * then uses a test HTTP client with cookies to log in and call the target route.

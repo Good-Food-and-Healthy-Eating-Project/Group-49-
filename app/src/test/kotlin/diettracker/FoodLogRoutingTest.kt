@@ -1,4 +1,4 @@
-/*
+/**
  * Routing tests using Ktor's testApplication.
  * Each test resets and seeds the in-memory H2 test database, starts module(testing = true),
  * then uses a cookie-enabled test HTTP client to log in and exercise food log routes.
@@ -48,69 +48,70 @@ class FoodLogRoutingTest {
             RecipeIngredients.deleteAll()
             Recipes.deleteAll()
             Users.deleteAll()
-
             val time = Instant.now()
+            val userId = insertTestUser(time)
+            insertTestFoods(userId)
+        }
+    }
 
-            val userId =
-                Users.insert {
-                    it[first_name] = "Sponge"
-                    it[second_name] = "Bob"
-                    it[email] = "foodlog@test.com"
-                    it[password_hash] = BCrypt.hashpw("foodlog@test.com", BCrypt.gensalt())
-                    it[created_at] = time
-                } get Users.user_id
-
-            val clientRoleId =
-                Roles.selectAll()
-                    .where { Roles.role_name eq "client" }
-                    .map { it[Roles.role_id] }
-                    .singleOrNull()
-            if (clientRoleId != null) {
-                UserRoles.insert {
-                    it[UserRoles.user_id] = userId
-                    it[UserRoles.role_id] = clientRoleId
-                }
+    private fun insertTestUser(time: Instant): Int {
+        val userId =
+            Users.insert {
+                it[first_name] = "Sponge"
+                it[second_name] = "Bob"
+                it[email] = "foodlog@test.com"
+                it[password_hash] = BCrypt.hashpw("foodlog@test.com", BCrypt.gensalt())
+                it[created_at] = time
+            } get Users.user_id
+        val clientRoleId =
+            Roles.selectAll()
+                .where { Roles.role_name eq "client" }
+                .map { it[Roles.role_id] }
+                .singleOrNull()
+        if (clientRoleId != null) {
+            UserRoles.insert {
+                it[UserRoles.user_id] = userId
+                it[UserRoles.role_id] = clientRoleId
             }
+        }
+        return userId
+    }
 
-            val appleId =
-                Foods.insert {
-                    it[food_name] = "apple"
-                    it[calories_per_100g] = BigDecimal("110.00")
-                    it[protein_per_100g] = BigDecimal("5.00")
-                    it[carbs_per_100g] = BigDecimal("15.00")
-                    it[fat_per_100g] = BigDecimal("0.50")
-                } get Foods.food_id
-
-            val bananaId =
-                Foods.insert {
-                    it[food_name] = "banana"
-                    it[calories_per_100g] = BigDecimal("55.00")
-                    it[protein_per_100g] = BigDecimal("7.00")
-                    it[carbs_per_100g] = BigDecimal("7.00")
-                    it[fat_per_100g] = BigDecimal("0.70")
-                } get Foods.food_id
-
-            val recipeId =
-                Recipes.insert {
-                    it[recipe_name] = "test mix"
-                    it[instructions] = "mix"
-                    it[created_by_user_id] = userId
-                    it[is_system_recipe] = false
-                } get Recipes.recipes_id
-
-            RecipeIngredients.insert {
-                it[recipe_id] = recipeId
-                it[food_id] = bananaId
-                it[quantity_g] = BigDecimal("200.00")
-                it[original_measure] = "200g"
-            }
-
-            RecipeIngredients.insert {
-                it[recipe_id] = recipeId
-                it[food_id] = appleId
-                it[quantity_g] = BigDecimal("100.00")
-                it[original_measure] = "100g"
-            }
+    private fun insertTestFoods(userId: Int) {
+        val appleId =
+            Foods.insert {
+                it[food_name] = "apple"
+                it[calories_per_100g] = BigDecimal("110.00")
+                it[protein_per_100g] = BigDecimal("5.00")
+                it[carbs_per_100g] = BigDecimal("15.00")
+                it[fat_per_100g] = BigDecimal("0.50")
+            } get Foods.food_id
+        val bananaId =
+            Foods.insert {
+                it[food_name] = "banana"
+                it[calories_per_100g] = BigDecimal("55.00")
+                it[protein_per_100g] = BigDecimal("7.00")
+                it[carbs_per_100g] = BigDecimal("7.00")
+                it[fat_per_100g] = BigDecimal("0.70")
+            } get Foods.food_id
+        val recipeId =
+            Recipes.insert {
+                it[recipe_name] = "test mix"
+                it[instructions] = "mix"
+                it[created_by_user_id] = userId
+                it[is_system_recipe] = false
+            } get Recipes.recipes_id
+        RecipeIngredients.insert {
+            it[recipe_id] = recipeId
+            it[food_id] = bananaId
+            it[quantity_g] = BigDecimal("200.00")
+            it[original_measure] = "200g"
+        }
+        RecipeIngredients.insert {
+            it[recipe_id] = recipeId
+            it[food_id] = appleId
+            it[quantity_g] = BigDecimal("100.00")
+            it[original_measure] = "100g"
         }
     }
 

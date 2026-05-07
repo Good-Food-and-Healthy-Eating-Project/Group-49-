@@ -11,9 +11,12 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.format.TextStyle
+import java.util.Locale
 
 private const val GARMS100 = 100.00
 private const val GUIDANCE_MESSAGE_LIMIT = 4
+private const val WEEK_LOOKBACK_DAYS = 6
 
 data class DailyDietTrend(
     val totalCalorie: Double,
@@ -104,6 +107,28 @@ object ClientDietTrend {
                 )
             }
         }
+}
+
+fun buildWeeklyTrendData(
+    allTrends: List<DailyDietTrend>,
+    today: LocalDate,
+): Map<String, List<Any>> {
+    val last7Days = (WEEK_LOOKBACK_DAYS downTo 0).map { today.minusDays(it.toLong()) }
+    val weekLabels =
+        last7Days.map {
+            "${it.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())} ${it.dayOfMonth}"
+        }
+    val weekCalories = last7Days.map { day -> allTrends.find { it.date == day }?.totalCalorie?.toInt() ?: 0 }
+    val weekProtein = last7Days.map { day -> allTrends.find { it.date == day }?.totalProtein?.toInt() ?: 0 }
+    val weekCarbs = last7Days.map { day -> allTrends.find { it.date == day }?.totalCarbs?.toInt() ?: 0 }
+    val weekFat = last7Days.map { day -> allTrends.find { it.date == day }?.totalFat?.toInt() ?: 0 }
+    return mapOf(
+        "weekLabels" to weekLabels,
+        "weekCalories" to weekCalories,
+        "weekProtein" to weekProtein,
+        "weekCarbs" to weekCarbs,
+        "weekFat" to weekFat,
+    )
 }
 
 // return css class based on calorie total and client goal
