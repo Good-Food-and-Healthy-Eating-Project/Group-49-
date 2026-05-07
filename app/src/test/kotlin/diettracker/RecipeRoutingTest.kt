@@ -90,6 +90,17 @@ class RecipeRoutingTest {
     fun should_search_recipe_by_query() =
         testApplication {
             application { module(testing = true) }
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode(),
+                )
+            }
             val response = client.get("/recipes?query=Test")
             val body = response.bodyAsText()
             assertEquals(200, response.status.value)
@@ -100,6 +111,17 @@ class RecipeRoutingTest {
     fun should_search_recipe_by_ingredient() =
         testApplication {
             application { module(testing = true) }
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode(),
+                )
+            }
             val response = client.get("/recipes?ingredient=Apple")
             val body = response.bodyAsText()
             assertEquals(200, response.status.value)
@@ -110,6 +132,17 @@ class RecipeRoutingTest {
     fun should_load_recipe_detail_page() =
         testApplication {
             application { module(testing = true) }
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode(),
+                )
+            }
             val response = client.get("/recipes/$recipeId")
             val body = response.bodyAsText()
             assertEquals(200, response.status.value)
@@ -122,6 +155,17 @@ class RecipeRoutingTest {
     fun should_return_bad_requst_when_recipe_id_is_invaild() =
         testApplication {
             application { module(testing = true) }
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode(),
+                )
+            }
             val response = client.get("/recipes/invaild")
             assertEquals(400, response.status.value)
         }
@@ -130,6 +174,17 @@ class RecipeRoutingTest {
     fun should_return_not_found_when_recipe_id_does_not_exist() =
         testApplication {
             application { module(testing = true) }
+            val client =
+                createClient {
+                    install(HttpCookies)
+                    followRedirects = false
+                }
+            client.post("/Login") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    listOf("email" to "test@test.com", "password" to "test@test.com").formUrlEncode(),
+                )
+            }
             val response = client.get("/recipes/9999")
             assertEquals(404, response.status.value)
         }
