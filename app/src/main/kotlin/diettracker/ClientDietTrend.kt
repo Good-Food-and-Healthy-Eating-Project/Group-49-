@@ -104,9 +104,9 @@ private fun getColour(
     goal: String?,
 ): String =
     when {
-        // no target
+        // quiz not complete
         targetCalorie <= 0 -> {
-            "empty-day"
+            if (totalCalorie > 0.0) "green" else "empty-day"
         }
 
         // no logged day

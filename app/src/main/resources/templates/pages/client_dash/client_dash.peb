@@ -149,7 +149,11 @@ Home
                             {% endfor %}
 
                             {% if not found %}
-                                <div class="day-box empty-day">
+                                {% set isPastOrToday = currentYear < todayYear
+                                    or (currentYear == todayYear and currentMonthValue < todayMonth)
+                                    or (currentYear == todayYear and currentMonthValue == todayMonth and day <= todayDay)
+                                %}
+                                <div class="day-box {% if dailyCalorieGoal is empty and isPastOrToday %}red{% else %}empty-day{% endif %}">
                                     {{ day }}
                                 </div>
                             {% endif %}
