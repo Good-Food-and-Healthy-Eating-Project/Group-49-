@@ -1,8 +1,8 @@
 package diettracker.routing
 
-import diettracker.UserSession
-import diettracker.getUserIdByEmail
-import diettracker.getUserRoles
+import diettracker.db.repositories.getUserIdByEmail
+import diettracker.db.repositories.getUserRoles
+import diettracker.services.UserSession
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions

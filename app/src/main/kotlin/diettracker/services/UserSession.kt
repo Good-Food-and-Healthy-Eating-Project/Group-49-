@@ -1,4 +1,4 @@
-package diettracker
+package diettracker.services
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.install

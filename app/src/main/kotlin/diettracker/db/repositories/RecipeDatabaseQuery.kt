@@ -1,4 +1,4 @@
-package diettracker
+package diettracker.db.repositories
 
 import diettracker.db.tables.Foods
 import diettracker.db.tables.RecipeIngredients
@@ -22,6 +22,7 @@ import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.time.Instant
 
 private const val DEFAULT_RECIPE_LIMIT = 9
 
@@ -230,7 +231,7 @@ object RecipeReviewQuery {
                 it[RecipeReviews.user_id] = userId
                 it[RecipeReviews.rating] = rating
                 it[RecipeReviews.comment] = comment
-                it[RecipeReviews.created_at] = java.time.Instant.now()
+                it[RecipeReviews.created_at] = Instant.now()
             }
         }
     }

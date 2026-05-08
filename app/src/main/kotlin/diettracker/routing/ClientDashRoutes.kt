@@ -1,7 +1,7 @@
 package diettracker.routing
 
-import diettracker.UserSession
-import diettracker.getUserIdByEmail
+import diettracker.db.repositories.getUserIdByEmail
+import diettracker.services.UserSession
 import diettracker.services.buildClientDashModel
 import io.ktor.server.pebble.PebbleContent
 import io.ktor.server.response.respond
@@ -28,7 +28,6 @@ import io.ktor.server.sessions.sessions
  * The Client dashboard displays guidance messages based on UK recommended nutritional guidelines
  * The messages help the user know if they are following recommended guidelines
  **/
-
 fun Route.configureClientDashRoute() {
     get("/client_dash") {
         // get client email from session

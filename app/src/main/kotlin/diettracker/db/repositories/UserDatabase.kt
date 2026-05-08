@@ -6,7 +6,7 @@
  * managing data, helping to keep database logic consistent and reusable
  * across different routes and features.
  */
-package diettracker
+package diettracker.db.repositories
 
 import diettracker.db.tables.ClientProfessionalLink
 import diettracker.db.tables.Clients
@@ -17,6 +17,8 @@ import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
 import diettracker.models.ClientInfo
 import diettracker.models.Professional
+import diettracker.services.hashPasswordIfValid
+import diettracker.services.isEmailValid
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere

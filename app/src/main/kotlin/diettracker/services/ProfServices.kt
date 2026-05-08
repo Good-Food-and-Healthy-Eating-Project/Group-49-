@@ -1,5 +1,10 @@
-package diettracker
+package diettracker.services
 
+import diettracker.db.repositories.ProfDatabase
+import diettracker.db.repositories.ProfessionalProfile
+import diettracker.db.repositories.UserDatabase
+import diettracker.db.repositories.getUserIdByEmail
+import diettracker.db.repositories.getUserRoles
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.pebble.respondTemplate
