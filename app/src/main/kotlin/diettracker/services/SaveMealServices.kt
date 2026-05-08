@@ -198,7 +198,7 @@ suspend fun ApplicationCall.addSavedMealToLog() {
 
     transaction {
         for (food in savedMealFoods) {
-            addCalories += calcCalcsById(food.foodId, food.grams)
+            addCalories += calcCalsById(food.foodId, food.grams)
             addProtein += calcProteinById(food.foodId, food.grams)
             addFat += calcFatById(food.foodId, food.grams)
             addCarbs += calcCarbsById(food.foodId, food.grams)

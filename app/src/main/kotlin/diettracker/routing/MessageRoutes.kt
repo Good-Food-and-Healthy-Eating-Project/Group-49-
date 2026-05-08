@@ -8,6 +8,7 @@ import diettracker.db.repositories.getUserRoles
 import diettracker.services.UserSession
 import diettracker.services.buildNavbarContext
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.pebble.respondTemplate
 import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.respond
@@ -20,31 +21,40 @@ import io.ktor.server.sessions.sessions
 
 private const val EMPTY_MESSAGE_ERROR = "Message cannot be empty."
 
-@Suppress("LongMethod", "CyclomaticComplexMethod")
 fun Route.configureMessageRoutes() {
+    configureMessageIndexRoute()
+    configureStartMessageRoute()
+    configureViewMessageRoute()
+    configureSendMessageRoute()
+}
+
+/**
+ * Sets up the route that shows the messages page before a chat is selected.
+ */
+private fun Route.configureMessageIndexRoute() {
     get("/messages") {
-        val email = call.sessions.get<UserSession>()?.email ?: return@get call.respondRedirect("/Login")
-        val userId = getUserIdByEmail(email) ?: return@get call.respond(HttpStatusCode.NotFound, "User not found")
-        val userRoles = getUserRoles(userId)
+        val userId = call.requireMessageUserId() ?: return@get
         val chats = MessagingRepository.listChatsForUser(userId)
 
         call.respondTemplate(
             "pages/messages/messages.peb",
-            buildNavbarContext(userId, userRoles, "messages") +
-                mapOf(
-                    "chats" to chats,
-                    "hasSelectedChat" to false,
-                    "selectedChat" to emptyMap<String, Any>(),
-                    "messages" to emptyList<Any>(),
-                    "currentUserId" to userId,
-                    "messageError" to "",
-                ),
+            buildMessagePageModel(
+                userId = userId,
+                chats = chats,
+                selectedChat = null,
+                messages = emptyList<Any>(),
+                messageError = "",
+            ),
         )
     }
+}
 
+/**
+ * Sets up the route that starts a chat between a client and professional.
+ */
+private fun Route.configureStartMessageRoute() {
     post("/messages/start") {
-        val email = call.sessions.get<UserSession>()?.email ?: return@post call.respondRedirect("/Login")
-        val userId = getUserIdByEmail(email) ?: return@post call.respond(HttpStatusCode.NotFound, "User not found")
+        val userId = call.requireMessageUserId() ?: return@post
         val userRoles = getUserRoles(userId)
         val params = call.receiveParameters()
         val clientId = params["client_id"]?.toIntOrNull()
@@ -79,21 +89,18 @@ fun Route.configureMessageRoutes() {
 
         call.respondRedirect("/messages/${chat.chatId}")
     }
+}
 
+/**
+ * Sets up the route that shows a selected chat and its messages.
+ */
+private fun Route.configureViewMessageRoute() {
     get("/messages/{conversationId}") {
-        val email = call.sessions.get<UserSession>()?.email ?: return@get call.respondRedirect("/Login")
-        val userId = getUserIdByEmail(email) ?: return@get call.respond(HttpStatusCode.NotFound, "User not found")
-        val conversationId =
-            call.parameters["conversationId"]?.toIntOrNull()
-                ?: return@get call.respond(HttpStatusCode.BadRequest, "Invalid conversation ID")
-
-        if (!MessagingRepository.isChatParticipant(conversationId, userId)) {
-            return@get call.respond(HttpStatusCode.Forbidden, "Not allowed")
-        }
+        val userId = call.requireMessageUserId() ?: return@get
+        val conversationId = call.requireMessageConversationId(userId) ?: return@get
 
         MessagingRepository.markUnreadMessagesAsRead(conversationId, userId)
 
-        val userRoles = getUserRoles(userId)
         val chats = MessagingRepository.listChatsForUser(userId)
         val selectedChat = chats.firstOrNull { it.chatId == conversationId }
         val messages = MessagingRepository.listMessagesForChat(conversationId)
@@ -105,28 +112,24 @@ fun Route.configureMessageRoutes() {
 
         call.respondTemplate(
             "pages/messages/messages.peb",
-            buildNavbarContext(userId, userRoles, "messages") +
-                mapOf(
-                    "chats" to chats,
-                    "hasSelectedChat" to true,
-                    "selectedChat" to selectedChat,
-                    "messages" to messages,
-                    "currentUserId" to userId,
-                    "messageError" to messageError,
-                ),
+            buildMessagePageModel(
+                userId = userId,
+                chats = chats,
+                selectedChat = selectedChat,
+                messages = messages,
+                messageError = messageError,
+            ),
         )
     }
+}
 
+/**
+ * Sets up the route that sends a message in a selected chat.
+ */
+private fun Route.configureSendMessageRoute() {
     post("/messages/{conversationId}") {
-        val email = call.sessions.get<UserSession>()?.email ?: return@post call.respondRedirect("/Login")
-        val userId = getUserIdByEmail(email) ?: return@post call.respond(HttpStatusCode.NotFound, "User not found")
-        val conversationId =
-            call.parameters["conversationId"]?.toIntOrNull()
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "Invalid conversation ID")
-
-        if (!MessagingRepository.isChatParticipant(conversationId, userId)) {
-            return@post call.respond(HttpStatusCode.Forbidden, "Not allowed")
-        }
+        val userId = call.requireMessageUserId() ?: return@post
+        val conversationId = call.requireMessageConversationId(userId) ?: return@post
 
         val messageBody = call.receiveParameters()["body"]?.trim().orEmpty()
         if (messageBody.isBlank()) {
@@ -142,3 +145,72 @@ fun Route.configureMessageRoutes() {
         call.respondRedirect("/messages/$conversationId")
     }
 }
+
+/**
+ * Gets the logged-in user ID for message routes.
+ *
+ * If the user is not logged in it redirects them to log in, and if the session email
+ * does not match a user it sends a not found response.
+ *
+ * @return The logged-in user's ID, or null if the request has already been handled.
+ */
+private suspend fun ApplicationCall.requireMessageUserId(): Int? {
+    val email =
+        sessions.get<UserSession>()?.email
+            ?: run {
+                respondRedirect("/Login")
+                return null
+            }
+    return getUserIdByEmail(email)
+        ?: run {
+            respond(HttpStatusCode.NotFound, "User not found")
+            null
+        }
+}
+
+/**
+ * Gets the conversation ID and checks that the user belongs to the chat.
+ *
+ * @param userId The logged-in user being checked.
+ * @return The conversation ID, or null if the request has already been handled.
+ */
+private suspend fun ApplicationCall.requireMessageConversationId(userId: Int): Int? {
+    val conversationId =
+        parameters["conversationId"]?.toIntOrNull()
+
+    return when {
+        conversationId == null -> {
+            respond(HttpStatusCode.BadRequest, "Invalid conversation ID")
+            null
+        }
+
+        !MessagingRepository.isChatParticipant(conversationId, userId) -> {
+            respond(HttpStatusCode.Forbidden, "Not allowed")
+            null
+        }
+
+        else -> conversationId
+    }
+}
+
+/**
+ * Builds the model used by the messages page.
+ *
+ * @return The data passed into the messages template.
+ */
+private fun buildMessagePageModel(
+    userId: Int,
+    chats: Any,
+    selectedChat: Any?,
+    messages: Any,
+    messageError: String,
+): Map<String, Any> =
+    buildNavbarContext(userId, getUserRoles(userId), "messages") +
+        mapOf(
+            "chats" to chats,
+            "hasSelectedChat" to (selectedChat != null),
+            "selectedChat" to (selectedChat ?: emptyMap<String, Any>()),
+            "messages" to messages,
+            "currentUserId" to userId,
+            "messageError" to messageError,
+        )
