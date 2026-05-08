@@ -26,7 +26,6 @@ import java.time.Instant
 
 private const val DEFAULT_RECIPE_LIMIT = 9
 
-@Suppress("TooManyFunctions")
 object RecipeDatabaseQuery {
     fun searchRecipes(
         query: String,
@@ -184,7 +183,9 @@ object RecipeDatabaseQuery {
                     )
                 }
         }
+}
 
+object RecipeReviewDatabaseQuery {
     fun getReviewsForRecipe(recipeId: Int): List<RecipeReviewDetail> =
         transaction {
             (RecipeReviews innerJoin Users)

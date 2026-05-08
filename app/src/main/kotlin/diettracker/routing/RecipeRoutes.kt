@@ -1,6 +1,7 @@
 package diettracker.routing
 
 import diettracker.db.repositories.RecipeDatabaseQuery
+import diettracker.db.repositories.RecipeReviewDatabaseQuery
 import diettracker.db.repositories.getUserIdByEmail
 import diettracker.services.UserSession
 import diettracker.services.buildNavbarContext
@@ -52,15 +53,11 @@ fun Route.configureRecipeSearchRoutes() {
         val query = call.request.queryParameters["query"]?.trim() ?: ""
         val category = call.request.queryParameters["category"]?.trim() ?: ""
         val ingredient = call.request.queryParameters["ingredient"]?.trim() ?: ""
-        val email = call.sessions.get<UserSession>()?.email
-        val userId = email?.let(::getUserIdByEmail)
+        val email = call.sessions.get<UserSession>()?.email ?: return@get call.respondRedirect("/Login")
+        val userId = getUserIdByEmail(email) ?: return@get call.respond(HttpStatusCode.NotFound, "User not found")
 
         val favouriteIds =
-            if (userId != null) {
-                RecipeDatabaseQuery.getFavourites(userId)
-            } else {
-                emptyList()
-            }
+            RecipeDatabaseQuery.getFavourites(userId)
 
         val recipes =
             if (ingredient.isNotBlank()) {
@@ -114,8 +111,8 @@ fun Route.configureRecipeDetailRoutes() {
             return@get
         }
 
-        val reviews = RecipeDatabaseQuery.getReviewsForRecipe(recipeId)
-        val averageRating = RecipeDatabaseQuery.getAverageRating(recipeId)
+        val reviews = RecipeReviewDatabaseQuery.getReviewsForRecipe(recipeId)
+        val averageRating = RecipeReviewDatabaseQuery.getAverageRating(recipeId)
         val email = call.sessions.get<UserSession>()?.email
 
         call.respondTemplate(
@@ -182,7 +179,7 @@ fun Route.configureRecipeReviewRoutes() {
                 val rating = parameters["rating"]?.toIntOrNull()
                 val comment = parameters["comment"]?.trim() ?: ""
                 if (rating != null && rating in 1..MAX_REVIEW_RATING && comment.isNotBlank()) {
-                    RecipeDatabaseQuery.addReview(userId, recipeId, rating, comment)
+                    RecipeReviewDatabaseQuery.addReview(userId, recipeId, rating, comment)
                 }
             }
         }
