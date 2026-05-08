@@ -5,6 +5,7 @@
  */
 package diettracker
 
+import diettracker.db.repositories.UserDatabase
 import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.request.get
 import io.ktor.client.request.header

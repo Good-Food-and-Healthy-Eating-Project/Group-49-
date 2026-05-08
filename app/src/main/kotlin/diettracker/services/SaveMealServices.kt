@@ -1,5 +1,6 @@
-package diettracker
+package diettracker.services
 
+import diettracker.db.repositories.getUserIdByEmail
 import diettracker.db.tables.Clients
 import diettracker.db.tables.SavedMealFoods
 import diettracker.db.tables.SavedMeals
@@ -197,7 +198,7 @@ suspend fun ApplicationCall.addSavedMealToLog() {
 
     transaction {
         for (food in savedMealFoods) {
-            addCalories += calcCalcsById(food.foodId, food.grams)
+            addCalories += calcCalsById(food.foodId, food.grams)
             addProtein += calcProteinById(food.foodId, food.grams)
             addFat += calcFatById(food.foodId, food.grams)
             addCarbs += calcCarbsById(food.foodId, food.grams)

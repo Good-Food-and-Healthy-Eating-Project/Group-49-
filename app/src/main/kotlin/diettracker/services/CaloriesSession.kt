@@ -1,5 +1,6 @@
-package diettracker
+package diettracker.services
 
+import diettracker.db.repositories.getUserIdByEmail
 import diettracker.db.tables.Foods
 import diettracker.db.tables.RecipeIngredients
 import diettracker.db.tables.Recipes
