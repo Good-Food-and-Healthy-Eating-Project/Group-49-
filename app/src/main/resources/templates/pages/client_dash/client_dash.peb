@@ -164,7 +164,11 @@ Home
 
                             {# No log entry for this day — show it as untracked #}
                             {% if not found %}
-                                <div class="day-box empty-day" aria-label="Day {{ day }}: no data logged">
+                                {% set isPastOrToday = currentYear < todayYear
+                                    or (currentYear == todayYear and currentMonthValue < todayMonth)
+                                    or (currentYear == todayYear and currentMonthValue == todayMonth and day <= todayDay)
+                                %}
+                                <div class="day-box {% if dailyCalorieGoal is empty and isPastOrToday %}red{% else %}empty-day{% endif %}">
                                     {{ day }}
                                 </div>
                             {% endif %}
