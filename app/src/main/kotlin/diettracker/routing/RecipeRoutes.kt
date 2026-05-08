@@ -1,12 +1,8 @@
 package diettracker.routing
 
-import diettracker.RecipeDatabaseQuery
-import diettracker.RecipeFavouriteQuery
-import diettracker.RecipeReviewQuery
-import diettracker.UserSession
-import diettracker.buildNavbarContext
-import diettracker.getUserIdByEmail
 import diettracker.db.repositories.RecipeDatabaseQuery
+import diettracker.db.repositories.RecipeFavouriteQuery
+import diettracker.db.repositories.RecipeReviewQuery
 import diettracker.db.repositories.getUserIdByEmail
 import diettracker.services.UserSession
 import diettracker.services.buildNavbarContext
