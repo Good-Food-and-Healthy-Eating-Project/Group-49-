@@ -4,6 +4,7 @@ Worrying trends such as increasing childhood and adult obesity highlight the nee
 The system will initially focus on diet tracking and personalised advice, with potential expansion into support for home cooking.
 
 
+
 ## Features
 
 Client and professional sign up, login, and onboarding quizzes
