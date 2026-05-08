@@ -11,23 +11,11 @@ import io.ktor.server.routing.get
 import io.ktor.server.sessions.get
 import io.ktor.server.sessions.sessions
 
-// AC-ATH-01
-// AC-ATH-07
-// AC-ATH-08
-// AC-ATH-11
-// AC-STUDENT-03
-// AC-STUDENT-04
-// AC-STUDENT-06
-// AC-STUDENT-07
-// AC-STUDENT-08
-// AC-STUDENT-10
-// AC-VEG-05
-
 /**
  * This page contains all the routing functions used for the client dashboard page
  * The Client dashboard displays guidance messages based on UK recommended nutritional guidelines
  * The messages help the user know if they are following recommended guidelines
- **/
+*/
 fun Route.configureClientDashRoute() {
     get("/client_dash") {
         // get client email from session

@@ -41,7 +41,7 @@
                     {% if linkedProfessionalIds contains pro.id %}
                         <div class="card pro-card linked-card">
                             <div class="pro-card-top">
-                                <div class="pro-avatar">
+                                <div class="pro-avatar" aria-hidden="true">
                                     {# slice(0,1) grabs just the first character to make initials for the avatar circle #}
                                     {% if pro.firstName is not empty %}{{ pro.firstName | slice(0, 1) }}{% endif %}{% if pro.lastName is not empty %}{{ pro.lastName | slice(0, 1) }}{% endif %}
                                 </div>
@@ -62,14 +62,14 @@
                             <div class="pro-card-footer">
                                 <form method="post" action="/messages/start" style="margin-bottom: 0.75rem;">
                                     <input type="hidden" name="professional_id" value="{{ pro.id }}">
-                                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                                    <button type="submit" class="btn btn-secondary" style="width: 100%;" aria-label="Open chat with {{ pro.firstName }} {{ pro.lastName }}">
                                         Open Chat
                                     </button>
                                 </form>
                                 <form method="post" action="/unlink-professional"
                                       onsubmit="return confirm('Are you sure you want to unlink from {{ pro.firstName }} {{ pro.lastName }}?');">
                                     <input type="hidden" name="professional_id" value="{{ pro.id }}">
-                                    <button type="submit" class="btn btn-danger" style="width: 100%;">
+                                    <button type="submit" class="btn btn-danger" style="width: 100%;" aria-label="Unlink {{ pro.firstName }} {{ pro.lastName }}">
                                         Unlink Professional
                                     </button>
                                 </form>
@@ -129,7 +129,7 @@
                                         <input type="checkbox" id="consent-{{ pro.id }}" name="consent" value="true">
                                         <label for="consent-{{ pro.id }}">I agree to share my dietary data with this professional</label>
                                     </div>
-                                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                    <button type="submit" class="btn btn-primary" style="width: 100%;" aria-label="Select {{ pro.firstName }} {{ pro.lastName }} as your professional">
                                         Select Professional
                                     </button>
                                 </form>

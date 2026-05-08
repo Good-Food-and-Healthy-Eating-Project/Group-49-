@@ -47,7 +47,7 @@
             <div class="calendar-widget" style="width: auto; min-width: 340px;">
                 <div class="calendar-navigation">
                     <a href="/professional/client/{{ client.clientId }}?year={{ previousYear }}&month={{ previousMonth }}" class="calendar-nav-button">&laquo; Prev</a>
-                    <h2>{{ currentYear }} / {{ currentMonth }}</h2>
+                    <p class="calendar-month-label" aria-live="polite">{{ currentYear }} / {{ currentMonth }}</p>
                     <a href="/professional/client/{{ client.clientId }}?year={{ nextYear }}&month={{ nextMonth }}" class="calendar-nav-button">Next &raquo;</a>
                 </div>
                 <div class="calendar-weekdays" style="margin-top: 12px;">
@@ -220,6 +220,11 @@
 
     .send-advice-btn:hover {
         background: #7A3518;
+    }
+
+    .send-advice-btn:focus-visible {
+        outline: 3px solid #2C1E10;
+        outline-offset: 2px;
     }
 
     .overview-header h1 {
