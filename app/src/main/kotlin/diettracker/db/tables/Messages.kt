@@ -6,6 +6,10 @@ import org.jetbrains.exposed.v1.javatime.timestamp
 
 private const val BODY_MAX_LENGTH_MULTIPLIER = 4
 
+/**
+ * This table stores each message and all details related to the message.
+ **/
+
 object Messages : Table("messages") {
     val message_id = integer("message_id").autoIncrement()
     val chat_id = integer("chat_id").references(Chats.chat_id)

@@ -5,6 +5,7 @@
  */
 package diettracker
 
+import diettracker.db.repositories.RecipeDatabaseQuery
 import diettracker.db.tables.Foods
 import diettracker.db.tables.RecipeIngredients
 import diettracker.db.tables.RecipeReviews

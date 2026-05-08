@@ -1,7 +1,11 @@
 package diettracker
 
 import diettracker.db.DatabaseFactory
+import diettracker.db.repositories.backfillClientRoles
 import diettracker.models.CurrentMealSession
+import diettracker.services.CaloriesSession
+import diettracker.services.UserSession
+import diettracker.services.configureAuthentication
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.netty.EngineMain

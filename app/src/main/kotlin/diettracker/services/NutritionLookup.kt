@@ -1,4 +1,4 @@
-package diettracker
+package diettracker.services
 
 import diettracker.db.tables.FoodLogItems
 import diettracker.db.tables.FoodLogs
@@ -10,7 +10,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDate
 
-fun calcCalcsById(
+fun calcCalsById(
     foodid: Int,
     grams: Int,
 ): Int {

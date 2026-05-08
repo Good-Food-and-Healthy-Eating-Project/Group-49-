@@ -1,4 +1,4 @@
-package diettracker.routes
+package diettracker.routing
 
 import diettracker.db.tables.Clients
 import io.ktor.server.request.receiveParameters

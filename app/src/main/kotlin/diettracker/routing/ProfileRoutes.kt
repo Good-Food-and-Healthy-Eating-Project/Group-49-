@@ -1,10 +1,9 @@
 package diettracker.routing
 
-import diettracker.UserSession
-import diettracker.buildNavbarContext
+import diettracker.db.repositories.getUserIdByEmail
 import diettracker.db.tables.Clients
-import diettracker.getUserIdByEmail
-import diettracker.routes.calculateDailyCalorieGoal
+import diettracker.services.UserSession
+import diettracker.services.buildNavbarContext
 import io.ktor.server.pebble.respondTemplate
 import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.respondRedirect

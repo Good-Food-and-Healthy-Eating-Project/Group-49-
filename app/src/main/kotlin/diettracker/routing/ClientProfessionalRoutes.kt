@@ -10,15 +10,15 @@
  **/
 package diettracker.routing
 
-import diettracker.UserSession
-import diettracker.buildNavbarContext
-import diettracker.getAllProfessionals
-import diettracker.getClientCalorieGoal
-import diettracker.getLinkedProfessionalIdsForClient
-import diettracker.getUserIdByEmail
-import diettracker.getUserRoles
-import diettracker.linkClientToProfessional
-import diettracker.unlinkClientFromProfessional
+import diettracker.db.repositories.getAllProfessionals
+import diettracker.db.repositories.getClientCalorieGoal
+import diettracker.db.repositories.getLinkedProfessionalIdsForClient
+import diettracker.db.repositories.getUserIdByEmail
+import diettracker.db.repositories.getUserRoles
+import diettracker.db.repositories.linkClientToProfessional
+import diettracker.db.repositories.unlinkClientFromProfessional
+import diettracker.services.UserSession
+import diettracker.services.buildNavbarContext
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.pebble.respondTemplate

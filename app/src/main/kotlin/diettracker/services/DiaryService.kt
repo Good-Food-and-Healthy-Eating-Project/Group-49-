@@ -12,13 +12,27 @@ import java.time.LocalDate
 import java.time.ZoneId
 import kotlin.math.roundToInt
 
+/**
+ * Time range used for breakfast.
+ */
 private const val BREAKFAST_START_HOUR = 5
 private const val BREAKFAST_END_HOUR = 11
+
+/**
+ * Time range used for lunch.
+ */
 private const val LUNCH_START_HOUR = 12
 private const val LUNCH_END_HOUR = 16
+
+/**
+ * Time range used for dinner.
+ */
 private const val DINNER_START_HOUR = 17
 private const val DINNER_END_HOUR = 22
 
+/**
+ * Summary shown for one day on the weekly diary page.
+ */
 data class DayDiarySummary(
     val name: String,
     val dateLabel: String,
@@ -32,12 +46,18 @@ data class DayDiarySummary(
     val viewUrl: String?,
 )
 
+/**
+ * Stores one week option for the diary week selector.
+ */
 data class WeekOption(
     val value: String,
     val label: String,
     val selected: Boolean,
 )
 
+/**
+ * Stores all data needed for the weekly diary page.
+ */
 data class WeeklyDiaryViewModel(
     val selectedWeekLabel: String,
     val weekStart: String,
@@ -47,6 +67,9 @@ data class WeeklyDiaryViewModel(
     val weekHasEntries: Boolean,
 )
 
+/**
+ * Stores one food item shown on the diary day page.
+ */
 data class FoodDiaryItemViewModel(
     val foodName: String,
     val quantityLabel: String,
@@ -56,6 +79,9 @@ data class FoodDiaryItemViewModel(
     val fats: Int,
 )
 
+/**
+ * Stores one meal and its foods for the diary day page.
+ */
 data class MealDiaryDetailViewModel(
     val mealType: String,
     val notes: String,
@@ -67,6 +93,9 @@ data class MealDiaryDetailViewModel(
     val items: List<FoodDiaryItemViewModel>,
 )
 
+/**
+ * Stores all data needed for the diary day page.
+ */
 data class DailyDiaryDetailViewModel(
     val dateLabel: String,
     val totalCalories: Int,
@@ -76,9 +105,25 @@ data class DailyDiaryDetailViewModel(
     val meals: List<MealDiaryDetailViewModel>,
 )
 
+/**
+ * Handles the main food diary logic.
+ */
 object DiaryService {
+    /**
+     * Uses the app timezone when changing diary dates into saved times.
+     */
     private val appZone: ZoneId = ZoneId.systemDefault()
 
+    /**
+     * Builds the weekly diary page data.
+     *
+     * Loads all logs for the selected week and builds a summary for each
+     * day.
+     *
+     * @param userId user whose diary is being shown.
+     * @param selectedWeek selected week, or null for the current week.
+     * @return weekly diary page data.
+     */
     fun getWeeklyDiaryView(
         userId: Int,
         selectedWeek: LocalDate?,
@@ -116,6 +161,15 @@ object DiaryService {
         )
     }
 
+    /**
+     * Builds the detailed diary page for one day.
+     *
+     * Loads the day's meals, food items and nutrition totals.
+     *
+     * @param userId user whose diary is being shown.
+     * @param date date being opened.
+     * @return diary detail data for the day.
+     */
     fun getDailyDiaryDetail(
         userId: Int,
         date: LocalDate,
@@ -166,6 +220,17 @@ object DiaryService {
         )
     }
 
+    /**
+     * Saves the current food log to the diary.
+     *
+     * Creates a food log row first, then saves each food item linked to it.
+     *
+     * @param userId user saving the food log.
+     * @param mealType type of meal being saved.
+     * @param notes notes for the food log.
+     * @param foods foods being saved.
+     * @return id of the new food log.
+     */
     fun saveFoodLog(
         userId: Int,
         mealType: String,
@@ -190,6 +255,11 @@ object DiaryService {
             foodLogId
         }
 
+    /**
+     * Gets the meal type based on the current time.
+     *
+     * @return Breakfast, Lunch, Dinner or Snack.
+     */
     fun getMealTypeByTime(): String {
         val hour =
             Instant.now()

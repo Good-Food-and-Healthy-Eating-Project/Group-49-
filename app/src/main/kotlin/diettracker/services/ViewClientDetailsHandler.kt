@@ -1,5 +1,9 @@
-package diettracker
+package diettracker.services
 
+import diettracker.db.repositories.getClientsForProfessional
+import diettracker.db.repositories.getUserIdByEmail
+import diettracker.db.repositories.getUserRoles
+import diettracker.fetchClientData
 import diettracker.routing.hasRole
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.pebble.respondTemplate

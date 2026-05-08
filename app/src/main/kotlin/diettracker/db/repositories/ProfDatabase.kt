@@ -1,9 +1,11 @@
-package diettracker
+package diettracker.db.repositories
 
 import diettracker.db.tables.Professionals
 import diettracker.db.tables.Roles
 import diettracker.db.tables.UserRoles
 import diettracker.db.tables.Users
+import diettracker.services.hashPasswordIfValid
+import diettracker.services.isEmailValid
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
