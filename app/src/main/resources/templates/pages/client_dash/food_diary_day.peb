@@ -1,0 +1,86 @@
+<!-- Daily food diary detail page - shows meal entries and nutrition totals for a selected day -->
+{% extends "layouts/base.peb" %}
+
+{% block title %}
+Food Diary Details
+{% endblock %}
+
+{% block content %}
+<section class="food-diary-page food-diary-detail-page" aria-labelledby="food-diary-detail-heading">
+    <header class="food-diary-header">
+        <h1 id="food-diary-detail-heading">Food Diary Details</h1>
+        <p class="food-diary-subtitle">{{ dateLabel }}</p>
+    </header>
+
+    <section class="week-selection" aria-label="Daily totals">
+        <h2>Daily Totals</h2>
+        <div class="detail-macro-grid">
+            <p><strong>Calories:</strong> {{ totalCalories }} kcal</p>
+            <p><strong>Protein:</strong> {{ protein }} g</p>
+            <p><strong>Carbs:</strong> {{ carbs }} g</p>
+            <p><strong>Fats:</strong> {{ fats }} g</p>
+        </div>
+    </section>
+
+    <section class="week-diary" aria-labelledby="meal-entries-heading">
+        <h2 id="meal-entries-heading">Meals</h2>
+
+        {% if meals is defined and meals is not empty %}
+            <ul class="day-card-list" aria-label="Meal details">
+                {% for meal in meals %}
+                    <li class="day-card-item">
+                        <article class="day-card">
+                            <header class="day-card-header">
+                                <h3>{{ meal.mealType }}</h3>
+                                <p class="day-date">{{ meal.timeLabel }}</p>
+                            </header>
+
+                            {% if meal.notes is defined and meal.notes is not empty %}
+                                <p class="day-status"><strong>Notes:</strong> {{ meal.notes }}</p>
+                            {% endif %}
+
+                            <div class="day-summary">
+                                <p class="day-calories"><strong>Calories:</strong> {{ meal.totalCalories }} kcal</p>
+                                <ul class="macro-list">
+                                    <li><strong>Protein:</strong> {{ meal.protein }} g</li>
+                                    <li><strong>Carbs:</strong> {{ meal.carbs }} g</li>
+                                    <li><strong>Fats:</strong> {{ meal.fats }} g</li>
+                                </ul>
+                            </div>
+
+                            {% if meal.items is defined and meal.items is not empty %}
+                                <table class="food-diary-table" aria-label="Foods in {{ meal.mealType }}">
+                                    <thead>
+                                    <tr>
+                                        <th>Food</th>
+                                        <th>Qty</th>
+                                        <th>Calories</th>
+                                        <th>Protein</th>
+                                        <th>Carbs</th>
+                                        <th>Fats</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for item in meal.items %}
+                                        <tr>
+                                            <td>{{ item.foodName }}</td>
+                                            <td>{{ item.quantityLabel }}</td>
+                                            <td>{{ item.calories }}</td>
+                                            <td>{{ item.protein }}</td>
+                                            <td>{{ item.carbs }}</td>
+                                            <td>{{ item.fats }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% endif %}
+                        </article>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="empty-state">No meals were logged for this day.</p>
+        {% endif %}
+    </section>
+</section>
+{% endblock %}

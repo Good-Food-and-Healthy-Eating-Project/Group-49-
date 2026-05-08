@@ -1,0 +1,54 @@
+package diettracker.db
+
+import diettracker.db.tables.Chats
+import diettracker.db.tables.ClientProfessionalLink
+import diettracker.db.tables.Clients
+import diettracker.db.tables.FoodLogItems
+import diettracker.db.tables.FoodLogs
+import diettracker.db.tables.Foods
+import diettracker.db.tables.Messages
+import diettracker.db.tables.Professionals
+import diettracker.db.tables.RecipeIngredients
+import diettracker.db.tables.RecipeReviews
+import diettracker.db.tables.Recipes
+import diettracker.db.tables.Roles
+import diettracker.db.tables.SavedMealFoods
+import diettracker.db.tables.SavedMeals
+import diettracker.db.tables.UserFavouritedRecipes
+import diettracker.db.tables.UserRoles
+import diettracker.db.tables.Users
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+
+object DatabaseFactory {
+    fun init() {
+        Database.connect(
+            url = "jdbc:postgresql://ep-flat-lab-agu339xc-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require",
+            driver = "org.postgresql.Driver",
+            user = "neondb_owner",
+            password = System.getenv("DB_PASSWORD"),
+        )
+        transaction {
+            SchemaUtils.createMissingTablesAndColumns(
+                Users,
+                Roles,
+                UserRoles,
+                Clients,
+                Professionals,
+                ClientProfessionalLink,
+                Foods,
+                Recipes,
+                RecipeIngredients,
+                FoodLogs,
+                FoodLogItems,
+                UserFavouritedRecipes,
+                RecipeReviews,
+                Chats,
+                Messages,
+                SavedMeals,
+                SavedMealFoods,
+            )
+        }
+    }
+}

@@ -1,0 +1,361 @@
+<!-- Add food page - lets clients log food by searching for items or entering custom amounts -->
+{% extends "layouts/base.peb" %}
+
+{% block title %}Log Food{% endblock %}
+
+{% block content %}
+
+<!-- Shows a success message only if the backend sends a success variable.
+     If success is saved, it means a meal was saved.
+     Otherwise, it shows "Added!", which is used after adding food,recipes or saved meals. -->
+{% if success is defined%}
+<div id="success-banner" class="success-banner" role="alert" aria-live="polite">
+    {% if success == "saved" %}Meal Saved!{% else %}Added!{% endif %}
+</div>
+{% endif %}
+
+{% if error is defined %}
+<div class="error-banner" role="alert" aria-live="assertive">
+        {{ error }}
+</div>
+{% endif %}
+
+{# Used Claude AI here to explain how to implement a confirmation feature which times out using javascript #}
+
+<!-- Removes the success banner after 3 seconds.
+     The if check prevents an error if there is no success banner on the page. -->
+<script>
+  setTimeout(() => {
+    const b = document.getElementById('success-banner');
+    if (b) b.remove();
+  }, 3000);
+</script>
+
+<!-- AI used to format front end here , used in summary actions and log panels -->
+<div class="log-food-page">
+
+    <div class="page-header">
+        <h1>Log Food</h1>
+        <p>Search for a meal, ingredient, or saved meal to add to your diary.</p>
+    </div>
+
+    <div class="log-food-layout">
+
+        <!-- LEFT: Calorie summary -->
+        {# Sticky so the calorie total stays visible while the user scrolls through food options #}
+        <aside class="card log-summary-card">
+            <h2>Today's Total</h2>
+
+            <div class="summary-stat">
+                <span class="summary-label">Calories</span>
+                <span class="summary-value">
+                    <!-- If the backend sends calories, display them.
+                         If calories is missing, display 0 instead so the page still has a value. -->
+                    {% if calories is defined %}{{ calories }}{% else %}0{% endif %} kcal
+                </span>
+            </div>
+
+            <!-- Only show the protein row if the backend sends a protein value. -->
+            {% if protein is defined %}
+            <div class="summary-stat">
+                <span class="summary-label">Protein</span>
+                <span class="summary-value">{{ protein }} g</span>
+            </div>
+            {% endif %}
+
+            <!-- Only show the carbs row if the backend sends a carbs value. -->
+            {% if carbs is defined %}
+            <div class="summary-stat">
+                <span class="summary-label">Carbs</span>
+                <span class="summary-value">{{ carbs }} g</span>
+            </div>
+            {% endif %}
+
+            <!-- Only show the fat row if the backend sends a fat value. -->
+            {% if fat is defined %}
+            <div class="summary-stat">
+                <span class="summary-label">Fat</span>
+                <span class="summary-value">{{ fat }} g</span>
+            </div>
+            {% endif %}
+
+            <div class="summary-actions">
+
+                <!-- POST is used because it changes saved diary data, not just displays a page. -->
+                <form method="post" action="/save_food_log">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Add to diary</button>
+                </form>
+
+                <!-- Saves the current food log as a reusable meal.
+                     The user must type a meal name, which is sent to the backend as "mealName".
+                     POST is used because this creates/saves a new saved meal. -->
+                <form method="post" action="/save_meal" style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                    <input type="text" name="mealName" placeholder="Meal name" aria-label="Meal name" required class="form-input">
+                    <button type="submit" class="btn btn-secondary" style="white-space: nowrap;">Save meal</button>
+                </form>
+
+                <!-- Clears the current temporary food log.
+                     POST is used because it changes the current log state by resetting it. -->
+                <form method="post" action="/food_log_reset" style="margin-top: 0.75rem;">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Reset</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- RIGHT: Search panels -->
+        <div class="log-panels">
+
+            <!-- MEALS -->
+            <div class="card log-panel">
+                <h2>Meals</h2>
+                {# GET form — just updates the query param to filter the list, doesn't log anything #}
+
+                <!-- Searches for recipes using the text entered as "query".
+                     GET is used because searching only requests results and does not save or change data. -->
+                <form method="get" action="/food_log" class="search-row">
+                    <label for="recipe-search" class="visually-hidden">Search recipes by name</label>
+                    <input id="recipe-search" type="text" name="query" placeholder="Search recipes…" class="form-input">
+                    <button type="submit" class="btn btn-secondary">Search</button>
+                </form>
+                {# POST form — actually adds the selected recipe to the session log #}
+
+                <!-- Adds the selected recipe to the current temporary food log.
+                     The selected radio button sends the recipe ID as "recipeId".
+                     POST is used because it changes the current food log by adding a recipe. Radio used so user can only select one -->
+                <form method="post" action="/food_log_recipe">
+
+                    <!-- If recipe results exist, show them as radio buttons.
+                         If there are no recipes, show a fallback message instead. -->
+                    {% if recipes is not empty %}
+                        <div class="radio-list">
+                            {% for r in recipes %}
+                                <label class="radio-item">
+                                    <input type="radio" name="recipeId" value="{{ r.id }}">
+                                    <span>{{ r.name }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="empty-hint">No recipes found — try a search above.</p>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary" style="margin-top: 1rem;" aria-label="Add selected recipe to log">Add</button>
+                </form>
+            </div>
+
+            <!-- CUSTOM INGREDIENT -->
+            <div class="card log-panel">
+                <h2>Custom Ingredient</h2>
+
+                <!-- Searches for individual foods/ingredients using the text entered as "foodquery". GET is used because this only fetches search results and does not save anything. -->
+                {# GET form — filters the food list by name, different param (foodquery) to the recipe search above #}
+                <form method="get" action="/food_log" class="search-row">
+                    <label for="food-search" class="visually-hidden">Search foods by name</label>
+                    <input id="food-search" type="text" name="foodquery" placeholder="Search foods…" class="form-input">
+                    <button type="submit" class="btn btn-secondary">Search</button>
+                </form>
+
+                <!-- Adds the selected food/ingredient to the current temporary food log. The backend receives the selected food as "foodId" and the amount as "grams". POST is used because it changes the current food log by adding food data. -->
+                {# POST form — logs the selected food with a custom gram amount to the session #}
+                <form method="post" action="/food_log_custom">
+
+                    <!-- If food results exist, show them as radio buttons and ask for grams. If there are no foods, show a fallback message instead. -->
+                    {% if foods is not empty %}
+                        <div class="radio-list">
+                            {% for f in foods %}
+                                <label class="radio-item">
+                                    <input type="radio" name="foodId" value="{{ f.id }}" required>
+                                    <span>{{ f.name }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                        <div class="form-group" style="margin-top: 1rem;">
+                            <label for="grams-input" class="form-label">Grams</label>
+                            <input id="grams-input" type="number" name="grams" placeholder="e.g. 150" min="1" max="5000" required class="form-input">
+                        </div>
+                    {% else %}
+                        <p class="empty-hint">No foods found — try a search above.</p>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary" aria-label="Add selected food to log">Add</button>
+                </form>
+            </div>
+
+            <!-- SAVED MEALS -->
+            <div class="card log-panel">
+                <h2>Saved Meals</h2>
+
+                <!-- Adds one of the user's saved meals to the current temporary food log. The selected radio button sends the saved meal ID as "mealId".POST is used because it changes the current food log by adding an existing saved meal. -->
+                <form method="post" action="/add_saved_meal_to_log">
+
+                    <!-- If the user has saved meals, show them as radio buttons.
+                         If there are no saved meals, show a fallback message. -->
+                    {% if savedMeals is not empty %}
+                        <div class="radio-list">
+                            {% for meal in savedMeals %}
+                                <label class="radio-item">
+                                    <input type="radio" name="mealId" value="{{ meal.id }}" required>
+                                    <span>{{ meal.name }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="empty-hint">No saved meals yet.</p>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Add saved meal</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .success-banner {
+        background: var(--sage-light);
+        color: var(--brown);
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .error-banner {
+        background: #fbe4e6;
+        color: #8a1c24;
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 1rem 1.5rem;
+        border: 1px solid #f1b8be;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .log-food-page {
+        padding: 2rem 0;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .log-food-layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    .log-summary-card {
+        position: sticky;
+        top: calc(var(--nav-height) + 1rem);
+    }
+
+    .log-summary-card h2 {
+        font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+        margin-bottom: 1.25rem;
+    }
+
+    .summary-stat {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 0.55rem 0;
+        border-bottom: 1px solid var(--cream-dark);
+    }
+
+    .summary-stat:last-of-type {
+        border-bottom: none;
+    }
+
+    .summary-label {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .summary-value {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--brown);
+    }
+
+    .summary-actions {
+        margin-top: 1.5rem;
+    }
+
+    .log-panels {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .log-panel h2 {
+        font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+        margin-bottom: 1rem;
+    }
+
+    .search-row {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .search-row .form-input {
+        flex: 1;
+    }
+
+    .radio-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        max-height: 220px;
+        overflow-y: auto;
+        padding-right: 0.25rem;
+    }
+
+    .radio-item {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.55rem 0.75rem;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: background var(--transition);
+        font-size: 0.95rem;
+        color: var(--text-primary);
+    }
+
+    .radio-item:hover {
+        background: var(--cream);
+    }
+
+    .radio-item input[type="radio"] {
+        accent-color: var(--terracotta);
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+    }
+
+    .empty-hint {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        padding: 0.5rem 0;
+    }
+
+    @media (max-width: 768px) {
+        .log-food-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .log-summary-card {
+            position: static;
+        }
+    }
+</style>
+{% endblock %}

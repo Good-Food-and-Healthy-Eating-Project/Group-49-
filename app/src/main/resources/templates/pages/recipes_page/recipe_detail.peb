@@ -1,0 +1,204 @@
+<!-- Recipe detail page - shows full recipe information including ingredients, instructions and user reviews -->
+{% extends "layouts/base.peb" %}
+
+{% block title %}{{ recipe.name }}{% endblock %}
+
+{% block head %}
+<style>
+    .recipe-detail {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 1.25rem;
+    }
+
+    .recipe-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .recipe-thumbnail {
+        width: 100%;
+        border-radius: var(--radius-lg);
+        object-fit: cover;
+    }
+
+    .recipe-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .recipe-title {
+        font-family: var(--font-display);
+        font-size: clamp(1.5rem, 3vw, 2.25rem);
+        color: var(--brown);
+        margin-bottom: 0.5rem;
+    }
+
+    .recipe-badges {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .recipe-section {
+        margin-bottom: 2rem;
+    }
+
+    .recipe-section h2 {
+        font-family: var(--font-display);
+        font-size: 1.4rem;
+        color: var(--brown);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--cream-dark);
+    }
+
+    .ingredients-list {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .ingredient-item {
+        background: var(--warm-white);
+        border: 1px solid var(--cream-dark);
+        border-radius: var(--radius-sm);
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+    }
+
+    .ingredient-measure {
+        color: var(--terracotta);
+        font-weight: 500;
+    }
+
+    .instructions-text {
+        line-height: 1.8;
+        color: var(--text-secondary);
+        white-space: pre-line;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--terracotta);
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        text-decoration: none;
+    }
+
+    .back-link:hover {
+        color: var(--brown);
+    }
+
+    @media (max-width: 700px) {
+        .recipe-header {
+            grid-template-columns: 1fr;
+        }
+        .ingredients-list {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="recipe-detail">
+
+    <a href="/recipes" class="back-link">← Back to Recipes</a>
+
+    <div class="recipe-header">
+        {% if recipe.thumbnail %}
+            <img src="{{ recipe.thumbnail }}" alt="{{ recipe.name }}" class="recipe-thumbnail">
+        {% endif %}
+
+        <div class="recipe-meta">
+            <h1 class="recipe-title">{{ recipe.name }}</h1>
+            <div class="recipe-badges">
+                {% if recipe.category %}
+                    <span class="badge badge-terracotta">{{ recipe.category }}</span>
+                {% endif %}
+                {% if recipe.area %}
+                    <span class="badge badge-sage">{{ recipe.area }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="recipe-section">
+        <h2>Ingredients</h2>
+        <ul class="ingredients-list">
+            {% for ingredient in recipe.ingredients %}
+                <li class="ingredient-item">
+                    {% if ingredient.humanReadableMeasure %}
+                        <span class="ingredient-measure">{{ ingredient.humanReadableMeasure }}</span>
+                    {% endif %}
+                    {{ ingredient.foodName }}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="recipe-section">
+        <h2>Instructions</h2>
+        <p class="instructions-text">{{ recipe.instructions }}</p>
+    </div>
+
+</div>
+
+<div class="recipe-section">
+    <h2>Reviews
+        {% if averageRating %}
+            <span style="font-size:1rem; font-weight:400; color:var(--terracotta); margin-left:0.75rem;">
+                ★ {{ averageRating | numberformat("0.1") }} / 5
+            </span>
+        {% endif %}
+    </h2>
+
+    {% if reviews is empty %}
+        <p>No reviews yet — be the first!</p>
+    {% else %}
+        {% for review in reviews %}
+            <div style="background:var(--warm-white); border:1px solid var(--cream-dark); border-radius:var(--radius-md); padding:1rem; margin-bottom:0.75rem;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                    <span style="font-weight:500; color:var(--brown);">{{ review.userEmail | split("@") | first }}</span>
+                    <span style="color:var(--terracotta);">
+                        {% for i in range(1, review.rating + 1) %}★{% endfor %}
+                        {% for i in range(review.rating + 1, 6) %}☆{% endfor %}
+                    </span>
+                </div>
+                <p style="margin:0;">{{ review.comment }}</p>
+                <small style="color:var(--text-secondary);">{{ review.createdAt }}</small>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<div class="recipe-section">
+    <h2>Leave a Review</h2>
+    <form method="post" action="/recipes/{{ recipe.id }}/review">
+        <div class="form-group">
+            <label for="rating" class="form-label">Rating</label>
+            <select id="rating" name="rating" class="form-select">
+                <option value="5">★★★★★ (5)</option>
+                <option value="4">★★★★☆ (4)</option>
+                <option value="3">★★★☆☆ (3)</option>
+                <option value="2">★★☆☆☆ (2)</option>
+                <option value="1">★☆☆☆☆ (1)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="review-comment" class="form-label">Comment</label>
+            <textarea id="review-comment" name="comment" class="form-input" rows="4" placeholder="Share your thoughts on this recipe..." style="resize:vertical; height:auto;"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Review</button>
+    </form>
+</div>
+{% endblock %}

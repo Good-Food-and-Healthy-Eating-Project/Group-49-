@@ -1,0 +1,164 @@
+<!-- Client profile page - displays the client's personal details and allows them to update their information -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .profile-header {
+            border: 1px solid #EDE6D8;
+            padding: 20px;
+            background: #FDFAF5;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(59, 42, 26, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .profile-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2C1E10;
+            margin-bottom: 10px;
+        }
+
+        .profile-info {
+            font-size: 18px;
+            color: #4A3F35;
+            margin: 6px 0;
+        }
+
+        .profile-form {
+            border: 1px solid #EDE6D8;
+            padding: 20px;
+            background: #FDFAF5;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(59, 42, 26, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .profile-label {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2C1E10;
+        }
+
+        .profile-form input,
+        .profile-form select {
+            padding: 10px;
+            border: 2px solid #8C7B6A;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .profile-form input:focus,
+        .profile-form select:focus {
+            outline: 3px solid #A94F24;
+            border-color: #A94F24;
+        }
+
+        .update-button {
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #A94F24;
+            color: #FDFAF5;
+            border: none;
+            border-radius: 999px;
+        }
+
+        .update-button:hover {
+            background: #3B2A1A;
+        }
+    </style>
+</head>
+<body>
+    {% include "components/navbar.peb" %}
+
+    <main class="main-content">
+        <div class="profile-container">
+
+            <div class="profile-header">
+                <h1 class="profile-title">Profile</h1>
+
+                {% if userinfo is not null %}
+                    <p class="profile-info">First Name: {{ userinfo.firstName }}</p>
+                    <p class="profile-info">Last Name: {{ userinfo.lastName }}</p>
+
+                    {% if email is defined %}
+                        <p class="profile-info">Email: {{ email }}</p>
+                    {% endif %}
+                    <p class="profile-info">Daily Calorie Goal: {{ userinfo.daily_calorie_goal }}</p>
+                {% else %}
+                    <p class="profile-info">No profile information found.</p>
+                {% endif %}
+            </div>
+
+            <form method="post" action="/profileupdate" class="profile-form">
+                <div class="profile-section">
+                    <label for="firstName" class="profile-label">First Name</label>
+                    <input id="firstName" name="firstName" type="text" value="{{ userinfo.firstName }}">
+                </div>
+
+                <div class="profile-section">
+                    <label for="lastName" class="profile-label">Last Name</label>
+                    <input id="lastName" name="lastName" type="text" value="{{ userinfo.lastName }}">
+                </div>
+
+                <div class="profile-section">
+                    <label for="height" class="profile-label">Height</label>
+                    <input id="height" type="number" name="height" value="{{ userinfo.height }}">
+                </div>
+
+                <div class="profile-section">
+                    <label for="weight" class="profile-label">Weight</label>
+                    <input id="weight" type="number" name="weight" value="{{ userinfo.weight }}">
+                </div>
+
+                <div class="profile-section">
+                    <label for="age" class="profile-label">Age</label>
+                    <input id="age" type="number" name="age" value="{{ userinfo.age }}">
+                </div>
+
+                <div class="profile-section">
+                    <label for="gender" class="profile-label">Gender</label>
+                    <select id="gender" name="gender">
+                        <option value="">Current: {{ userinfo.gender }}</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+
+                <div class="profile-section">
+                    <label for="goal" class="profile-label">Goal</label>
+                    <select id="goal" name="goal">
+                        <option value="">Current: {{ userinfo.goal }}</option>
+                        <option value="lose">Lose weight</option>
+                        <option value="maintain">Maintain weight</option>
+                        <option value="gain">Gain weight</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="update-button">Update</button>
+
+            </form>
+        </div>
+    </main>
+</body>
+</html>

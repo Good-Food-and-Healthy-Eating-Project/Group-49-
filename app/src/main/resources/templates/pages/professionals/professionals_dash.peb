@@ -1,0 +1,177 @@
+<!-- Professional dashboard page - shows linked clients and a summary of their yesterday's progress -->
+{% extends "layouts/base.peb" %}
+
+{% block title %}{{ pageTitle | default("My Clients") }}{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Your Clients</h1>
+        <p>Manage and view the progress of your linked clients.</p>
+    </div>
+
+    {% if clients is empty %}
+        <div class="empty-state" style="padding: 2.5rem; text-align: center; border-radius: var(--radius-lg);">
+            <p style="font-size: 1.05rem;">No clients yet. Clients will appear here once they select you as their professional.</p>
+        </div>
+    {% else %}
+        <div class="client-grid">
+            {% for client in clients %}
+                <div class="card client-card">
+                    {% set status = clientYesterdayStatus[client.id] %}
+                    <div class="card-top-row">
+                        <div class="client-avatar" aria-hidden="true">
+                            {% if client.firstName is not empty %}{{ client.firstName | slice(0, 1) }}{% endif %}{% if client.lastName is not empty %}{{ client.lastName | slice(0, 1) }}{% endif %}
+                        </div>
+                        <span class="status-pill {% if status.wasOnTrackYesterday %}pill-green{% elseif status.didNotLogYesterday %}pill-amber{% else %}pill-red{% endif %}">
+                            {% if status.wasOnTrackYesterday %}On Track
+                            {% elseif status.didNotLogYesterday %}Missing Log
+                            {% else %}Off Track{% endif %}
+                        </span>
+                    </div>
+                    <div class="client-info">
+                        <h2 class="client-name">{{ client.firstName }} {{ client.lastName }}</h2>
+                        <div class="client-meta">
+                            {% if client.goal %}
+                                <span class="badge badge-terracotta">{{ client.goal }}</span>
+                            {% endif %}
+                            {% if client.heightCm %}
+                                <span class="badge badge-brown">{{ client.heightCm }} cm</span>
+                            {% endif %}
+                            {% if client.weightKg %}
+                                <span class="badge badge-sage">{{ client.weightKg }} kg</span>
+                            {% endif %}
+                        </div>
+                        <div class="client-actions">
+                            <a href="/professional/client/{{ client.id }}" class="btn-view-details" aria-label="View details for {{ client.firstName }} {{ client.lastName }}">View Details</a>
+                            <form method="post" action="/messages/start" style="display: contents;">
+                                <input type="hidden" name="client_id" value="{{ client.id }}">
+                                <button type="submit" class="btn-view-details btn-start-chat" aria-label="Chat with {{ client.firstName }} {{ client.lastName }}">Chat</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .client-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .client-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1.5rem;
+    }
+
+    .client-avatar {
+        flex-shrink: 0;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--terracotta-light), var(--terracotta));
+        color: var(--warm-white);
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        letter-spacing: 0.03em;
+    }
+
+    .card-top-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .status-pill {
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+    }
+
+    .pill-green  { background: #d4edda; color: #2d6a3f; }
+    .pill-red    { background: #f5d0cc; color: #7a1f1a; }
+    .pill-amber  { background: #fde9b8; color: #7a5200; }
+
+    .client-info {
+        min-width: 0;
+    }
+
+    .client-name {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .client-email {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.65rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .client-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+
+    .btn-view-details {
+        display: inline-block;
+        margin-top: 0;
+        white-space: nowrap;
+        padding: 0.35rem 0.85rem;
+        background: var(--terracotta);
+        color: var(--warm-white);
+        border-radius: var(--radius-md);
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+
+    .btn-view-details:hover {
+        background: #7A3518;
+    }
+
+    .btn-view-details:focus {
+        outline: 3px solid #2C1E10;
+        outline-offset: 2px;
+    }
+
+    .client-actions {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(59,42,26,0.07);
+    }
+
+    .btn-start-chat {
+        background: transparent;
+        color: var(--terracotta);
+        border: 1.5px solid var(--terracotta);
+        cursor: pointer;
+        font-family: inherit;
+    }
+
+    .btn-start-chat:hover {
+        background: rgba(169,79,36,0.08);
+    }
+</style>
+{% endblock %}
