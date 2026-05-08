@@ -223,7 +223,7 @@ class RecipeRoutingTest {
                         listOf("rating" to "5", "comment" to "test comment").formUrlEncode(),
                     )
                 }
-            val reviews = RecipeDatabaseQuery.getReviewsForRecipe(recipeId)
+            val reviews = RecipeReviewQuery.getReviewsForRecipe(recipeId)
             assertEquals(302, response.status.value)
             assertEquals("/recipes/$recipeId", response.headers[HttpHeaders.Location])
             assertEquals(1, reviews.size)
@@ -248,7 +248,7 @@ class RecipeRoutingTest {
                 )
             }
             val response = client.post("/recipes/favourite/$recipeId")
-            val favourite = RecipeDatabaseQuery.getFavourites(userId)
+            val favourite = RecipeFavouriteQuery.getFavourites(userId)
             assertEquals(200, response.status.value)
             assertEquals(listOf(recipeId), favourite)
         }
@@ -271,7 +271,7 @@ class RecipeRoutingTest {
                 )
             }
             val response = client.post("/recipes/unfavourite/$recipeId")
-            val favourite = RecipeDatabaseQuery.getFavourites(userId)
+            val favourite = RecipeFavouriteQuery.getFavourites(userId)
             assertEquals(200, response.status.value)
             assertTrue(favourite.isEmpty())
         }

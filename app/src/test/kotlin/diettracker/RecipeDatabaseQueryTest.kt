@@ -118,28 +118,28 @@ class RecipeDatabaseQueryTest {
     // AC-VEG-09
     @Test
     fun should_add_and_get_favourite_recipe() {
-        RecipeDatabaseQuery.addFavourite(userId, recipeId)
-        val favourites = RecipeDatabaseQuery.getFavourites(userId)
+        RecipeFavouriteQuery.addFavourite(userId, recipeId)
+        val favourites = RecipeFavouriteQuery.getFavourites(userId)
         assertEquals(listOf(recipeId), favourites)
     }
 
     @Test
     fun should_remove_favourite_recipe() {
-        RecipeDatabaseQuery.addFavourite(userId, recipeId)
-        RecipeDatabaseQuery.removeFavourite(userId, recipeId)
-        val favourites = RecipeDatabaseQuery.getFavourites(userId)
+        RecipeFavouriteQuery.addFavourite(userId, recipeId)
+        RecipeFavouriteQuery.removeFavourite(userId, recipeId)
+        val favourites = RecipeFavouriteQuery.getFavourites(userId)
         assertTrue(favourites.isEmpty())
     }
 
     @Test
     fun should_add_comment_and_rating() {
-        RecipeDatabaseQuery.addReview(
+        RecipeReviewQuery.addReview(
             userId = userId,
             recipeId = recipeId,
             rating = 4,
             comment = "comment for test",
         )
-        val reviews = RecipeDatabaseQuery.getReviewsForRecipe(recipeId)
+        val reviews = RecipeReviewQuery.getReviewsForRecipe(recipeId)
         assertEquals(1, reviews.size)
         assertEquals("comment for test", reviews.first().comment)
         assertEquals(4, reviews.first().rating)

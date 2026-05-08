@@ -1,6 +1,8 @@
 package diettracker.routing
 
 import diettracker.RecipeDatabaseQuery
+import diettracker.RecipeFavouriteQuery
+import diettracker.RecipeReviewQuery
 import diettracker.UserSession
 import diettracker.buildNavbarContext
 import diettracker.getUserIdByEmail
@@ -57,7 +59,7 @@ fun Route.configureRecipeSearchRoutes() {
 
         val favouriteIds =
             if (userId != null) {
-                RecipeDatabaseQuery.getFavourites(userId)
+                RecipeFavouriteQuery.getFavourites(userId)
             } else {
                 emptyList()
             }
@@ -71,7 +73,7 @@ fun Route.configureRecipeSearchRoutes() {
 
         val favouriteRecipes =
             if (favouriteIds.isNotEmpty()) {
-                RecipeDatabaseQuery.getFavouriteRecipes(favouriteIds)
+                RecipeFavouriteQuery.getFavouriteRecipes(favouriteIds)
             } else {
                 emptyList()
             }
@@ -114,8 +116,8 @@ fun Route.configureRecipeDetailRoutes() {
             return@get
         }
 
-        val reviews = RecipeDatabaseQuery.getReviewsForRecipe(recipeId)
-        val averageRating = RecipeDatabaseQuery.getAverageRating(recipeId)
+        val reviews = RecipeReviewQuery.getReviewsForRecipe(recipeId)
+        val averageRating = RecipeReviewQuery.getAverageRating(recipeId)
         val email = call.sessions.get<UserSession>()?.email
 
         call.respondTemplate(
@@ -143,7 +145,7 @@ fun Route.configureRecipeFavouriteRoutes() {
         if (recipeId != null && email != null) {
             val userId = getUserIdByEmail(email)
             if (userId != null) {
-                RecipeDatabaseQuery.addFavourite(userId, recipeId)
+                RecipeFavouriteQuery.addFavourite(userId, recipeId)
             }
         }
         call.respond(HttpStatusCode.OK)
@@ -155,7 +157,7 @@ fun Route.configureRecipeFavouriteRoutes() {
         if (recipeId != null && email != null) {
             val userId = getUserIdByEmail(email)
             if (userId != null) {
-                RecipeDatabaseQuery.removeFavourite(userId, recipeId)
+                RecipeFavouriteQuery.removeFavourite(userId, recipeId)
             }
         }
         call.respond(HttpStatusCode.OK)
@@ -182,7 +184,7 @@ fun Route.configureRecipeReviewRoutes() {
                 val rating = parameters["rating"]?.toIntOrNull()
                 val comment = parameters["comment"]?.trim() ?: ""
                 if (rating != null && rating in 1..MAX_REVIEW_RATING && comment.isNotBlank()) {
-                    RecipeDatabaseQuery.addReview(userId, recipeId, rating, comment)
+                    RecipeReviewQuery.addReview(userId, recipeId, rating, comment)
                 }
             }
         }
