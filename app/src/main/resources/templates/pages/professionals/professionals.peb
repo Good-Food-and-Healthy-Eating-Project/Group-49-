@@ -1,0 +1,370 @@
+<!-- Professionals directory page - lists registered professionals for clients to browse and link to -->
+{% extends "layouts/base.peb" %}
+
+{% block title %}{{ pageTitle | default("Find a Professional") }}{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Find a Professional</h1>
+        <p>Browse our registered diet professionals and select one to guide your journey.</p>
+    </div>
+
+    {% if justLinked %}
+        <div class="success-banner">
+            <span>&#10003;</span>
+            Professional successfully selected! They can now view your diet progress.
+        </div>
+    {% endif %}
+
+    {% if consentError %}
+        <div class="consent-error-banner">
+            <span>&#9888;</span>
+            You must agree to share your data before linking to a professional.
+        </div>
+    {% endif %}
+
+    {# Clients who haven't done the quiz can't link — professionals need that data to help them #}
+    {% if not isProfessional and not hasCompletedQuiz %}
+        <div class="quiz-prompt-banner">
+            <span>&#9888;</span>
+            You need to complete your health quiz before selecting a professional.
+            <a href="/quiz?userId={{ userId }}">Complete the quiz</a>
+        </div>
+    {% endif %}
+
+    {% if not isProfessional and linkedProfessionalIds is not empty %}
+        <div class="current-pros-section">
+            <h2 class="section-label">Your Current Professional(s)</h2>
+            <div class="pro-grid">
+                {% for pro in professionals %}
+                    {% if linkedProfessionalIds contains pro.id %}
+                        <div class="card pro-card linked-card">
+                            <div class="pro-card-top">
+                                <div class="pro-avatar" aria-hidden="true">
+                                    {# slice(0,1) grabs just the first character to make initials for the avatar circle #}
+                                    {% if pro.firstName is not empty %}{{ pro.firstName | slice(0, 1) }}{% endif %}{% if pro.lastName is not empty %}{{ pro.lastName | slice(0, 1) }}{% endif %}
+                                </div>
+                                <div class="pro-header-info">
+                                    <h3 class="pro-name">{{ pro.firstName }} {{ pro.lastName }}</h3>
+                                    {% if pro.jobTitle %}
+                                        <p class="pro-title">{{ pro.jobTitle }}{% if pro.organization %} · {{ pro.organization }}{% endif %}</p>
+                                    {% elseif pro.organization %}
+                                        <p class="pro-title">{{ pro.organization }}</p>
+                                    {% endif %}
+                                </div>
+                                <span class="linked-badge">Selected</span>
+                            </div>
+                            {% if pro.bio %}
+                                <hr class="divider">
+                                <p class="pro-bio">{{ pro.bio }}</p>
+                            {% endif %}
+                            <div class="pro-card-footer">
+                                <form method="post" action="/messages/start" style="margin-bottom: 0.75rem;">
+                                    <input type="hidden" name="professional_id" value="{{ pro.id }}">
+                                    <button type="submit" class="btn btn-secondary" style="width: 100%;" aria-label="Open chat with {{ pro.firstName }} {{ pro.lastName }}">
+                                        Open Chat
+                                    </button>
+                                </form>
+                                <form method="post" action="/unlink-professional"
+                                      onsubmit="return confirm('Are you sure you want to unlink from {{ pro.firstName }} {{ pro.lastName }}?');">
+                                    <input type="hidden" name="professional_id" value="{{ pro.id }}">
+                                    <button type="submit" class="btn btn-danger" style="width: 100%;" aria-label="Unlink {{ pro.firstName }} {{ pro.lastName }}">
+                                        Unlink Professional
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        <hr class="section-divider">
+    {% endif %}
+
+    {% if professionals is empty %}
+        <div class="empty-state" style="padding: 2.5rem; text-align: center; border-radius: var(--radius-lg);">
+            <p style="font-size: 1.05rem;">No professionals are registered yet. Check back soon.</p>
+        </div>
+    {% else %}
+        <div class="pro-grid">
+            {% for pro in professionals %}
+                <div class="card pro-card">
+                    <div class="pro-card-top">
+                        <div class="pro-avatar">
+                            {# slice(0,1) grabs just the first character to make initials for the avatar circle #}
+                            {% if pro.firstName is not empty %}{{ pro.firstName | slice(0, 1) }}{% endif %}{% if pro.lastName is not empty %}{{ pro.lastName | slice(0, 1) }}{% endif %}
+                        </div>
+                        <div class="pro-header-info">
+                            <h3 class="pro-name">{{ pro.firstName }} {{ pro.lastName }}</h3>
+                            {% if pro.jobTitle %}
+                                <p class="pro-title">{{ pro.jobTitle }}{% if pro.organization %} · {{ pro.organization }}{% endif %}</p>
+                            {% elseif pro.organization %}
+                                <p class="pro-title">{{ pro.organization }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if pro.bio %}
+                        <hr class="divider">
+                        <p class="pro-bio">{{ pro.bio }}</p>
+                    {% endif %}
+
+                    {# Professionals don't see select buttons — they shouldn't be linking to each other #}
+                    {% if not isProfessional %}
+                        <div class="pro-card-footer">
+                            {# Three states: already linked to this pro, linked to a different pro, or free to link #}
+                            {% if linkedProfessionalIds contains pro.id %}
+                                <div class="already-linked-indicator">
+                                    <span class="linked-badge">&#10003; Currently Selected</span>
+                                </div>
+                            {% elseif linkedProfessionalIds is not empty %}
+                                {# Client already has a professional — must unlink first before picking another #}
+                                <p class="already-has-pro-note">Unlink your current professional first to select a new one.</p>
+                            {% else %}
+                                <form method="post" action="/select-professional">
+                                    <input type="hidden" name="professional_id" value="{{ pro.id }}">
+                                    {# consent-{{ pro.id }} makes the label/checkbox pair unique per card — needed for accessibility #}
+                                    <div class="consent-check">
+                                        <input type="checkbox" id="consent-{{ pro.id }}" name="consent" value="true">
+                                        <label for="consent-{{ pro.id }}">I agree to share my dietary data with this professional</label>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary" style="width: 100%;" aria-label="Select {{ pro.firstName }} {{ pro.lastName }} as your professional">
+                                        Select Professional
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .success-banner {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: #f0fdf4;
+        border: 1px solid #86efac;
+        border-radius: var(--radius-lg);
+        padding: 0.85rem 1.25rem;
+        margin-bottom: 1.25rem;
+        font-size: 0.95rem;
+        color: #166534;
+        font-weight: 500;
+    }
+
+    .quiz-prompt-banner {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: #fff8e1;
+        border: 1px solid #f9c74f;
+        border-radius: var(--radius-lg);
+        padding: 0.85rem 1.25rem;
+        margin-bottom: 1.25rem;
+        font-size: 0.95rem;
+        color: #7a5c00;
+    }
+
+    .quiz-prompt-banner a {
+        font-weight: 600;
+        color: #4A3000;
+        text-decoration: underline;
+    }
+
+    .quiz-prompt-banner a:focus {
+        outline: 3px solid #A94F24;
+        outline-offset: 2px;
+        border-radius: 2px;
+    }
+
+    .pro-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .pro-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        padding: 1.5rem;
+    }
+
+    .pro-card-top {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .pro-avatar {
+        flex-shrink: 0;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--sage-light), var(--sage));
+        color: var(--warm-white);
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1.05rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        letter-spacing: 0.03em;
+    }
+
+    .pro-header-info {
+        min-width: 0;
+    }
+
+    .pro-name {
+        font-size: 1.1rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .pro-title {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pro-bio {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex: 1;
+    }
+
+    .pro-card-footer {
+        margin-top: 1.25rem;
+    }
+
+    .current-pros-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .section-label {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 1rem;
+    }
+
+    .section-divider {
+        border: none;
+        border-top: 1px solid var(--border-color, #e5e7eb);
+        margin: 1.5rem 0;
+    }
+
+    .linked-card {
+        border: 2px solid var(--sage, #6b8f71);
+    }
+
+    .linked-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        background: var(--sage-light, #d4e6d6);
+        color: var(--sage-dark, #3a5c3e);
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        white-space: nowrap;
+        margin-left: auto;
+    }
+
+    .already-linked-indicator {
+        display: flex;
+        justify-content: center;
+    }
+
+    .already-linked-indicator .linked-badge {
+        font-size: 0.85rem;
+        padding: 0.4rem 1rem;
+    }
+
+    .btn-danger {
+        background: #b91c1c;
+        color: #fff;
+        border: none;
+        border-radius: var(--radius, 6px);
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .btn-danger:hover {
+        background: #991b1b;
+    }
+
+    .btn-danger:focus {
+        outline: 3px solid #2C1E10;
+        outline-offset: 2px;
+    }
+
+    .btn-primary:focus {
+        outline: 3px solid #2C1E10;
+        outline-offset: 2px;
+    }
+
+    .consent-error-banner {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        border-radius: var(--radius-lg);
+        padding: 0.85rem 1.25rem;
+        margin-bottom: 1.25rem;
+        font-size: 0.95rem;
+        color: #991b1b;
+        font-weight: 500;
+    }
+
+    .consent-check {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 10px;
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+    }
+
+    .consent-check input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        min-width: 15px;
+        margin-top: 2px;
+        cursor: pointer;
+        accent-color: #A94F24;
+    }
+
+    .consent-check label {
+        cursor: pointer;
+    }
+
+    .already-has-pro-note {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        text-align: center;
+        margin: 0;
+        padding: 0.5rem 0;
+    }
+</style>
+{% endblock %}

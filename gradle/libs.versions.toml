@@ -1,0 +1,21 @@
+[versions]
+kotlin = "2.2.20"
+ktor = "3.3.0"
+exposed = "1.1.1"
+postgres = "42.7.3"
+logback = "1.5.25"
+junit-jupiter = "6.0.1"
+
+[libraries]
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+
+postgres = { module = "org.postgresql:postgresql", version.ref = "postgres" }
+
+exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

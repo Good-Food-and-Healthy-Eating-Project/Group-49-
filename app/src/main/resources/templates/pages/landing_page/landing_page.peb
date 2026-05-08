@@ -1,0 +1,67 @@
+<!-- Public landing page - shown to unauthenticated users with sign up and login options -->
+{% extends "layouts/base.peb" %}
+{% set showNavbar = false %}
+{% block content %}
+<style>
+    .landing-center {
+        text-align: center;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    .landing-btn {
+        font-size: 1.2rem;
+        padding: 1rem 3rem;
+        margin-right: 20px;
+        border: 2px solid #8C7B6A;
+        border-radius: 6px;
+        background: #fff;
+        color: #222;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+    .landing-btn:last-child {
+        margin-right: 0;
+    }
+    .landing-btn:hover {
+    background: #F3E4DD;
+    }
+    .landing-btn:focus {
+        outline: 3px solid #A94F24;
+        outline-offset: 2px;
+    }
+    .prof-section {
+        margin: 40px auto 0 auto;
+        max-width: 400px;
+    }
+    .prof-label {
+        font-size: 1rem;
+        margin-left: 8px;
+    }
+</style>
+<div class="page-wrapper">
+    <div class="landing-center">
+        <h1>Diet Tracker</h1>
+        <p>Welcome to Diet Tracker! Please login or sign up to continue.</p>
+        <div style="margin-top:30px;">
+            <a href="/Login" class="landing-btn">Login</a>
+            <a href="/Sign-Up" class="landing-btn">Sign Up</a>
+        </div>
+        
+        <div class="prof-section">
+            <hr style="margin:32px 0 24px 0; border:none; border-top:2px solid #8C7B6A;">
+            <div style="font-weight:600; font-size:1.1rem; margin-bottom:18px;">Professionals</div>
+            <form action="/Professional-Sign-Up" method="get" style="margin-bottom:10px;">
+                <button type="submit" class="landing-btn" style="width:100%;margin-bottom:10px;">Professional Signup</button>
+                <div style="margin-top:14px;">
+                    <input type="checkbox" id="prof-checkbox" name="prof-checkbox" style="width:22px; height:22px;" required>
+                    <label for="prof-checkbox" class="prof-label">I confirm I am a professional</label>
+                </div>
+            </form>
+            <form action="/Professional-Login" method="get">
+                <button type="submit" class="landing-btn" style="width:100%;margin-top:10px;">Professional Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

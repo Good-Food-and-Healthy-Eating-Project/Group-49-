@@ -1,0 +1,22 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
+# Ignore Kotlin plugin data
+.kotlin
+
+# Ignore local Gradle user home/cache directory
+.gradle-user/
+# Ignore alternate local Gradle user home/cache directory
+.gradle-user-home/
+# Ignore local IDE/runtime output directory
+app/bin/
+ktlint
+
+# Ignore AI tool configuration
+.ai/
+
+# Ignore IntelliJ IDEA project files
+.idea/

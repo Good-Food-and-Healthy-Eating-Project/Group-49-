@@ -1,0 +1,118 @@
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<nav class="navbar" aria-label="Main navigation">
+    <div class="nav-inner">
+
+        <a href="/" class="nav-brand">
+            <span class="brand-icon">&#9679;</span>
+            <span class="brand-text">Diet Tracker</span>
+        </a>
+
+        {% if isProfessional %}
+        <ul class="nav-links">
+            <li>
+                <a href="/professionals_dash" class="nav-link">Dashboard</a>
+            </li>
+            <li>
+                <a href="/professional-profile" class="nav-link">Profile</a>
+            </li>
+            <li>
+                <a href="/messages" class="nav-link nav-link--messages {% if currentNav == 'messages' %}nav-link--active{% endif %}">
+                    <span>Messages</span>
+                    {% if unreadMessageCount is defined and unreadMessageCount > 0 %}
+                        <span class="nav-badge" aria-label="{{ unreadMessageCount }} unread messages">{{ unreadMessageCount }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li>
+                <a href="/logout" class="nav-link">Logout</a>
+            </li>
+        </ul>
+        {% else %}
+        <ul class="nav-links">
+            <li>
+                <a href="/food_log" class="nav-link nav-link--highlight">+ Log Meal</a>
+            </li>
+            <li>
+                <a href="/client_dash" class="nav-link">Dashboard</a>
+            </li>
+            <li>
+                <a href="/food_diary" class="nav-link">Food Diary</a>
+            </li>
+            <li>
+                <a href="/recipes" class="nav-link">Recipes</a>
+            </li>
+            <li>
+                <a href="/professionals" class="nav-link">Professionals</a>
+            </li>
+            <li>
+                <a href="/messages" class="nav-link nav-link--messages {% if currentNav == 'messages' %}nav-link--active{% endif %}">
+                    <span>Messages</span>
+                    {% if unreadMessageCount is defined and unreadMessageCount > 0 %}
+                        <span class="nav-badge" aria-label="{{ unreadMessageCount }} unread messages">{{ unreadMessageCount }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li>
+                <a href="/profile" class="nav-link nav-link--profile">Profile</a>
+            </li>
+            <li>
+                <a href="/logout" class="nav-link">Logout</a>
+            </li>
+        </ul>
+        {% endif %}
+
+    </div>
+</nav>
+
+<style>
+    .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: auto;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+    }
+    .skip-link:focus {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: auto;
+        height: auto;
+        padding: 0.5rem 1.25rem;
+        background: #A94F24;
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.95rem;
+        z-index: 9999;
+        outline: 3px solid #2C1E10;
+        outline-offset: 2px;
+        text-decoration: none;
+        border-radius: 0 0 6px 0;
+    }
+    .nav-link:focus,
+    .nav-brand:focus {
+        outline: 3px solid #A94F24;
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+    .nav-link--messages {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+    }
+    .nav-badge {
+        min-width: 1.2rem;
+        height: 1.2rem;
+        padding: 0 0.3rem;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #c62828;
+        color: #fff;
+        font-size: 0.72rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+</style>
