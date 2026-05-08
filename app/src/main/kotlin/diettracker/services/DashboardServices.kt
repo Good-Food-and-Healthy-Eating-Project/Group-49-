@@ -227,8 +227,9 @@ private data class DashboardMapData(
  * This function is used to pass all the dat that need to be used/displayed
  * on the client dashboard to the buildClientDashModel function below
  */
-private fun buildDashboardMap(data: DashboardMapData): Map<String, Any> =
-    buildNavbarContext(data.userId, data.userRoles) +
+private fun buildDashboardMap(data: DashboardMapData): Map<String, Any> {
+    val today = LocalDate.now()
+    return buildNavbarContext(data.userId, data.userRoles) +
         mapOf(
             "userRoles" to data.userRoles,
             "userId" to (data.userId as Any? ?: ""),
@@ -258,7 +259,11 @@ private fun buildDashboardMap(data: DashboardMapData): Map<String, Any> =
             "goal" to (data.goal as Any? ?: ""),
             "status" to data.summary.status,
             "messages" to data.summary.guidanceMessages,
+            "todayYear" to today.year,
+            "todayMonth" to today.monthValue,
+            "todayDay" to today.dayOfMonth,
         )
+}
 
 /**
  * This function is used to pass the necessary information/data to the client dashboard frontend
