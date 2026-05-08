@@ -6,6 +6,7 @@
 package diettracker
 
 import diettracker.db.repositories.RecipeDatabaseQuery
+import diettracker.db.repositories.RecipeReviewDatabaseQuery
 import diettracker.db.tables.Foods
 import diettracker.db.tables.RecipeIngredients
 import diettracker.db.tables.RecipeReviews
@@ -134,13 +135,13 @@ class RecipeDatabaseQueryTest {
 
     @Test
     fun should_add_comment_and_rating() {
-        RecipeDatabaseQuery.addReview(
+        RecipeReviewDatabaseQuery.addReview(
             userId = userId,
             recipeId = recipeId,
             rating = 4,
             comment = "comment for test",
         )
-        val reviews = RecipeDatabaseQuery.getReviewsForRecipe(recipeId)
+        val reviews = RecipeReviewDatabaseQuery.getReviewsForRecipe(recipeId)
         assertEquals(1, reviews.size)
         assertEquals("comment for test", reviews.first().comment)
         assertEquals(4, reviews.first().rating)

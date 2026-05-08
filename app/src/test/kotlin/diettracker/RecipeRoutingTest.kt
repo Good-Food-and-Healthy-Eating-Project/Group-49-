@@ -6,6 +6,7 @@
 package diettracker
 
 import diettracker.db.repositories.RecipeDatabaseQuery
+import diettracker.db.repositories.RecipeReviewDatabaseQuery
 import diettracker.db.tables.Foods
 import diettracker.db.tables.RecipeIngredients
 import diettracker.db.tables.RecipeReviews
@@ -224,7 +225,7 @@ class RecipeRoutingTest {
                         listOf("rating" to "5", "comment" to "test comment").formUrlEncode(),
                     )
                 }
-            val reviews = RecipeDatabaseQuery.getReviewsForRecipe(recipeId)
+            val reviews = RecipeReviewDatabaseQuery.getReviewsForRecipe(recipeId)
             assertEquals(302, response.status.value)
             assertEquals("/recipes/$recipeId", response.headers[HttpHeaders.Location])
             assertEquals(1, reviews.size)
