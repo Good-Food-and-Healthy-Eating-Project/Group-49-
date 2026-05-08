@@ -123,7 +123,7 @@ Home
                     <a class="calendar-nav-button" href="/client_dash?year={{ previousYear }}&month={{ previousMonth }}">
                         &lt; Previous
                     </a>
-                    <h2>{{ currentYear }} / {{ currentMonthValue }}</h2>
+                    <p class="calendar-month-label" aria-live="polite">{{ currentYear }} / {{ currentMonthValue }}</p>
                     <a class="calendar-nav-button" href="/client_dash?year={{ nextYear }}&month={{ nextMonth }}">
                         Next &gt;
                     </a>
@@ -234,6 +234,20 @@ Home
 
     .calorie-goal-link:hover {
         text-decoration: underline;
+    }
+
+    .calorie-goal-link:focus-visible {
+        outline: 3px solid #A94F24;
+        outline-offset: 2px;
+        border-radius: 2px;
+    }
+
+    .calendar-month-label {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--brown);
+        font-family: var(--font-display);
     }
 
     .dashboard-grid {
@@ -418,20 +432,20 @@ Home
     .nutrition-empty-state {
         padding: 1rem 0 0.5rem;
         text-align: center;
-        color: #9E8E7E;
+        color: #6B5B50;
     }
 
     .nutrition-empty-message {
         margin: 0 0 0.35rem;
         font-size: 0.9rem;
         font-weight: 600;
-        color: #7A6855;
+        color: #6B5B50;
     }
 
     .nutrition-empty-hint {
         margin: 0;
         font-size: 0.8rem;
-        color: #9E8E7E;
+        color: #6B5B50;
     }
 
     .week-chart-card {
@@ -453,7 +467,7 @@ Home
 </style>
 
 <div class="card week-chart-card">
-    <h2 class="week-chart-title">7-Day Trend</h2>
+    <h3 class="week-chart-title">7-Day Trend</h3>
     <div class="week-chart-wrapper">
         <canvas id="weekChart" role="img" aria-label="7-day calorie and macronutrient trend chart"></canvas>
     </div>
