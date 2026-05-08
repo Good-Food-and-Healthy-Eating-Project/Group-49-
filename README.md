@@ -1,6 +1,8 @@
 # Group-49 Good food and healthy eating.
 
-Short description of the project.
+Worrying trends such as increasing childhood and adult obesity highlight the need to improve public diet and eating habits. This project aims to develop a software system that supports healthier lifestyles through diet monitoring and nutritional guidance.
+The system will initially focus on diet tracking and personalised advice, with potential expansion into support for home cooking.
+
 
 ## Features
 
